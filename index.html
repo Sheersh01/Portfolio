@@ -8,19 +8,50 @@
   <title>Vite App</title>
   <link rel="stylesheet" href="/src/style.css" />
   <link rel="stylesheet" href="./src/CSS/imgReveal.css" />
-  <!-- <link rel="stylesheet" href="./src/CSS/menu.css" /> -->
+  <link rel="stylesheet" href="./src/CSS/menu.css" />
 </head>
 
-<body>
+<body class="relative">
   <div id="preloader"></div>
+  <nav>
+      <div class="left">
+        <h1>Sheersh Saxena</h1>
+      </div>
+      <div class="toggle-btn magnet-target">
+        <button class="burger" onclick="this.classList.toggle('active')"></button>
+      </div>
+    </nav>
+    <div class="overlay">
+      <nav class="overlay-nav">
+        <div class="left">
+          <h1>Sheersh Saxena</h1>
+        </div>
+        <div class="toggle-btn1 magnet-target">
+          <button class="burger1" onclick="this.classList.toggle('active')"></button>
+        </div>
+      </nav>
+      <div class="overlay-menu">
 
+        <div class="menu-item lg:w-[50%] w-[80%] mx-auto">
+          <p class="">In addition to photography, I have other passions like web development and fashion design. For me, art
+            comes in infinite forms, and these three disciplines are the ones I enjoy exploring and practicing the most.
+            Each allows me to express myself uniquely and creatively, and I have alot of fun combining them.</p>
+        </div>
+      </div>
+
+      <div class="sub-nav">
+        <p class="magnet-target"><a href="https://www.instagram.com/its.sheersh">Instagram</a></p>
+        <p>.</p>
+        <p class="magnet-target"><a href="https://www.linkedin.com/in/sheersh-saxena">LinkedIn</a></p>
+        <p>.</p>
+        <p class="magnet-target"><a href="mailto:saxenasheersh1@gmail.com">Gmail</a></p>
+        <p>.</p>
+      </div>
+    </div>
   <div id="main-content" style="display: block"
     class=" text-[#B8AC94] font-[gabriola] container relative bg-transparent">
 
-    <nav class="flex justify-between p-4 text-[2vw] fixed top-0 left-0 w-full z-[9] opacity-0">
-      <h1>Home</h1>
-      <h1>Menu</h1>
-    </nav>
+    
 
     <div class="website-content bg-black relative">
 
@@ -61,7 +92,7 @@
         </div>
       </div>
 
-      <div class=" projects pb-80 relative bg-[#540000]">
+      <div class=" projects pt-20 pb-80 relative bg-[#540000]">
         <h1 class="text-[15vw] leading-none text-center">Projects</h1>
         <div class="min-h-screen w-full text-[14px] uppercase font-medium">
           <div class="row w-full flex h-[300px]" id="row-1">
@@ -217,8 +248,7 @@
   <script type="module" src="./src/JS/imgReveal.js"></script>
   <script type="module" src="./src/JS/orbEffect.js"></script>
   <script type="module" src="./src/JS/gradient.js"></script>
-  <!-- <script  type="module" src="./src/JS/textReveal.js"></script> -->
-  <!-- <script src="./src/JS/menu.js"></script> -->
+  <script type="module" src="./src/JS/menu.js"></script>
   <script type="module" src="/src/main.js"></script>
 </body>
 

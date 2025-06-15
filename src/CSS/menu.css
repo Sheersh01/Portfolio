@@ -1,110 +1,244 @@
-.container{
-     background-color: hsl(0, 100%, 50%);
-  color: white;
-      position: relative; 
-    overflow: hidden;
- width: 100vw;
-  height: 100vh;
+
+nav{
+    color: #B8AC94;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding:1.5em 2em;
+  z-index: 9;
 }
-a {
-  text-decoration: none;
-  color: white;
-}
-.menu{
-    width: 100%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 0 2em;
-}
-.row{
-    position: relative;
-    display: flex;
-}
-.r-1{
-    justify-content: flex-end;
-    font-size: 125px;
-    left: -110%;
-}
-.r-2{
-    left: 110%;
-    justify-content: center;
-    font-size: 100px;
-    padding-right: 2em;
-}
-.r-3{
-       left: -110%;
-    font-size: 100px;
-}
-.r-4{
-    left: 110%;
-    justify-content: space-between;
-    font-size: 150px;
-    padding-left: 1em;
-}
-.r-5{
-       left: -110%;
-    justify-content: space-between;
-    font-size: 125px;
-    padding-left: 0.5em;
-}
-.website-content{
-   
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow-x: hidden;
-    /* overflow-y: scroll; */
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    background: url("./Wukong.png") no-repeat 50% 50%;
-    background-size: cover;
-    transform: scale(1);
-}
-nav{ z-index: 9999;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    display: flex;
-    justify-content:space-between ;
-    align-items: center;
-    padding: 2em;
-    font-size: 20px;
-    mix-blend-mode: difference;
-}
+
+/* nav > div{
+  flex:1
+} */
 .logo{
-    background-color: white;
-    color: black;
-    padding: 0.35em 0.5em 0.2em 0.5em;
-    line-height: 1;
-    border-radius: 0.25em;
+  align-items: center;
 }
-button.toggle{
-color: white;
-background: none;
-outline: none;
-border: none;
-font-size: 20px;
+
+.logo a{
+  text-decoration: none;
+  font-size: 30px;
+  color: #AC4800;
 }
+.toggle-btn{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.burger{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.75em 2em 1.5em 2em;
+  outline: none;
+  border: none;
+  width: 28px;
+  height: 20px;
+  transition: all 250ms ease-out;
+}
+
+.burger:before,
+.burger:after{
+  content: "";
+  width: 40px;
+  height: 2px;
+  position: absolute;
+  background-color: #B8AC94;
+  transition: all 250ms ease-out;
+  will-change: transform;
+}
+
+.burger:before{
+  transform: translateY(-3px);
+}
+.burger:after{
+  transform: translateY(3px);
+}
+.active.burger:before{
+  transform: translateY(0) rotate(45deg);
+}
+.active.burger:after{
+  transform: translateY(0) rotate(-45deg);
+}
+
+.overlay{
+  z-index: 99;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background-color: #141412;
+  clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  will-change: transform;
+}
+.overlay-menu{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  gap: 1em;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.menu-item{
+  display: flex;
+  cursor: pointer;
+  clip-path: polygon(100 100, 100% 0, 100 100, 100 100); 
+}
+
+.menu-item p {
+  color: #F5E7D3;
+  position: relative;
+  text-align: center;
+  font-size: 2vw;
+  line-height: 80%;
+  will-change: transform;
+  transition: letter-spacing 0.3s;
+}
+.menu-item p:hover{
+  letter-spacing: 0.05em;
+}
+.menu-item p#active::after{
+  content: "";
+  position: absolute;
+  top: 45%;
+  left: 0;
+  transform: translateY(-50%);
+  width: var(--after-width, 0); /* Default is 0, updated via JS */
+  height: 12px;
+  background-color: #c03f13;
+}
+.sub-nav{
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  display: flex;
+  gap: 0.5em;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+
+.sub-nav p{
+  font-size: 30px;
+  color: #F5E7D3;
+}
+
+
+
+.website-content {
+  padding-bottom: 100px; /* Extra space for scrolling */
+}
+
+
+.overlay-nav{
+  border-bottom: 2px solid #cdc6be3f;
+  position: fixed;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding:1.5em 2em;
+  color: #F5E7D3;
+  background-color: #141412;
+  /* mix-blend-mode: difference; */
+  z-index: 2;
+}
+
+
+.overlay-nav .logo1{
+  align-items: center;
+}
+
+.overlay-nav .logo1 a{
+  text-decoration: none;
+  font-size: 30px;
+  color: #F5E7D3;
+}
+.overlay-nav .toggle-btn1{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.overlay-nav .burger1{
+ 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.75em 2em 1.5em 2em;
+  background-color: #ffffff00;
+  outline: none;
+  border: none;
+  width: 28px;
+  height: 20px;
+  transition: all 250ms ease-out;
+
+}
+
+.overlay-nav .burger1:before,
+.burger1:after{
+  content: "";
+  width: 40px;
+  height: 2px;
+  position: absolute;
+  background-color: #F5E7D3;
+  transition: all 250ms ease-out;
+  will-change: transform;
+}
+.overlay-nav .burger1:before {
+  transform: translateY(0px) rotate(-45deg);
+}
+.overlay-nav .burger1:after {
+  transform: translateY(0px) rotate(45deg); 
+}
+.overlay-nav .active.burger1:before {
+  transform: translateY(-3px) rotate(0deg); 
+}
+.overlay-nav .active.burger1:after {
+  transform: translateY(3px) rotate(0deg);
+}
+
 @media (max-width: 900px) {
-   .website-content h1{
-       font-size: 40px;
-   }
-   .r-1{
-    font-size: 75px;
-   }
-    .r-2{
-     font-size: 50px;
-    }
-    .r-3{
-     font-size: 50px;
-    }
-    .r-4{
-     font-size: 50px;
-    }
-    .r-5{
-     font-size: 75 px;
-    }
+  .logo a {
+      font-size: 20px; /* Smaller font for screens below 900px */
+  }
+
+  .menu-item p {
+      font-size: 4vw;
+  }
+
+  .sub-nav p {
+      font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo a {
+      font-size: 15px; /* Even smaller for smaller screens */
+  }
+
+  .menu-item p {
+      font-size: 4vw;
+  }
+
+  .sub-nav p {
+      font-size:16px;
+  }
+  .overlay-nav .logo1 a{
+    font-size: 15px;
+  }
+  .info{
+      font-size: 12px;
+  }
+  .info1{
+      font-size: 12px;
+  }
 }
