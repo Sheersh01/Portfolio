@@ -11,10 +11,13 @@ function initializeScrollAnimations() {
   gsap.utils.toArray(".img-container.right img").forEach((img) => {
     gsap.fromTo(
       img,
-      {
+      {    filter: "contrast(150%) brightness(150%)", 
         clipPath: "circle(0.3% at 100% 0)", 
+        scale: 1.25, 
       },
       {
+         filter: "contrast(100%) brightness(100%)", 
+        scale: 1,
         clipPath: "circle(141.2% at 100% 0)",
         ease: "power2.out",
         scrollTrigger: {
@@ -32,10 +35,13 @@ function initializeScrollAnimations() {
   gsap.utils.toArray(".img-container.left img").forEach((img) => {
     gsap.fromTo(
       img,
-      { 
-        clipPath: "circle(0.8% at 0 0)"
+      { filter: "contrast(150%) brightness(150%)", 
+        clipPath: "circle(0.8% at 0 0)",
+        scale: 1.25,
       },
       {
+        filter: "contrast(100%) brightness(100%)",
+        scale: 1,
         clipPath: "circle(141.2% at 0 0)",
         ease: "power2.out",
         scrollTrigger: {

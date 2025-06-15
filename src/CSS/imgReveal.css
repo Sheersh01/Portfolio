@@ -1,6 +1,7 @@
 .img-container {
   width: fit-content;
   height: 100%;
+  will-change: filter, transform;
 }
 
 .img-container p {

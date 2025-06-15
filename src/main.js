@@ -388,3 +388,4 @@ window.addEventListener('scroll', () => {
 window.addEventListener('preloaderComplete', () => {
   setTimeout(setupTextMeshes, 100);
 });
+
