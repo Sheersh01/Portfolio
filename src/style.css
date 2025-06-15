@@ -1,0 +1,69 @@
+@import "tailwindcss";
+body {
+  cursor: url('../mouse1.png') 0 0, auto;
+}
+
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: black;
+}
+*::-webkit-scrollbar{
+  display: none;
+  font-family: "gabriola";
+}
+.text-canvas {
+  font-family: "gabriola";
+  /* font-weight: 600; */
+}
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 10s linear infinite;
+  
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+  
+  /* Improve text rendering during animation */
+  backface-visibility: hidden;
+  perspective: 1000px;
+  
+  /* Smoother subpixel rendering */
+  transform-style: preserve-3d;
+}
+
+.marquee-container {
+  /* Ensure container also uses hardware acceleration */
+  transform: translateZ(0);
+  
+  /* Optional: reduce text rendering complexity during animation */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 15s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+#gradient {
+  opacity: 0.1;
+  mix-blend-mode: lighten;
+  /* filter: blur(20px);  */
+  width: 100vw;
+  height: 100vh;
+}
+

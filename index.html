@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="stylesheet" href="./src/CSS/imgReveal.css" />
+  <!-- <link rel="stylesheet" href="./src/CSS/menu.css" /> -->
+</head>
+
+<body>
+  <div id="preloader"></div>
+
+  <div id="main-content" style="display: block" class=" text-[#B8AC94] font-[gabriola] container relative bg-transparent">
+
+    <nav class="flex justify-between p-4 text-[2vw] fixed top-0 left-0 w-full z-[9] opacity-0">
+      <h1>Home</h1>
+      <h1>Menu</h1>
+    </nav>
+    <div class="website-content bg-black">
+
+
+      <div id="hero" class="h-screen relative text-center leading-none overflow-x-hidden">
+        <canvas class="orb "></canvas>
+        <div class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center">
+          <h1 class="text-[4vw] w-[50%] opacity-0">
+            No one cares about your personality at first glance.
+          </h1>
+          <h1 class="text-[2vw] w-[50%] text-right text-[#cd0c0c] opacity-0">
+            — Trust Me
+          </h1>
+        </div>
+      </div>
+      <div class="fixed top-0 left-0 gradient-bg pointer-events-none">
+        <canvas id="gradient"></canvas>
+      </div>
+      <div id="description" class="h-screen relative mb-40">
+        <img class="w-full h-full object-fit"
+          src="https://images.unsplash.com/photo-1641458287873-a068562d703e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="" />
+        <div class="absolute top-0 left-0 w-full px-4 pt-16 flex flex-col z-[9]">
+          <h1 class="text-canvas opacity-0 text-[3vw] leading-none pb-10 mb-40 w-[25%] self-start">
+            Hi I am Sheersh Saxena <br />
+            I don't care about UX.
+          </h1>
+
+          <h1 class="text-canvas opacity-0 text-[2.5vw] leading-none pb-20 w-[35%] self-end text-right">
+            Sure, frontend is easy… Just like painting <br />
+            the Mona Lisa with a toothbrush.
+          </h1>
+
+          <!-- <h1 class="text-canvas opacity-0 text-[20vw] leading-none self-center text-center">
+            Hi Recruiters
+          </h1> -->
+        </div>
+      </div>
+
+      <div class="projects mb-80 relative">
+
+        <h1 class="text-[15vw] leading-none text-center">Projects</h1>
+        <div class="min-h-screen w-full text-[14px] uppercase font-medium">
+          <div class="row w-full flex h-[300px]" id="row-1">
+            <div class="col h-full flex flex-col">
+              <div class="img-container right">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+          <div class="row w-full flex h-[500px]" id="row-2">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col">
+              <div class="img-container left">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+          </div>
+          <div class="row w-full flex h-[150px]" id="row-3">
+            <div class="col h-full flex flex-col">
+              <div class="img-container right">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+          <div class="row w-full flex h-[400px]" id="row-4">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col">
+              <div class="img-container left">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+          </div>
+          <div class="row w-full flex h-[500px]" id="row-5">
+            <div class="col h-full flex flex-col">
+              <div class="img-container right">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+          <div class="row w-full flex h-[300px]" id="row-6">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col">
+              <div class="img-container left">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+          </div>
+          <div class="row w-full flex h-[200px]" id="row-7">
+            <div class="col h-full flex flex-col">
+              <div class="img-container right">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+          <div class="row w-full flex h-[500px]" id="row-8">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col">
+              <div class="img-container left">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+          </div>
+          <div class="row w-full flex h-[300px]" id="row-9">
+            <div class="col h-full flex flex-col">
+              <div class="img-container right">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+          <div class="row w-full flex h-[500px]" id="row-10">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col">
+              <div class="img-container left">
+                <img class="w-full h-full object-cover" src="./Wukong.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+          </div>
+          <!-- <div class="w-full h-[300px]"></div> -->
+        </div>
+      </div>
+      <div class="w-full h-screen">
+
+        <h1 class="text-[5vw] w-[50%] leading-none">
+          Don't scroll this far and still hire someone else.
+        </h1>
+      </div>
+      <footer id="footer" class="min-h-screen w-full">
+        <div
+          class="marquee-container relative overflow-x-hidden hover:bg-[#B8AC94] hover:text-[#700404] hover:rounded-full uppercase mx-16 overflow-hidden mb-20 flex items-center transition-all">
+          <div class="marquee-content whitespace-nowrap">
+            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
+            <h1 class="text-[10vw] inline-block mr-14">~</h1>
+            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
+            <h1 class="text-[10vw] inline-block mr-14">~</h1>
+            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
+            <h1 class="text-[10vw] inline-block mr-14">~</h1>
+            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
+            <h1 class="text-[10vw] inline-block mr-14">~</h1>
+          </div>
+        </div>
+        <div class="flex justify-between px-10 mb-30">
+          <div class="text-[1.8vw]">
+            <h1>Email</h1>
+            <h1>Github</h1>
+            <h1>LinkedIn</h1>
+          </div>
+          <div class="text-[4vw] leading-none w-[50%]">
+            <h1>
+              Got questions? Google exists. But if you're serious — hit me up.
+            </h1>
+            <button class="border rounded-full px-8 py-2 text-[1.5vw]">
+              Email Me
+            </button>
+          </div>
+        </div>
+        <div class="flex justify-between px-10">
+          <div class="flex gap-16">
+            <div class="leading-none">
+              <h1 class="text-[1.5vw]">Design & Development</h1>
+              <h1 class="text-[2vw]">Sheersh Saxena</h1>
+            </div>
+            <div class="leading-none">
+              <h1 class="text-[2vw]">Based in</h1>
+              <h1 class="text-[1.5vw]">India</h1>
+            </div>
+          </div>
+          <div class="leading-none">
+            <h1 class="text-[1.5vw]">Available for work?</h1>
+            <h1 class="text-[1.5vw]">Unless it’s ugly. Then no.</h1>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <script type="module" src="./src/JS/imgReveal.js"></script>
+  <script type="module" src="./src/JS/orbEffect.js"></script>
+  <script type="module" src="./src/JS/gradient.js"></script>
+  <!-- <script  type="module" src="./src/JS/textReveal.js"></script> -->
+  <!-- <script src="./src/JS/menu.js"></script> -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
