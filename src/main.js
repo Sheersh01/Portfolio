@@ -54,7 +54,7 @@ function createTextTexture(text, color = 'white') {
   const baseFontSize = 120;
   const responsiveFontSize = baseFontSize * fontScale;
   
-  ctx.font = `bold ${responsiveFontSize}px Gabriola`; 
+  ctx.font = `normal ${responsiveFontSize}px Gabriola`; 
   ctx.textAlign = 'center'; 
   ctx.textBaseline = 'middle'; 
   ctx.fillText(text, baseWidth / 2, baseHeight / 2); 
