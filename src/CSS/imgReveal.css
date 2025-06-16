@@ -1,14 +1,44 @@
+/* Performance optimizations for the projects section */
+.projects {
+  /* Enable hardware acceleration for the entire section */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
 .img-container {
   width: fit-content;
   height: 100%;
-  will-change: filter, transform;
+  /* Enhanced GPU acceleration */
+  will-change: transform, filter, clip-path;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Optimize rendering */
+  contain: layout style paint;
+}
+
+.img-container img {
+  /* Force GPU layer for smoother animations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Improve filter performance */
+  filter-quality: optimizeSpeed;
+  /* Prevent layout shifts */
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .img-container p {
   position: relative;
   padding: 5px 0;
   opacity: 1;
-  transition: opacity 0.3s, transform 0.3s;
+  /* Simplified transition for better performance */
+  transition: opacity 0.2s ease-out;
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .col:nth-child(1) {
@@ -17,10 +47,57 @@
   justify-content: flex-end;
   flex-direction: row;
   text-align: start;
+  /* Performance optimization */
+  contain: layout;
 }
 
 .col:nth-child(2) {
   justify-content: flex-end;
   text-align: end;
   flex: 5;
+  /* Performance optimization */
+  contain: layout;
+}
+
+/* Additional performance optimizations */
+.row {
+  /* Enable GPU acceleration for rows */
+  transform: translateZ(0);
+  /* Optimize rendering */
+  contain: layout style;
+}
+
+/* Reduce animations during active scrolling for better performance */
+body.scrolling .img-container {
+  /* Temporarily reduce will-change during scroll */
+  will-change: transform;
+}
+
+body.scrolling .img-container img {
+  /* Simplify filters during active scrolling */
+  filter-quality: optimizeSpeed;
+}
+
+/* Media query optimizations for mobile */
+@media (max-width: 768px) {
+  .img-container {
+    /* Reduce complexity on mobile */
+    will-change: transform;
+  }
+  
+  .img-container img {
+    /* Disable heavy filters on mobile for better performance */
+    filter: none !important;
+  }
+}
+
+/* Smooth scrolling optimization */
+html {
+  scroll-behavior: auto; /* Let GSAP handle smoothness */
+}
+
+/* Prevent scroll bounce on iOS */
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
