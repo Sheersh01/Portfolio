@@ -12,46 +12,67 @@
 </head>
 
 <body class="relative">
-  <div id="preloader"></div>
+  <!-- <div id="preloader"></div> -->
   <nav>
+    <div class="left">
+      <h1>Sheersh Saxena</h1>
+    </div>
+    <div class="toggle-btn magnet-target">
+      <button class="burger" onclick="this.classList.toggle('active')"></button>
+    </div>
+  </nav>
+  <div class="overlay">
+    <nav class="overlay-nav">
       <div class="left">
         <h1>Sheersh Saxena</h1>
       </div>
-      <div class="toggle-btn magnet-target">
-        <button class="burger" onclick="this.classList.toggle('active')"></button>
+      <div class="toggle-btn1 magnet-target">
+        <button class="burger1" onclick="this.classList.toggle('active')"></button>
       </div>
     </nav>
-    <div class="overlay">
-      <nav class="overlay-nav">
-        <div class="left">
-          <h1>Sheersh Saxena</h1>
-        </div>
-        <div class="toggle-btn1 magnet-target">
-          <button class="burger1" onclick="this.classList.toggle('active')"></button>
-        </div>
-      </nav>
-      <div class="overlay-menu">
+    <!-- Overlay Content Section -->
+    <div
+      className="overlay-menu w-full flex lg:justify-end jusitfy-between items-center px-2 mb-10 lg:px-8 lg:pt-6 text-[#B8AC94] ">
+      <div class=" flex flex-col lg:flex-row lg:py-24 justify-evenly lg:mt-20 md:mt-10 px-4 font-thin">
 
-        <div class="menu-item lg:w-[50%] w-[80%] mx-auto">
-          <p class="">In addition to photography, I have other passions like web development and fashion design. For me, art
-            comes in infinite forms, and these three disciplines are the ones I enjoy exploring and practicing the most.
-            Each allows me to express myself uniquely and creatively, and I have alot of fun combining them.</p>
-        </div>
-      </div>
+        <!-- Left Links Column -->
+        <div class="flex flex-col gap-6 mb-10 md:w-[40%] w-full text-[#B8AC94] uppercase">
+          <a href="/" data-text-original="Home" data-text-hover="Say you love it <3"
+            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
+          <a href="/about" data-text-original="About" data-text-hover="Stalker spotted!!!"
+            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
+          <a href="/work" data-text-original="Work" data-text-hover="Need more proof -_-"
+            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
+        <a href="/contact" data-text-original="Contact" data-text-hover="You want my number?"
+            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
+          </div>
 
-      <div class="sub-nav">
-        <p class="magnet-target"><a href="https://www.instagram.com/its.sheersh">Instagram</a></p>
-        <p>.</p>
-        <p class="magnet-target"><a href="https://www.linkedin.com/in/sheersh-saxena">LinkedIn</a></p>
-        <p>.</p>
-        <p class="magnet-target"><a href="mailto:saxenasheersh1@gmail.com">Gmail</a></p>
-        <p>.</p>
+        <!-- Right Content Column -->
+        <div class="w-full lg:w-[50%] lg:-translate-y-10 text-[#B8AC94]">
+          <img src="logo2.png" alt="Logo" class="hidden lg:block w-50 h-50 mb-4 " />
+          <p class="font-thin mb-4 lg:text-[2vw] md:text-[3vw] text-[5vw]">
+            Deal with a company that lives and breathes this sector, and that can bring greater depth and scale to your
+            marketing efforts.
+          </p>
+          <a href="/contact"
+            class="inline-flex items-center gap-2 font-semibold text-[#D98324] transition-all hover:gap-4 lg:text-[1.2vw] md:text-[3.5vw] text-[5vw]">
+            Let's talk
+            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-6 h-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+
       </div>
     </div>
+
+
+  </div>
   <div id="main-content" style="display: block"
     class=" text-[#B8AC94] font-[gabriola] container relative bg-transparent">
 
-    
+
 
     <div class="website-content bg-black relative">
 
@@ -190,7 +211,7 @@
       </div>
 
       <div class=" w-full h-screen bg-black relative py-20 px-12">
-<img class="absolute scale-x-[1.1] -top-[3vw] left-0 object-contain " src="./torn6.png" alt="">
+        <img class="absolute scale-x-[1.1] -top-[3vw] left-0 object-contain " src="./torn6.png" alt="">
         <h1 class="text-[5vw] w-[50%] leading-none">
           Don't scroll this far and still hire someone else.
         </h1>

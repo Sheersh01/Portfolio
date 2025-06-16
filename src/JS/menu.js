@@ -1,4 +1,8 @@
-import gsap from "gsap";
+import { gsap } from "gsap";
+import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
+import SplitType from "split-type";
+gsap.registerPlugin(ScrambleTextPlugin);
+
 function nav() {
     const toggleButton = document.querySelector(".burger"); // Open menu button
     const overlay = document.querySelector(".overlay"); // Menu overlay
@@ -19,24 +23,7 @@ function nav() {
             clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", // Expand overlay
             ease: "power4.inOut",
         })
-        .to(menuItems, {
-            duration: 1.5,
-            y: 0, // Slide menu items into view
-            ease: "power4.inOut",
-            stagger: 0.2, // Stagger animation for each item
-        }, "-=1") // Start at the same time as the overlay animation
-        .to(activeItem, {
-            "--after-width": "100%", // Highlight active item
-            ease: "power4.inOut",
-            duration: 1,
-        }, "<") // Sync with menu item animation
-        .to(subNav, {
-            duration: 1,
-            opacity: 1, // Fade in sub-nav
-            bottom: "10%",
-            y: 0,
-            ease: "power4.inOut",
-        }, "<");
+       
 
     // Open menu
     toggleButton.addEventListener("click", function () {
@@ -53,3 +40,50 @@ function nav() {
     });
 }
 nav();
+
+let elements = document.querySelectorAll(".text");
+
+elements.forEach((element) => {
+  let originalText = element.dataset.textOriginal || element.innerText;
+  let hoverText = element.dataset.textHover || element.innerText; // fallback to same
+
+  element.innerHTML = "";
+
+  let textContainer1 = document.createElement("div");
+  textContainer1.classList.add("block");
+
+  let textContainer2 = document.createElement("div");
+  textContainer2.classList.add("block");
+  // ✅ Use max length of both strings to avoid cutoff
+  const maxLength = Math.max(originalText.length, hoverText.length);
+  for (let i = 0; i < maxLength; i++) {
+    let char1 = originalText[i] || " ";
+    let char2 = hoverText[i] || " ";
+
+    let span1 = document.createElement("span");
+    let span2 = document.createElement("span");
+
+    span1.innerText = char1.trim() === "" ? "\xa0" : char1;
+    span2.innerText = char2.trim() === "" ? "\xa0" : char2;
+
+    span1.classList.add("letter");
+    span2.classList.add("letter");
+
+    textContainer1.appendChild(span1);
+    textContainer2.appendChild(span2);
+  }
+
+  element.appendChild(textContainer1);
+  element.appendChild(textContainer2);
+});
+
+
+elements.forEach((element) => {
+  element.addEventListener("mouseover", () => {
+    element.classList.add("play");
+  });
+
+  element.addEventListener("mouseout", () => {
+    element.classList.remove("play");
+  });
+});
