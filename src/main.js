@@ -7,6 +7,8 @@ const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerH
 camera.position.z = 5; 
  
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+// 🔧 FIX 1: Set pixel ratio immediately after creating renderer
+renderer.setPixelRatio(getDevicePixelRatio());
 renderer.setSize(window.innerWidth, window.innerHeight); 
 document.getElementById('preloader').appendChild(renderer.domElement); 
 
@@ -43,8 +45,8 @@ function createTextTexture(text, color = 'white') {
     geometryScale = 1.25;
   }
 
-  // Increased scale factor for better quality, especially on mobile
-  const scale = Math.max(4, dpr * 2); // Minimum 4x, scales with device pixel ratio
+  // 🔧 FIX 4: Reduced minimum scale for better performance while maintaining quality
+  const scale = Math.max(2, dpr * 2); // Minimum 2x instead of 4x
   const baseWidth = 1024; 
   const baseHeight = 256; 
   const canvasWidth = baseWidth * scale; 
@@ -58,7 +60,8 @@ function createTextTexture(text, color = 'white') {
   // Enable high-quality text rendering
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  ctx.textRenderingOptimization = 'optimizeQuality';
+  // 🔧 FIX 5: Removed non-standard textRenderingOptimization
+  // ctx.textRenderingOptimization = 'optimizeQuality'; // Not standard, removed
  
   ctx.scale(scale, scale); 
   ctx.fillStyle = color; 
@@ -73,8 +76,14 @@ function createTextTexture(text, color = 'white') {
   ctx.fillText(text, baseWidth / 2, baseHeight / 2); 
  
   const texture = new THREE.CanvasTexture(canvas); 
+  // 🔧 FIX 3: Option for sharper filtering (uncomment for ultra-crisp text)
+  // texture.minFilter = THREE.NearestFilter;
+  // texture.magFilter = THREE.NearestFilter;
+  
+  // Default smooth filtering (comment out if using NearestFilter above)
   texture.minFilter = THREE.LinearFilter; 
-  texture.magFilter = THREE.LinearFilter; // Important for upscaling quality
+  texture.magFilter = THREE.LinearFilter;
+  
   texture.generateMipmaps = false; 
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); 
   texture.needsUpdate = true; 
@@ -183,8 +192,8 @@ function getWorldSize(rect, camera) {
 function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 'center', fontFamily = 'Arial', fontWeight = 'normal') {
   const dpr = getDevicePixelRatio();
   
-  // Much higher scale factor for canvas text quality
-  const scale = Math.max(6, dpr * 3); // Minimum 6x, scales with device pixel ratio
+  // 🔧 FIX 4: Reduced minimum scale for better performance
+  const scale = Math.max(3, dpr * 2); // Minimum 3x instead of 6x
   
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -206,7 +215,8 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   // CRITICAL: Enable high-quality rendering settings
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  ctx.textRenderingOptimization = 'optimizeQuality';
+  // 🔧 FIX 5: Removed non-standard textRenderingOptimization
+  // ctx.textRenderingOptimization = 'optimizeQuality'; // Not standard, removed
   
   // Clear and set up context again after resizing
   ctx.fillStyle = color;
@@ -238,8 +248,14 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   });
   
   const texture = new THREE.CanvasTexture(canvas);
+  // 🔧 FIX 3: Option for ultra-crisp text (uncomment for sharpest results)
+  // texture.minFilter = THREE.NearestFilter;
+  // texture.magFilter = THREE.NearestFilter;
+  
+  // Default smooth filtering (comment out if using NearestFilter above)
   texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter; // Critical for quality
+  texture.magFilter = THREE.LinearFilter;
+  
   texture.generateMipmaps = false;
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
   texture.needsUpdate = true;
@@ -430,10 +446,13 @@ function animate() {
  
 animate(); 
  
-// Enhanced resize handler
+// 🔧 FIX 2: Enhanced resize handler with pixel ratio update
 window.addEventListener('resize', () => { 
   camera.aspect = window.innerWidth / window.innerHeight; 
   camera.updateProjectionMatrix(); 
+  
+  // Update pixel ratio on resize (important for device orientation changes)
+  renderer.setPixelRatio(getDevicePixelRatio());
   renderer.setSize(window.innerWidth, window.innerHeight); 
   
   if (animationComplete) {
