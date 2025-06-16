@@ -17,8 +17,8 @@ function createTextTexture(text, color = 'white') {
   let geometryScale = 1;
   
   if (width < 480) {
-    fontScale = 0.8;      // Much smaller font for small phones
-    geometryScale = 0.5;
+    fontScale = 1.0;      // Much smaller font for small phones
+    geometryScale = 0.7;
   } else if (width < 640) {
     fontScale = 0.8;      // Small phones
     geometryScale = 0.8;
@@ -54,7 +54,7 @@ function createTextTexture(text, color = 'white') {
   const baseFontSize = 120;
   const responsiveFontSize = baseFontSize * fontScale;
   
-  ctx.font = `bold ${responsiveFontSize}px Arial`; 
+  ctx.font = `bold ${responsiveFontSize}px Gabriola`; 
   ctx.textAlign = 'center'; 
   ctx.textBaseline = 'middle'; 
   ctx.fillText(text, baseWidth / 2, baseHeight / 2); 
@@ -78,14 +78,14 @@ function getResponsiveLayout() {
   
   if (width < 640) {
     // Vertical stack for mobile
-    const spacing = width < 480 ? 0.5 : 1.1;
+    const spacing = width < 480 ? 0.6 : 1.0;
     return {
         positions: [-spacing, 0, spacing],
       yOffsets: [0.0, 0, 0.0] // Adjust spacing as needed
     };
   } else {
     // Horizontal layout for larger screens
-    const spacing = width < 1024 ? 1.0 : 1.1;
+    const spacing = width < 1024 ? 0.6 : 0.8;
     return {
       positions: [-spacing, 0, spacing],
       yOffsets: [0, 0, 0]

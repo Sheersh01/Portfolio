@@ -1,9 +1,16 @@
 @import "tailwindcss";
-
+    @font-face {
+    font-family: 'Gabriola';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Gabriola'), url('./fonts/fontsgabriola Font Download.woff') format('woff');
+    }
 body {
   cursor: url("../mouse1.png") 0 0, auto;
 }
-
+*{
+  font-family: "Gabriola";
+}
 #preloader {
   position: fixed;
   top: 0;
