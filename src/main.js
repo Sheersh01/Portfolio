@@ -9,34 +9,42 @@ camera.position.z = 5;
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
 renderer.setSize(window.innerWidth, window.innerHeight); 
 document.getElementById('preloader').appendChild(renderer.domElement); 
+
+// Get device pixel ratio for high-DPI displays
+function getDevicePixelRatio() {
+  return Math.min(window.devicePixelRatio || 1, 3); // Cap at 3x for performance
+}
  
 function createTextTexture(text, color = 'white') { 
-  // Responsive scaling based on screen width
+  // Enhanced responsive scaling with device pixel ratio
   const width = window.innerWidth;
+  const dpr = getDevicePixelRatio();
+  
   let fontScale = 1;
   let geometryScale = 1;
   
   if (width < 480) {
-    fontScale = 1.0;      // Much smaller font for small phones
-    geometryScale = 0.7;
+    fontScale = 0.8;
+    geometryScale = 0.5;
   } else if (width < 640) {
-    fontScale = 0.8;      // Small phones
+    fontScale = 0.8;
     geometryScale = 0.8;
   } else if (width < 768) {
-    fontScale = 0.7;      // Large phones
+    fontScale = 0.7;
     geometryScale = 0.8;
   } else if (width < 1024) {
-    fontScale = 0.85;      // Tablets
+    fontScale = 0.85;
     geometryScale = 0.9;
   } else if (width < 1280) {
-    fontScale = 0.8;      // Laptops
+    fontScale = 0.8;
     geometryScale = 1.0;
   } else {
-    fontScale = 0.8;      // Large screens
+    fontScale = 0.8;
     geometryScale = 1.25;
   }
 
-  const scale = 2;
+  // Increased scale factor for better quality, especially on mobile
+  const scale = Math.max(4, dpr * 2); // Minimum 4x, scales with device pixel ratio
   const baseWidth = 1024; 
   const baseHeight = 256; 
   const canvasWidth = baseWidth * scale; 
@@ -47,6 +55,11 @@ function createTextTexture(text, color = 'white') {
   canvas.height = canvasHeight; 
   const ctx = canvas.getContext('2d'); 
  
+  // Enable high-quality text rendering
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.textRenderingOptimization = 'optimizeQuality';
+ 
   ctx.scale(scale, scale); 
   ctx.fillStyle = color; 
   
@@ -54,13 +67,14 @@ function createTextTexture(text, color = 'white') {
   const baseFontSize = 120;
   const responsiveFontSize = baseFontSize * fontScale;
   
-  ctx.font = `normal ${responsiveFontSize}px Gabriola`; 
+  ctx.font = `bold ${responsiveFontSize}px Arial`; 
   ctx.textAlign = 'center'; 
   ctx.textBaseline = 'middle'; 
   ctx.fillText(text, baseWidth / 2, baseHeight / 2); 
  
   const texture = new THREE.CanvasTexture(canvas); 
   texture.minFilter = THREE.LinearFilter; 
+  texture.magFilter = THREE.LinearFilter; // Important for upscaling quality
   texture.generateMipmaps = false; 
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); 
   texture.needsUpdate = true; 
@@ -78,14 +92,14 @@ function getResponsiveLayout() {
   
   if (width < 640) {
     // Vertical stack for mobile
-    const spacing = width < 480 ? 0.6 : 1.0;
+    const spacing = width < 480 ? 0.5 : 1.1;
     return {
         positions: [-spacing, 0, spacing],
       yOffsets: [0.0, 0, 0.0] // Adjust spacing as needed
     };
   } else {
     // Horizontal layout for larger screens
-    const spacing = width < 1024 ? 0.6 : 0.8;
+    const spacing = width < 1024 ? 1.0 : 1.1;
     return {
       positions: [-spacing, 0, spacing],
       yOffsets: [0, 0, 0]
@@ -165,27 +179,38 @@ function getWorldSize(rect, camera) {
   return { width: worldWidth, height: worldHeight };
 }
 
-// Enhanced text texture creation with better typography
+// SIGNIFICANTLY IMPROVED text texture creation for canvas text
 function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 'center', fontFamily = 'Arial', fontWeight = 'normal') {
-  // Calculate canvas size based on text content and font size
-  const scale = 8;
+  const dpr = getDevicePixelRatio();
+  
+  // Much higher scale factor for canvas text quality
+  const scale = Math.max(6, dpr * 3); // Minimum 6x, scales with device pixel ratio
+  
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  // Set font to measure text
-  ctx.font = `${fontWeight} ${fontSize * scale}px ${fontFamily}`;
+  // Set font to measure text with scaled font size
+  const scaledFontSize = fontSize * scale;
+  ctx.font = `${fontWeight} ${scaledFontSize}px ${fontFamily}`;
   
   // Handle multi-line text
   const lines = text.split('\n');
-  const lineHeight = fontSize * scale * 1.2;
+  const lineHeight = scaledFontSize * 1.2;
   const maxWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
   
-  canvas.width = Math.max(maxWidth + 40 * scale, 512); // Add padding
-  canvas.height = Math.max(lines.length * lineHeight + 40 * scale, 128);
+  // Calculate canvas size with proper padding
+  const padding = 20 * scale;
+  canvas.width = Math.max(maxWidth + padding * 2, 512);
+  canvas.height = Math.max(lines.length * lineHeight + padding * 2, 128);
+  
+  // CRITICAL: Enable high-quality rendering settings
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.textRenderingOptimization = 'optimizeQuality';
   
   // Clear and set up context again after resizing
   ctx.fillStyle = color;
-  ctx.font = `${fontWeight} ${fontSize * scale}px ${fontFamily}`;
+  ctx.font = `${fontWeight} ${scaledFontSize}px ${fontFamily}`;
   ctx.textBaseline = 'top';
   
   // Set text alignment
@@ -201,19 +226,20 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   lines.forEach((line, index) => {
     let x;
     if (alignment === 'left') {
-      x = 20 * scale;
+      x = padding;
     } else if (alignment === 'right') {
-      x = canvas.width - 20 * scale;
+      x = canvas.width - padding;
     } else {
       x = canvas.width / 2;
     }
     
-    const y = 20 * scale + index * lineHeight;
+    const y = padding + index * lineHeight;
     ctx.fillText(line, x, y);
   });
   
   const texture = new THREE.CanvasTexture(canvas);
   texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter; // Critical for quality
   texture.generateMipmaps = false;
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
   texture.needsUpdate = true;
@@ -237,7 +263,7 @@ function setupTextMeshes() {
     
     if (rect.width === 0 || rect.height === 0) return; // Skip invisible elements
 
-   // Get font size from computed style
+    // Get font size from computed style
     const fontSize = parseFloat(computedStyle.fontSize);
     
     // Get text alignment
@@ -246,23 +272,11 @@ function setupTextMeshes() {
     // Get font family and weight
     const fontFamily = computedStyle.fontFamily || 'Arial';
     const fontWeight = computedStyle.fontWeight || 'normal';
-    
-    // 🎨 ADD MORE CSS PROPERTIES HERE:
-    // const letterSpacing = computedStyle.letterSpacing || 'normal';
-    // const lineHeight = parseFloat(computedStyle.lineHeight) || fontSize * 1.2;
-    // const textTransform = computedStyle.textTransform || 'none';
-    // const fontStyle = computedStyle.fontStyle || 'normal'; // italic, oblique
-    // const textShadow = computedStyle.textShadow || 'none';
-    // const opacity = parseFloat(computedStyle.opacity) || 1;
-    
-    // HIDE THE HTML ELEMENT - This fixes the double rendering issue
-    // el.style.opacity = '0';
-    // el.style.pointerEvents = 'none';
 
     const worldPosition = screenToWorld(rect, camera);
     const worldSize = getWorldSize(rect, camera);
 
-    // Create texture with proper styling
+    // Create texture with ENHANCED quality settings
     const texture = createEnhancedTextTexture(text, fontSize, color, textAlign, fontFamily, fontWeight);
 
     const geo = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
@@ -446,4 +460,3 @@ window.addEventListener('scroll', () => {
 window.addEventListener('preloaderComplete', () => {
   setTimeout(setupTextMeshes, 100);
 });
-
