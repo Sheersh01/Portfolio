@@ -6,49 +6,70 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100); 
 camera.position.z = 5; 
  
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+const renderer = new THREE.WebGLRenderer({ 
+  antialias: !isMobile(), // Disable antialiasing on mobile for better performance
+  alpha: true,
+  powerPreference: "high-performance" // Request high-performance GPU on mobile
+}); 
+
+// Enhanced mobile detection
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+         window.innerWidth < 768;
+}
+
+// Get device pixel ratio with mobile-specific caps
+function getDevicePixelRatio() {
+  if (isMobile()) {
+    return Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x on mobile
+  }
+  return Math.min(window.devicePixelRatio || 1, 3); // Cap at 3x on desktop
+}
+
 // 🔧 FIX 1: Set pixel ratio immediately after creating renderer
 renderer.setPixelRatio(getDevicePixelRatio());
 renderer.setSize(window.innerWidth, window.innerHeight); 
 document.getElementById('preloader').appendChild(renderer.domElement); 
-
-// Get device pixel ratio for high-DPI displays
-function getDevicePixelRatio() {
-  return Math.min(window.devicePixelRatio || 1, 3); // Cap at 3x for performance
-}
  
 function createTextTexture(text, color = 'white') { 
-  // Enhanced responsive scaling with device pixel ratio
+  // Enhanced responsive scaling with mobile-first approach
   const width = window.innerWidth;
   const dpr = getDevicePixelRatio();
+  const mobile = isMobile();
   
   let fontScale = 1;
   let geometryScale = 1;
   
   if (width < 480) {
-    fontScale = 0.8;
-    geometryScale = 0.5;
+    fontScale = 0.7; // Slightly smaller for very small screens
+    geometryScale = 0.6; // More aggressive scaling
   } else if (width < 640) {
-    fontScale = 0.8;
-    geometryScale = 0.8;
+    fontScale = 0.6;
+    geometryScale = 0.6;
   } else if (width < 768) {
-    fontScale = 0.7;
+    fontScale = 0.8;
     geometryScale = 0.8;
   } else if (width < 1024) {
-    fontScale = 0.85;
-    geometryScale = 0.9;
+    fontScale = 0.75;
+    geometryScale = 0.75;
   } else if (width < 1280) {
-    fontScale = 0.8;
+    fontScale = 0.6;
     geometryScale = 1.0;
   } else {
-    fontScale = 0.8;
-    geometryScale = 1.25;
+    fontScale = 0.6;
+    geometryScale = 1.0;
   }
 
-  // 🔧 FIX 4: Reduced minimum scale for better performance while maintaining quality
-  const scale = Math.max(2, dpr * 2); // Minimum 2x instead of 4x
-  const baseWidth = 1024; 
-  const baseHeight = 256; 
+  // 🔧 FIX 4: Mobile-optimized texture scaling
+  let scale;
+  if (mobile) {
+    scale = Math.max(1.5, dpr * 1.5); // Lower minimum for mobile
+  } else {
+    scale = Math.max(2, dpr * 2);
+  }
+  
+  const baseWidth = mobile ? 512 : 1024; // Smaller base size for mobile
+  const baseHeight = mobile ? 128 : 256; 
   const canvasWidth = baseWidth * scale; 
   const canvasHeight = baseHeight * scale; 
  
@@ -57,17 +78,17 @@ function createTextTexture(text, color = 'white') {
   canvas.height = canvasHeight; 
   const ctx = canvas.getContext('2d'); 
  
-  // Enable high-quality text rendering
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  // 🔧 FIX 5: Removed non-standard textRenderingOptimization
-  // ctx.textRenderingOptimization = 'optimizeQuality'; // Not standard, removed
+  // Mobile-optimized rendering settings
+  ctx.imageSmoothingEnabled = !mobile; // Disable on mobile for performance
+  if (!mobile) {
+    ctx.imageSmoothingQuality = 'high';
+  }
  
   ctx.scale(scale, scale); 
   ctx.fillStyle = color; 
   
   // Apply responsive font sizing
-  const baseFontSize = 120;
+  const baseFontSize = mobile ? 100 : 120; // Smaller base font for mobile
   const responsiveFontSize = baseFontSize * fontScale;
   
   ctx.font = `bold ${responsiveFontSize}px Arial`; 
@@ -76,45 +97,49 @@ function createTextTexture(text, color = 'white') {
   ctx.fillText(text, baseWidth / 2, baseHeight / 2); 
  
   const texture = new THREE.CanvasTexture(canvas); 
-  // 🔧 FIX 3: Option for sharper filtering (uncomment for ultra-crisp text)
-  // texture.minFilter = THREE.NearestFilter;
-  // texture.magFilter = THREE.NearestFilter;
   
-  // Default smooth filtering (comment out if using NearestFilter above)
-  texture.minFilter = THREE.LinearFilter; 
-  texture.magFilter = THREE.LinearFilter;
+  // Mobile-optimized filtering
+  if (mobile) {
+    texture.minFilter = THREE.LinearFilter; // Always use linear on mobile
+    texture.magFilter = THREE.LinearFilter;
+  } else {
+    // 🔧 FIX 3: Option for sharper filtering on desktop
+    texture.minFilter = THREE.LinearFilter; 
+    texture.magFilter = THREE.LinearFilter;
+  }
   
   texture.generateMipmaps = false; 
-  texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); 
+  texture.anisotropy = mobile ? 1 : renderer.capabilities.getMaxAnisotropy(); // Disable anisotropy on mobile
   texture.needsUpdate = true; 
  
   return { texture, geometryScale }; 
 }
 
-// Update your preloader setup section
-const texts = ['Looks', 'Doesn`t', 'Matter']; 
-const materials = []; 
-
-// Responsive positioning
+// Enhanced responsive layout with better mobile handling
 function getResponsiveLayout() {
   const width = window.innerWidth;
+  // const mobile = isMobile();
   
   if (width < 640) {
-    // Vertical stack for mobile
-    const spacing = width < 480 ? 0.5 : 1.1;
+    // Vertical stack for mobile with tighter spacing
+    const spacing = width < 480 ? 0.4 : 0.6;
     return {
-        positions: [-spacing, 0, spacing],
-      yOffsets: [0.0, 0, 0.0] // Adjust spacing as needed
+      positions: [0, 0, 0], // All centered horizontally
+      yOffsets: [spacing, 0, -spacing] // Vertical stack
     };
   } else {
     // Horizontal layout for larger screens
-    const spacing = width < 1024 ? 1.0 : 1.1;
+    const spacing = width < 768 ? 0.9 : 1.1;
     return {
       positions: [-spacing, 0, spacing],
       yOffsets: [0, 0, 0]
     };
   }
 }
+
+// Update your preloader setup section
+const texts = ['Looks', 'Doesn`t', 'Matter']; 
+const materials = []; 
 
 const { positions, yOffsets } = getResponsiveLayout();
 
@@ -188,12 +213,18 @@ function getWorldSize(rect, camera) {
   return { width: worldWidth, height: worldHeight };
 }
 
-// SIGNIFICANTLY IMPROVED text texture creation for canvas text
+// Mobile-optimized text texture creation
 function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 'center', fontFamily = 'Arial', fontWeight = 'normal') {
   const dpr = getDevicePixelRatio();
+  const mobile = isMobile();
   
-  // 🔧 FIX 4: Reduced minimum scale for better performance
-  const scale = Math.max(3, dpr * 2); // Minimum 3x instead of 6x
+  // 🔧 FIX 4: Mobile-optimized scaling
+  let scale;
+  if (mobile) {
+    scale = Math.max(2, dpr * 1.5); // Lower scaling for mobile
+  } else {
+    scale = Math.max(3, dpr * 2);
+  }
   
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -207,16 +238,19 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   const lineHeight = scaledFontSize * 1.2;
   const maxWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
   
-  // Calculate canvas size with proper padding
-  const padding = 20 * scale;
-  canvas.width = Math.max(maxWidth + padding * 2, 512);
-  canvas.height = Math.max(lines.length * lineHeight + padding * 2, 128);
+  // Calculate canvas size with proper padding - mobile optimized
+  const padding = (mobile ? 10 : 20) * scale;
+  const minWidth = mobile ? 256 : 512;
+  const minHeight = mobile ? 64 : 128;
   
-  // CRITICAL: Enable high-quality rendering settings
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  // 🔧 FIX 5: Removed non-standard textRenderingOptimization
-  // ctx.textRenderingOptimization = 'optimizeQuality'; // Not standard, removed
+  canvas.width = Math.max(maxWidth + padding * 2, minWidth);
+  canvas.height = Math.max(lines.length * lineHeight + padding * 2, minHeight);
+  
+  // Mobile-optimized rendering settings
+  ctx.imageSmoothingEnabled = !mobile; // Disable on mobile
+  if (!mobile) {
+    ctx.imageSmoothingQuality = 'high';
+  }
   
   // Clear and set up context again after resizing
   ctx.fillStyle = color;
@@ -248,21 +282,18 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   });
   
   const texture = new THREE.CanvasTexture(canvas);
-  // 🔧 FIX 3: Option for ultra-crisp text (uncomment for sharpest results)
-  // texture.minFilter = THREE.NearestFilter;
-  // texture.magFilter = THREE.NearestFilter;
   
-  // Default smooth filtering (comment out if using NearestFilter above)
+  // Mobile-optimized texture settings
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
-  
   texture.generateMipmaps = false;
-  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  texture.anisotropy = mobile ? 1 : renderer.capabilities.getMaxAnisotropy();
   texture.needsUpdate = true;
   
   return texture;
 }
 
+// Mobile-optimized mesh setup with culling
 function setupTextMeshes() {
   console.log('Setting up text meshes...');
   textGroup.clear();
@@ -292,7 +323,7 @@ function setupTextMeshes() {
     const worldPosition = screenToWorld(rect, camera);
     const worldSize = getWorldSize(rect, camera);
 
-    // Create texture with ENHANCED quality settings
+    // Create texture with mobile-optimized settings
     const texture = createEnhancedTextTexture(text, fontSize, color, textAlign, fontFamily, fontWeight);
 
     const geo = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
@@ -326,14 +357,17 @@ function setupTextMeshes() {
   console.log('Total text meshes created:', textMeshes.length);
 }
 
-// Enhanced update function for better responsiveness
+// Mobile-optimized update with frustum culling
 function updateTextMeshPositions() {
+  const mobile = isMobile();
+  
   textMeshes.forEach(({ el, mesh, mat }) => {
     const rect = el.getBoundingClientRect();
-    const computedStyle = getComputedStyle(el);
     
-    const isVisible = rect.bottom > 0 && rect.top < window.innerHeight && 
-                     rect.right > 0 && rect.left < window.innerWidth;
+    // More aggressive culling on mobile
+    const buffer = mobile ? 50 : 100;
+    const isVisible = rect.bottom > -buffer && rect.top < window.innerHeight + buffer && 
+                     rect.right > -buffer && rect.left < window.innerWidth + buffer;
     
     if (isVisible) {
       // Update position for scrolling
@@ -342,10 +376,11 @@ function updateTextMeshPositions() {
       
       mesh.position.copy(worldPosition);
       
-      // Update geometry if size changed significantly
+      // Less frequent geometry updates on mobile
+      const threshold = mobile ? 0.2 : 0.1;
       const currentGeo = mesh.geometry;
-      if (Math.abs(currentGeo.parameters.width - worldSize.width) > 0.1 ||
-          Math.abs(currentGeo.parameters.height - worldSize.height) > 0.1) {
+      if (Math.abs(currentGeo.parameters.width - worldSize.width) > threshold ||
+          Math.abs(currentGeo.parameters.height - worldSize.height) > threshold) {
         
         currentGeo.dispose();
         mesh.geometry = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
@@ -406,12 +441,15 @@ function animate() {
       window.dispatchEvent(new CustomEvent('preloaderComplete'));
     } 
   } else {
-    // MAIN CONTENT PHASE - Text canvas effects
+    // MAIN CONTENT PHASE - Text canvas effects with mobile optimization
     textMeshes.forEach(({ el, mesh, mat }) => {
       const rect = el.getBoundingClientRect();
       
-      const isVisible = rect.bottom > 0 && rect.top < window.innerHeight && 
-                       rect.right > 0 && rect.left < window.innerWidth;
+      // More aggressive culling on mobile
+      const mobile = isMobile();
+      const buffer = mobile ? 50 : 100;
+      const isVisible = rect.bottom > -buffer && rect.top < window.innerHeight + buffer && 
+                       rect.right > -buffer && rect.left < window.innerWidth + buffer;
       
       if (isVisible) {
         // Update position for scrolling
@@ -446,7 +484,7 @@ function animate() {
  
 animate(); 
  
-// 🔧 FIX 2: Enhanced resize handler with pixel ratio update
+// 🔧 FIX 2: Enhanced resize handler with mobile-specific optimizations
 window.addEventListener('resize', () => { 
   camera.aspect = window.innerWidth / window.innerHeight; 
   camera.updateProjectionMatrix(); 
@@ -456,26 +494,50 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight); 
   
   if (animationComplete) {
-    // Debounce resize to avoid too many recalculations
+    // Longer debounce on mobile to reduce CPU usage
+    const debounceTime = isMobile() ? 200 : 100;
     clearTimeout(window.resizeTimeout);
     window.resizeTimeout = setTimeout(() => {
       setupTextMeshes(); // Recalculate positions on resize
-    }, 100);
+    }, debounceTime);
   }
 });
 
-// Handle scrolling with throttling
+// Handle scrolling with mobile-optimized throttling
 let scrollTimeout;
 window.addEventListener('scroll', () => {
   if (animationComplete && !scrollTimeout) {
+    // Less frequent updates on mobile
+    const throttleTime = isMobile() ? 33 : 16; // 30fps on mobile, 60fps on desktop
     scrollTimeout = setTimeout(() => {
       updateTextMeshPositions();
       scrollTimeout = null;
-    }, 16); // ~60fps
+    }, throttleTime);
   }
 });
 
 // Additional setup when preloader completes
 window.addEventListener('preloaderComplete', () => {
   setTimeout(setupTextMeshes, 100);
+});
+
+// Memory cleanup on page unload (important for mobile)
+window.addEventListener('beforeunload', () => {
+  // Dispose of geometries and materials
+  materials.forEach(mat => {
+    if (mat.uniforms.uTextTexture.value) {
+      mat.uniforms.uTextTexture.value.dispose();
+    }
+    mat.dispose();
+  });
+  
+  textMeshes.forEach(({ mesh, mat }) => {
+    mesh.geometry.dispose();
+    if (mat.uniforms.uTextTexture.value) {
+      mat.uniforms.uTextTexture.value.dispose();
+    }
+    mat.dispose();
+  });
+  
+  renderer.dispose();
 });

@@ -1,19 +1,49 @@
 const canvas = document.getElementById('gradient');
-const gl = canvas.getContext('webgl2');
+
+// Mobile detection and performance settings
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+const isLowEndDevice = navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 4;
+
+// Try WebGL2 first, fallback to WebGL1 for better mobile compatibility
+const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
 if (!gl) {
-    alert('WebGL2 not supported');
+    alert('WebGL not supported');
 }
 
+const isWebGL2 = gl instanceof WebGL2RenderingContext;
+
+// Dynamic quality settings for mobile
+const qualitySettings = {
+    pixelRatio: isMobile ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio,
+    precision: (isMobile && isLowEndDevice) ? 'mediump' : 'highp',
+    complexNoise: !isMobile || !isLowEndDevice,
+    frameSkipping: isMobile && isLowEndDevice
+};
+
+let resizeTimeout;
 function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    // Debounce resize for mobile
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const pixelRatio = qualitySettings.pixelRatio;
+        const displayWidth = Math.floor(window.innerWidth * pixelRatio);
+        const displayHeight = Math.floor(window.innerHeight * pixelRatio);
+        
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+        canvas.style.width = window.innerWidth + 'px';
+        canvas.style.height = window.innerHeight + 'px';
+        
+        gl.viewport(0, 0, displayWidth, displayHeight);
+    }, isMobile ? 150 : 50);
 }
+
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-const vertexShaderSource = `#version 300 es
+// Optimized shader versions
+const vertexShaderSource = isWebGL2 ? `#version 300 es
     in vec2 a_position;
     out vec2 v_texCoord;
 
@@ -21,23 +51,36 @@ const vertexShaderSource = `#version 300 es
         gl_Position = vec4(a_position, 0.0, 1.0);
         v_texCoord = a_position * 0.5 + 0.5;
     }
+` : `
+    attribute vec2 a_position;
+    varying vec2 v_texCoord;
+
+    void main() {
+        gl_Position = vec4(a_position, 0.0, 1.0);
+        v_texCoord = a_position * 0.5 + 0.5;
+    }
 `;
 
-const fragmentShaderSource = `#version 300 es
-    precision highp float;
+// Simplified noise function for mobile
+const simpleNoiseFunction = `
+    float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+    
+    float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
+                   mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+    }
+    
+    float cnoise(vec3 p) {
+        return noise(p.xy + p.z * 0.1);
+    }
+`;
 
-    in vec2 v_texCoord;
-    out vec4 fragColor;
-
-    uniform float u_time;
-    uniform vec2 u_resolution;
-    uniform float u_scale;
-    uniform float u_warpStrength;
-    uniform float u_warpScale;
-    uniform float u_bandFreq;
-    uniform vec3 u_color1;
-    uniform vec3 u_color2;
-
+const complexNoiseFunction = `
     vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
     vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
     vec3 fade(vec3 t) { return t*t*t*(t*(t*6.0 - 15.0) + 10.0); }
@@ -82,16 +125,39 @@ const fragmentShaderSource = `#version 300 es
         float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
         return 2.2 * n_xyz;
     }
+`;
+
+const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
+    precision ${qualitySettings.precision} float;
+
+    ${isWebGL2 ? 'in' : 'varying'} vec2 v_texCoord;
+    ${isWebGL2 ? 'out vec4 fragColor;' : ''}
+
+    uniform float u_time;
+    uniform vec2 u_resolution;
+    uniform float u_scale;
+    uniform float u_warpStrength;
+    uniform float u_warpScale;
+    uniform float u_bandFreq;
+    uniform vec3 u_color1;
+    uniform vec3 u_color2;
+
+    ${qualitySettings.complexNoise ? complexNoiseFunction : simpleNoiseFunction}
 
     vec2 domainWarp(vec2 p, float time) {
         float warpX = cnoise(vec3(p * u_warpScale, time * 0.3));
         float warpY = cnoise(vec3(p * u_warpScale + 100.0, time * 0.3));
         vec2 warp1 = vec2(warpX, warpY) * u_warpStrength;
         vec2 warpedP = p + warp1;
+        
+        ${qualitySettings.complexNoise ? `
         float warpX2 = cnoise(vec3(warpedP * u_warpScale * 0.7, time * 0.2));
         float warpY2 = cnoise(vec3(warpedP * u_warpScale * 0.7 + 200.0, time * 0.2));
         vec2 warp2 = vec2(warpX2, warpY2) * u_warpStrength * 0.5;
         return p + warp1 + warp2;
+        ` : `
+        return warpedP;
+        `}
     }
 
     float gradientBands(vec2 p, float time) {
@@ -102,8 +168,13 @@ const fragmentShaderSource = `#version 300 es
         float bands2 = sin(angle * 3.0 + time * 1.5);
         float bands3 = sin((warpedP.x + warpedP.y) * u_bandFreq * 0.8 + time);
         float combined = (bands1 + bands2 * 0.6 + bands3 * 0.4) / 2.2;
+        
+        ${qualitySettings.complexNoise ? `
         float flow = cnoise(vec3(warpedP * 0.5, time * 0.4)) * 0.3;
         return combined + flow;
+        ` : `
+        return combined;
+        `}
     }
 
     vec3 getColor(float t) {
@@ -117,12 +188,19 @@ const fragmentShaderSource = `#version 300 es
         vec2 pos = (uv - 0.5) * min(u_resolution.x, u_resolution.y) * u_scale;
         float gradientValue = gradientBands(pos, u_time);
         vec3 color = getColor(gradientValue);
+        
+        ${qualitySettings.complexNoise ? `
         float brightness = 0.85 + 0.3 * cnoise(vec3(pos * 1.5, u_time * 0.1));
         color *= brightness;
+        ` : `
+        color *= 0.9;
+        `}
+        
         float dist = length(uv - 0.5);
         float vignette = 1.0 - smoothstep(0.3, 0.8, dist);
         color *= 0.7 + 0.3 * vignette;
-        fragColor = vec4(color, 1.0);
+        
+        ${isWebGL2 ? 'fragColor' : 'gl_FragColor'} = vec4(color, 1.0);
     }
 `;
 
@@ -173,28 +251,72 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 
 const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
-const vao = gl.createVertexArray();
-gl.bindVertexArray(vao);
+
+// Use VAO for WebGL2, fallback for WebGL1
+let vao;
+if (isWebGL2) {
+    vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+}
+
 gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-// Hard-coded values
-const speed = 0.08;
-const scale = 0.001;
-const warpStrength = 8.0;
-const warpScale = 0.5;
-const bandFreq = 4.0;
+// Mobile-optimized parameters
+const speed = isMobile ? 0.06 : 0.08; // Slightly slower on mobile
+const scale = isMobile ? 0.0008 : 0.001; // Reduced scale for better performance
+const warpStrength = isMobile ? 6.0 : 8.0; // Reduced complexity
+const warpScale = isMobile ? 0.4 : 0.5; // Less complex warping
+const bandFreq = isMobile ? 3.5 : 4.0; // Slightly less frequency
 const color1 = [1.0, 0.1, 0.1];  // desaturated dull red
 const color2 = [0.0, 0.0, 0.0];  // black
 
 let startTime = Date.now();
+let lastFrameTime = 0;
+let frameCount = 0;
+let lastFPSCheck = performance.now();
 
-function render() {
-    const currentTime = Date.now();
-    const time = (currentTime - startTime) * 0.001 * speed;
+// Frame rate management for mobile
+const targetFPS = isMobile ? 30 : 60;
+const frameInterval = 1000 / targetFPS;
+
+// Performance monitoring
+function checkPerformance() {
+    frameCount++;
+    const now = performance.now();
+    
+    if (now - lastFPSCheck >= 5000) { // Check every 5 seconds
+        const fps = (frameCount * 1000) / (now - lastFPSCheck);
+        
+        // If performance is poor on mobile, could trigger further optimizations
+        if (fps < 20 && isMobile) {
+            console.log('Performance warning: Low FPS detected');
+        }
+        
+        frameCount = 0;
+        lastFPSCheck = now;
+    }
+}
+
+function render(currentTime = 0) {
+    // Frame rate limiting for mobile
+    if (qualitySettings.frameSkipping && currentTime - lastFrameTime < frameInterval) {
+        requestAnimationFrame(render);
+        return;
+    }
+    lastFrameTime = currentTime;
+
+    const time = (Date.now() - startTime) * 0.001 * speed;
 
     gl.useProgram(program);
-    gl.bindVertexArray(vao);
+    
+    if (isWebGL2) {
+        gl.bindVertexArray(vao);
+    } else {
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.enableVertexAttribArray(positionAttributeLocation);
+        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+    }
 
     gl.uniform1f(uniforms.time, time);
     gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
@@ -207,7 +329,36 @@ function render() {
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
+    // Performance monitoring for mobile
+    if (isMobile) {
+        checkPerformance();
+    }
+
     requestAnimationFrame(render);
 }
 
-render();
+// Pause rendering when page is not visible (mobile battery optimization)
+let isPageVisible = true;
+document.addEventListener('visibilitychange', () => {
+    isPageVisible = !document.hidden;
+    if (isPageVisible) {
+        // Resume rendering
+        render();
+    }
+    // Animation automatically pauses when page is hidden due to requestAnimationFrame
+});
+
+// Start rendering only if page is visible
+if (isPageVisible) {
+    render();
+}
+
+// Memory cleanup for mobile
+window.addEventListener('beforeunload', () => {
+    // Clean up WebGL resources
+    gl.deleteBuffer(positionBuffer);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    gl.deleteProgram(program);
+    if (vao) gl.deleteVertexArray(vao);
+});
