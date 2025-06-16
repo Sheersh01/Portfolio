@@ -51,7 +51,7 @@ body {
   }
 }
 #gradient {
-  opacity: 0.2;
+  opacity: 0.15;
   mix-blend-mode: screen;
   /* filter: blur(20px);  */
   width: 100vw;

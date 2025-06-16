@@ -11,8 +11,9 @@
   <link rel="stylesheet" href="./src/CSS/menu.css" />
 </head>
 
-<body class="relative">
-  <!-- <div id="preloader"></div> -->
+<body class="overflow-x-hidden">
+  <div id="preloader" class="">
+  </div>
   <nav>
     <div class="left">
       <h1>Sheersh Saxena</h1>
@@ -31,58 +32,55 @@
       </div>
     </nav>
     <!-- Overlay Content Section -->
-    <div
-      className="overlay-menu w-full flex lg:justify-end jusitfy-between items-center px-2 mb-10 lg:px-8 lg:pt-6 text-[#B8AC94] ">
-      <div class=" flex flex-col lg:flex-row lg:py-24 justify-evenly lg:mt-20 md:mt-10 px-4 font-thin">
+   <div class="overlay-menu w-full flex lg:justify-end justify-between items-center px-2 mb-10 lg:px-8 lg:pt-6 text-[#B8AC94]">
+  <div class="flex flex-col lg:flex-row lg:py-24 justify-evenly lg:mt-20 md:mt-10 px-4 font-thin">
 
-        <!-- Left Links Column -->
-        <div class="flex flex-col gap-6 mb-10 md:w-[40%] w-full text-[#B8AC94] uppercase">
-          <a href="/" data-text-original="Home" data-text-hover="Say you love it <3"
-            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
-          <a href="/about" data-text-original="About" data-text-hover="Stalker spotted!!!"
-            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
-          <a href="/work" data-text-original="Work" data-text-hover="Need more proof -_-"
-            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
-        <a href="/contact" data-text-original="Contact" data-text-hover="You want my number?"
-            class="text h-[3vw] lg:text-4xl md:text-[4.8vw] text-[6vw] "></a>
-          </div>
-
-        <!-- Right Content Column -->
-        <div class="w-full lg:w-[50%] lg:-translate-y-10 text-[#B8AC94]">
-          <img src="logo2.png" alt="Logo" class="hidden lg:block w-50 h-50 mb-4 " />
-          <p class="font-thin mb-4 lg:text-[2vw] md:text-[3vw] text-[5vw]">
-            Deal with a company that lives and breathes this sector, and that can bring greater depth and scale to your
-            marketing efforts.
-          </p>
-          <a href="/contact"
-            class="inline-flex items-center gap-2 font-semibold text-[#D98324] transition-all hover:gap-4 lg:text-[1.2vw] md:text-[3.5vw] text-[5vw]">
-            Let's talk
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-6 h-6" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
-        </div>
-
-      </div>
+    <!-- Left Links Column -->
+    <div class="flex flex-col gap-6 mb-10 md:w-[40%] w-full text-[#B8AC94] uppercase">
+      <a href="/" data-text-original="Home" data-text-hover="Say you love it <3"
+        class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
+      <a href="/" data-text-original="About" data-text-hover="Stalker spotted!!!"
+        class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
+      <a href="/" data-text-original="Work" data-text-hover="Need more proof -_-"
+        class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
+      <a href="/" data-text-original="Contact" data-text-hover="Want my number?"
+        class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
     </div>
+
+    <!-- Right Content Column -->
+    <div class="w-full lg:w-[50%] lg:-translate-y-10 text-[#B8AC94]">
+      <!-- Optional logo -->
+      <!-- <img src="logo2.png" alt="Logo" class="hidden lg:block w-50 h-50 mb-4" /> -->
+
+      <p class="font-thin mb-4 lg:text-[3vw] md:text-[4vw] text-[6vw]">
+        These pages don't open for just anyone, come back when you're stronger.
+      </p>
+
+      <a href="/"
+        class="inline-flex items-center gap-2 font-semibold text-[#B8AC94] transition-all hover:gap-4 lg:text-[1.5vw] md:text-[4vw] text-[5vw] border border-[#B8AC94] px-4 py-2 hover:bg-[#B8AC94] hover:text-[#260404]">
+        Click to Unlock
+      </a>
+    </div>
+
+  </div>
+</div>
 
 
   </div>
   <div id="main-content" style="display: block"
-    class=" text-[#B8AC94] font-[gabriola] container relative bg-transparent">
+    class="w-full text-[#B8AC94] font-[gabriola] container relative bg-transparent">
 
 
 
     <div class="website-content bg-black relative">
 
-      <div id="hero" class="h-screen relative text-center leading-none overflow-x-hidden">
+      <div id="hero" class="h-screen relative text-center leading-none  ">
         <canvas class="orb "></canvas>
         <div class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center">
-          <h1 class="text-[4vw] w-[50%] opacity-0">
+          <h1 class="lg:text-[4vw] md:text-[5vw] text-[6.5vw] md:w-[50%] w-[80%] opacity-0">
             No one cares about your personality at first glance.
           </h1>
-          <h1 class="text-[2vw] w-[50%] text-right overflow-hidden text-[#cd0c0c] opacity-0">
+          <h1 class="lg:text-[2vw] md:text-[3.2vw] text-[5vw] w-[50%] text-right overflow-hidden text-[#cd0c0c] opacity-0">
             — Trust Me
           </h1>
         </div>
@@ -96,13 +94,13 @@
         <img class="w-full h-full object-fit"
           src="https://images.unsplash.com/photo-1641458287873-a068562d703e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="" />
-        <div class="absolute top-0 left-0 w-full px-4 pt-16 flex flex-col z-[9]">
-          <h1 class="text-canvas opacity-0 text-[3vw] leading-none pb-10 mb-40 w-[25%] self-start">
+        <div class="absolute top-0 left-0 w-full md:px-4 px-2 pt-16 flex flex-col z-[9]">
+          <h1 class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-40 lg:w-[25%] md:w-[50%] w-fit self-start">
             Hi I am Sheersh Saxena <br />
             I don't care about UX.
           </h1>
 
-          <h1 class="text-canvas opacity-0 text-[2.5vw] leading-none pb-20 w-[35%] self-end text-right">
+          <h1 class="text-canvas opacity-0 lg:text-[2.5vw] md:text-[4vw] text-[6vw]  leading-none pb-20 lg:w-[35%] md:w-[60%] w-fit self-end text-right">
             Sure, frontend is easy… Just like painting <br />
             the Mona Lisa with a toothbrush.
           </h1>
@@ -113,94 +111,94 @@
         </div>
       </div>
 
-      <div class=" projects pt-20 pb-80 relative bg-[#540000]">
-        <h1 class="text-[15vw] leading-none text-center">Projects</h1>
+      <div class=" projects pt-20 pb-80 relative bg-[#260404]">
+        <h1 class="text-[15vw] leading-none text-center mb-20">Projects</h1>
         <div class="min-h-screen w-full text-[14px] uppercase font-medium">
           <div class="row w-full flex h-[300px]" id="row-1">
             <div class="col h-full flex flex-col">
-              <div class="img-container right overflow-hidden">
+              <div class="img-container  right overflow-hidden">
                 <img class="w-full h-full object-cover" src="./red6.png" alt="" />
                 <p>Image alt</p>
               </div>
             </div>
             <div class="col h-full flex flex-col"></div>
           </div>
-          <div class="row w-full flex h-[500px]" id="row-2">
+          <div class="row w-full flex lg:h-[500px] h-[200px]" id="row-2">
             <div class="col h-full flex flex-col"></div>
             <div class="col h-full flex flex-col">
-              <div class="img-container left overflow-hidden">
+              <div class="img-container  left overflow-hidden">
                 <img class="w-full h-full object-cover" src="./red6.png" alt="" />
                 <p>Image alt</p>
               </div>
             </div>
           </div>
-          <div class="row w-full flex h-[150px]" id="row-3">
+          <div class="row w-full flex lg:h-[150px] h-[200px]" id="row-3">
             <div class="col h-full flex flex-col">
-              <div class="img-container right overflow-hidden">
-                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
-                <p>Image alt</p>
-              </div>
-            </div>
-            <div class="col h-full flex flex-col"></div>
-          </div>
-          <div class="row w-full flex h-[400px]" id="row-4">
-            <div class="col h-full flex flex-col"></div>
-            <div class="col h-full flex flex-col">
-              <div class="img-container left overflow-hidden">
-                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
-                <p>Image alt</p>
-              </div>
-            </div>
-          </div>
-          <div class="row w-full flex h-[500px]" id="row-5">
-            <div class="col h-full flex flex-col">
-              <div class="img-container right overflow-hidden">
+              <div class="img-container  right overflow-hidden">
                 <img class="w-full h-full object-cover" src="./red6.png" alt="" />
                 <p>Image alt</p>
               </div>
             </div>
             <div class="col h-full flex flex-col"></div>
           </div>
-          <div class="row w-full flex h-[300px]" id="row-6">
+          <div class="row w-full flex lg:h-[400px] h-[200px]" id="row-4">
             <div class="col h-full flex flex-col"></div>
             <div class="col h-full flex flex-col">
-              <div class="img-container left overflow-hidden">
+              <div class="img-container  left overflow-hidden">
                 <img class="w-full h-full object-cover" src="./red6.png" alt="" />
                 <p>Image alt</p>
               </div>
             </div>
           </div>
-          <div class="row w-full flex h-[200px]" id="row-7">
+          <div class="row w-full flex lg:h-[500px] h-[200px]" id="row-5">
             <div class="col h-full flex flex-col">
-              <div class="img-container right overflow-hidden">
-                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
-                <p>Image alt</p>
-              </div>
-            </div>
-            <div class="col h-full flex flex-col"></div>
-          </div>
-          <div class="row w-full flex h-[500px]" id="row-8">
-            <div class="col h-full flex flex-col"></div>
-            <div class="col h-full flex flex-col">
-              <div class="img-container left overflow-hidden">
-                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
-                <p>Image alt</p>
-              </div>
-            </div>
-          </div>
-          <div class="row w-full flex h-[300px]" id="row-9">
-            <div class="col h-full flex flex-col">
-              <div class="img-container right overflow-hidden">
+              <div class="img-container  right overflow-hidden">
                 <img class="w-full h-full object-cover" src="./red6.png" alt="" />
                 <p>Image alt</p>
               </div>
             </div>
             <div class="col h-full flex flex-col"></div>
           </div>
-          <div class="row w-full flex h-[500px]" id="row-10">
+          <div class="row w-full flex lg:h-[300px] h-[200px]" id="row-6">
             <div class="col h-full flex flex-col"></div>
             <div class="col h-full flex flex-col">
-              <div class="img-container left overflow-hidden">
+              <div class="img-container  left overflow-hidden">
+                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+          </div>
+          <div class="row w-full flex lg:h-[200px] h-[200px]" id="row-7">
+            <div class="col h-full flex flex-col">
+              <div class="img-container  right overflow-hidden">
+                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+          <div class="row w-full flex lg:h-[500px] h-[200px]" id="row-8">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col">
+              <div class="img-container  left overflow-hidden">
+                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+          </div>
+          <div class="row w-full flex lg:h-[300px] h-[200px]" id="row-9">
+            <div class="col h-full flex flex-col">
+              <div class="img-container  right overflow-hidden">
+                <img class="w-full h-full object-cover" src="./red6.png" alt="" />
+                <p>Image alt</p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+          <div class="row w-full flex lg:h-[500px] h-[200px]" id="row-10">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col">
+              <div class="img-container  left overflow-hidden">
                 <img class="w-full h-full object-cover" src="./red6.png" alt="" />
                 <p>Image alt</p>
               </div>
@@ -210,56 +208,56 @@
         </div>
       </div>
 
-      <div class=" w-full h-screen bg-black relative py-20 px-12">
-        <img class="absolute scale-x-[1.1] -top-[3vw] left-0 object-contain " src="./torn6.png" alt="">
+      <div class=" w-full h-screen bg-black relative py-20 px-12 ">
+        <img class="absolute w-full  -top-[3vw] left-0 object-fit " src="./torn1.png" alt="">
         <h1 class="text-[5vw] w-[50%] leading-none">
           Don't scroll this far and still hire someone else.
         </h1>
       </div>
 
-      <footer id="footer" class="min-h-screen w-full">
+      <footer id="footer" class="pt-10  w-full">
         <div
-          class="marquee-container relative overflow-x-hidden hover:bg-[#B8AC94] hover:text-[#700404] hover:rounded-full uppercase mx-16 overflow-hidden mb-20 flex items-center transition-all">
+          class="marquee-container relative overflow-x-hidden hover:bg-[#B8AC94] hover:text-[#700404] hover:rounded-full uppercase md:mx-16 overflow-hidden mb-20 flex items-center transition-all">
           <div class="marquee-content whitespace-nowrap">
-            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
-            <h1 class="text-[10vw] inline-block mr-14">~</h1>
-            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
-            <h1 class="text-[10vw] inline-block mr-14">~</h1>
-            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
-            <h1 class="text-[10vw] inline-block mr-14">~</h1>
-            <h1 class="text-[10vw] inline-block mr-14">Let's Talk</h1>
-            <h1 class="text-[10vw] inline-block mr-14">~</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">Let's Talk</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">~</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">Let's Talk</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">~</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">Let's Talk</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">~</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">Let's Talk</h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">~</h1>
           </div>
         </div>
-        <div class="flex justify-between px-10 mb-30">
-          <div class="text-[1.8vw]">
+        <div class="flex md:flex-row flex-col justify-between md:px-10 px-4 md:mb-30 mb-20">
+          <div class="md:text-[1.8vw] text-[5vw] mb-6">
             <h1 class="cursor-pointer">Email</h1>
             <h1 class="cursor-pointer">Github</h1>
             <h1 class="cursor-pointer">LinkedIn</h1>
           </div>
-          <div class="text-[4vw] leading-none w-[50%]">
+          <div class="md:text-[4vw] text-[8vw] leading-none md:w-[50%] w-full">
             <h1>
               Got questions? Google exists. But if you're serious — hit me up.
             </h1>
-            <button class="border rounded-full px-8 py-2 text-[1.5vw] cursor-pointer">
+            <button class="border rounded-full md:px-8 px-4 md:py-2 py-1 md:text-[1.5vw] text-[4vw] cursor-pointer">
               Email Me
             </button>
           </div>
         </div>
-        <div class="flex justify-between px-10">
-          <div class="flex gap-16">
+        <div class="flex justify-between md:px-10 px-4 pb-10">
+          <div class="flex md:gap-16 gap-2">
             <div class="leading-none">
-              <h1 class="text-[1.5vw]">Design & Development</h1>
-              <h1 class="text-[2vw]">Sheersh Saxena</h1>
+              <h1 class="md:text-[1.5vw] text-[3vw]">Design & Development</h1>
+              <h1 class="md:text-[2vw] text-[3vw]">Sheersh Saxena</h1>
             </div>
             <div class="leading-none">
-              <h1 class="text-[2vw]">Based in</h1>
-              <h1 class="text-[1.5vw]">India</h1>
+              <h1 class="md:text-[2vw] text-[3vw]">Based in</h1>
+              <h1 class="md:text-[1.5vw] text-[3vw]">India</h1>
             </div>
           </div>
           <div class="leading-none">
-            <h1 class="text-[1.5vw]">Available for work?</h1>
-            <h1 class="text-[1.5vw]">Unless it’s ugly. Then no.</h1>
+            <h1 class="md:text-[1.5vw] text-[3vw]">Available for work?</h1>
+            <h1 class="md:text-[1.5vw] text-[3vw]">Unless it's ugly. Then no.</h1>
           </div>
         </div>
       </footer>

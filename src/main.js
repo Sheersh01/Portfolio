@@ -10,22 +10,51 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight); 
 document.getElementById('preloader').appendChild(renderer.domElement); 
  
-// 🔧 High-resolution text texture function 
 function createTextTexture(text, color = 'white') { 
-  const scale = 2; // Increased scale for better quality
+  // Responsive scaling based on screen width
+  const width = window.innerWidth;
+  let fontScale = 1;
+  let geometryScale = 1;
+  
+  if (width < 480) {
+    fontScale = 0.8;      // Much smaller font for small phones
+    geometryScale = 0.5;
+  } else if (width < 640) {
+    fontScale = 0.8;      // Small phones
+    geometryScale = 0.8;
+  } else if (width < 768) {
+    fontScale = 0.7;      // Large phones
+    geometryScale = 0.8;
+  } else if (width < 1024) {
+    fontScale = 0.85;      // Tablets
+    geometryScale = 0.9;
+  } else if (width < 1280) {
+    fontScale = 0.8;      // Laptops
+    geometryScale = 1.0;
+  } else {
+    fontScale = 0.8;      // Large screens
+    geometryScale = 1.25;
+  }
+
+  const scale = 2;
   const baseWidth = 1024; 
   const baseHeight = 256; 
-  const width = baseWidth * scale; 
-  const height = baseHeight * scale; 
+  const canvasWidth = baseWidth * scale; 
+  const canvasHeight = baseHeight * scale; 
  
   const canvas = document.createElement('canvas'); 
-  canvas.width = width; 
-  canvas.height = height; 
+  canvas.width = canvasWidth; 
+  canvas.height = canvasHeight; 
   const ctx = canvas.getContext('2d'); 
  
   ctx.scale(scale, scale); 
   ctx.fillStyle = color; 
-  ctx.font = 'bold 120px Arial'; 
+  
+  // Apply responsive font sizing
+  const baseFontSize = 120;
+  const responsiveFontSize = baseFontSize * fontScale;
+  
+  ctx.font = `bold ${responsiveFontSize}px Arial`; 
   ctx.textAlign = 'center'; 
   ctx.textBaseline = 'middle'; 
   ctx.fillText(text, baseWidth / 2, baseHeight / 2); 
@@ -36,32 +65,61 @@ function createTextTexture(text, color = 'white') {
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy(); 
   texture.needsUpdate = true; 
  
-  return texture; 
-} 
- 
-// Create 3 planes for preloader
+  return { texture, geometryScale }; 
+}
+
+// Update your preloader setup section
 const texts = ['Looks', 'Doesn`t', 'Matter']; 
-const positions = [-1.1, 0, 1.1]; 
 const materials = []; 
- 
+
+// Responsive positioning
+function getResponsiveLayout() {
+  const width = window.innerWidth;
+  
+  if (width < 640) {
+    // Vertical stack for mobile
+    const spacing = width < 480 ? 0.5 : 1.1;
+    return {
+        positions: [-spacing, 0, spacing],
+      yOffsets: [0.0, 0, 0.0] // Adjust spacing as needed
+    };
+  } else {
+    // Horizontal layout for larger screens
+    const spacing = width < 1024 ? 1.0 : 1.1;
+    return {
+      positions: [-spacing, 0, spacing],
+      yOffsets: [0, 0, 0]
+    };
+  }
+}
+
+const { positions, yOffsets } = getResponsiveLayout();
+
 texts.forEach((text, i) => { 
-  const geometry = new THREE.PlaneGeometry(2.5, 0.625); 
+  const { texture, geometryScale } = createTextTexture(text);
+  
+  const geometry = new THREE.PlaneGeometry(
+    2.5 * geometryScale, 
+    0.625 * geometryScale
+  ); 
+  
   const material = new THREE.ShaderMaterial({ 
     vertexShader: vertex, 
     fragmentShader: fragment, 
     uniforms: { 
       uTime: { value: 0 }, 
-      uTextTexture: { value: createTextTexture(text) }, 
+      uTextTexture: { value: texture }, 
       uIsRedWord: { value: text === 'Doesn`t' } 
     }, 
     transparent: true, 
   }); 
  
   const mesh = new THREE.Mesh(geometry, material); 
-  mesh.position.x = positions[i]; 
+  mesh.position.x = positions[i];
+  mesh.position.y = yOffsets[i];
   scene.add(mesh); 
   materials.push(material); 
-}); 
+});
 
 // TEXT-CANVAS MESH SETUP
 const textMeshes = [];
@@ -110,7 +168,7 @@ function getWorldSize(rect, camera) {
 // Enhanced text texture creation with better typography
 function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 'center', fontFamily = 'Arial', fontWeight = 'normal') {
   // Calculate canvas size based on text content and font size
-  const scale = 2;
+  const scale = 8;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
