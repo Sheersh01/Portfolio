@@ -93,23 +93,23 @@ window.addEventListener('mousemove', (event) => {
 });
 
 // Touch events for mobile
-window.addEventListener('touchstart', (event) => {
-    isInteracting = true;
-    const touch = event.touches[0];
-    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
-}, { passive: true });
+// window.addEventListener('touchstart', (event) => {
+//     isInteracting = true;
+//     const touch = event.touches[0];
+//     mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
+//     mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
+// }, { passive: true });
 
-window.addEventListener('touchmove', (event) => {
-    event.preventDefault(); // Prevent scrolling while touching the orb
-    const touch = event.touches[0];
-    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
-}, { passive: false });
+// window.addEventListener('touchmove', (event) => {
+//     event.preventDefault(); // Prevent scrolling while touching the orb
+//     const touch = event.touches[0];
+//     mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
+//     mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
+// }, { passive: false });
 
-window.addEventListener('touchend', () => {
-    isInteracting = false;
-}, { passive: true });
+// window.addEventListener('touchend', () => {
+//     isInteracting = false;
+// }, { passive: true });
 
 // Animation parameters with mobile optimization
 let animationSpeed = isMobile ? 0.8 : 1.0; // Slightly slower on mobile for better performance
