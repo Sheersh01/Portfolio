@@ -22,10 +22,9 @@ body {
 }
 *::-webkit-scrollbar {
   display: none;
-  font-family: "gabriola";
 }
 .text-canvas {
-  font-family: "gabriola";
+  font-family: "Gabriola";
 }
 .marquee-content {
   display: inline-block;
