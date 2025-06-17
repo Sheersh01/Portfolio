@@ -314,12 +314,12 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
 
 // Mobile-optimized mesh setup with culling
 function setupTextMeshes() {
-  console.log('Setting up text meshes...');
+  // console.log('Setting up text meshes...');
   textGroup.clear();
   textMeshes.length = 0;
 
   const elements = document.querySelectorAll('.text-canvas');
-  console.log('Found elements:', elements.length);
+  // console.log('Found elements:', elements.length);
 
   elements.forEach((el, index) => {
     const rect = el.getBoundingClientRect();
@@ -373,7 +373,7 @@ function setupTextMeshes() {
     textMeshes.push({ el, mesh, mat });
   });
 
-  console.log('Total text meshes created:', textMeshes.length);
+  // console.log('Total text meshes created:', textMeshes.length);
 }
 
 // Mobile-optimized update with frustum culling
@@ -430,7 +430,7 @@ function animate() {
     if (elapsed > 6.2) {
       animationComplete = true;
 
-      console.log('Preloader complete, transitioning to main content...');
+      // console.log('Preloader complete, transitioning to main content...');
 
       // Hide preloader and show main content
       document.getElementById('preloader').style.display = 'none';

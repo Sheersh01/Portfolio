@@ -3,7 +3,6 @@
   /* Enable hardware acceleration for the entire section */
   transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000px;
   /* Additional optimization for large sections */
   contain: layout style paint;
 }
@@ -12,7 +11,7 @@
   width: fit-content;
   height: 100%;
   /* Enhanced GPU acceleration */
-  will-change: transform, filter, clip-path;
+  will-change: transform, filter;
   transform: translateZ(0);
   backface-visibility: hidden;
   /* Optimize rendering */
@@ -26,8 +25,6 @@
   /* Force GPU layer for smoother animations */
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Improve filter performance */
-  filter-quality: optimizeSpeed;
   /* Prevent layout shifts */
   display: block;
   width: 100%;
@@ -49,7 +46,7 @@
   transition: opacity 0.2s ease-out;
   /* GPU acceleration */
   transform: translateZ(0);
-  will-change: transform, opacity;
+  will-change: opacity;
   /* Prevent text selection during animations */
   user-select: none;
   /* Optimize text rendering */
@@ -82,31 +79,14 @@
   contain: layout style;
 }
 
-/* Reduce animations during active scrolling for better performance */
-body.scrolling .img-container {
-  /* Temporarily reduce will-change during scroll */
-  will-change: transform;
-}
-
-body.scrolling .img-container img {
-  /* Simplify filters during active scrolling */
-  filter-quality: optimizeSpeed;
-  /* Disable transitions during rapid scrolling */
-  transition: none;
-}
-
 /* Enhanced mobile optimizations */
 @media (max-width: 768px) {
   .img-container {
     /* Reduce complexity on mobile */
     will-change: transform;
-    /* Disable perspective on mobile for better performance */
-    perspective: none;
   }
   
   .img-container img {
-    /* Disable heavy filters on mobile for better performance */
-    filter: none !important;
     /* Optimize image rendering for mobile */
     image-rendering: -webkit-optimize-contrast;
     /* Reduce transform complexity */
@@ -118,11 +98,6 @@ body.scrolling .img-container img {
     will-change: opacity;
     transition: opacity 0.15s ease-out;
   }
-  
-  /* Reduce GPU layers on mobile to prevent memory issues */
-  .projects {
-    perspective: none;
-  }
 }
 
 /* Additional mobile-specific optimizations */
@@ -131,7 +106,6 @@ body.scrolling .img-container img {
   .img-container img {
     /* Further optimize for retina displays */
     image-rendering: -webkit-optimize-contrast;
-    filter-quality: optimizeSpeed;
   }
 }
 
@@ -145,30 +119,14 @@ body.scrolling .img-container img {
   
   .img-container img {
     transform: none;
-    filter: none !important;
     /* Use software rendering for very low-end devices */
     image-rendering: optimizeSpeed;
   }
 }
 
-/* Orientation change optimizations */
-@media (orientation: landscape) and (max-width: 1024px) {
-  .img-container {
-    /* Optimize for landscape mobile/tablet */
-    contain: layout style;
-  }
-}
-
-/* Smooth scrolling optimization */
-html {
-  scroll-behavior: auto; /* Let GSAP handle smoothness */
-}
-
 /* Enhanced mobile scroll optimizations */
 body {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
-  /* Prevent zoom on double tap */
+  /* Prevent zoom on double tap - compatible with Lenis */
   touch-action: manipulation;
   /* Optimize font rendering */
   -webkit-font-smoothing: antialiased;
@@ -192,22 +150,6 @@ html {
   }
 }
 
-/* Battery optimization for mobile */
-@media (max-width: 768px) {
-  /* Reduce complexity when battery is low (if supported) */
-  @media (battery: low) {
-    .img-container {
-      will-change: auto;
-      transform: none;
-    }
-    
-    .img-container img {
-      filter: none !important;
-      transform: none;
-    }
-  }
-}
-
 /* Performance monitoring class */
 .performance-mode .img-container {
   /* Emergency performance mode */
@@ -217,7 +159,6 @@ html {
 }
 
 .performance-mode .img-container img {
-  filter: none !important;
   transform: none;
   image-rendering: optimizeSpeed;
 }
@@ -227,6 +168,5 @@ html {
   .img-container {
     will-change: auto;
     transform: none;
-    filter: none !important;
   }
 }

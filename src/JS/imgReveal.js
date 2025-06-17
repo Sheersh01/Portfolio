@@ -19,6 +19,7 @@ const mobileConfig = {
 function initializeScrollAnimations() {
   ScrollTrigger.getAll().forEach(trigger => trigger.kill());
 
+  // Configure ScrollTrigger to work with Lenis
   ScrollTrigger.config({
     invalidateOnRefresh: true,
     autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
@@ -154,7 +155,47 @@ function initializeScrollAnimations() {
     );
   });
 
-  // Batch processing
+  // Background parallax using ScrollTrigger
+  const projectsSection = document.querySelector('.projects');
+  if (projectsSection) {
+    // Add CSS custom property support for the background transform
+    if (!document.querySelector('#parallax-style')) {
+      const style = document.createElement('style');
+      style.id = 'parallax-style';
+      style.textContent = `
+        .projects::before {
+          transform: translateY(var(--bg-translate, 0px));
+          will-change: transform;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Create parallax effect with proper calculations
+    ScrollTrigger.create({
+      trigger: projectsSection,
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 1,
+      onUpdate: (self) => {
+        // Calculate parallax movement based on section position
+        const sectionRect = projectsSection.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const sectionHeight = projectsSection.offsetHeight;
+        
+        // Calculate how much the section has scrolled through the viewport
+        const scrollProgress = (windowHeight - sectionRect.top) / (windowHeight + sectionHeight);
+        
+        // Apply parallax with slower movement (0.3 = 30% of scroll speed)
+        const translateY = scrollProgress * sectionHeight * -0.3;
+        
+        projectsSection.style.setProperty('--bg-translate', `${translateY}px`);
+      },
+      refreshPriority: -1,
+    });
+  }
+
+  // Batch processing for mobile
   if (isMobile) {
     ScrollTrigger.batch(".img-container", {
       onEnter: (elements) => elements.forEach(el => el.classList.add('in-view')),
@@ -164,15 +205,8 @@ function initializeScrollAnimations() {
     });
   }
 
-  if (isMobile) {
-    if (window.requestIdleCallback) {
-      requestIdleCallback(() => ScrollTrigger.refresh());
-    } else {
-      setTimeout(() => ScrollTrigger.refresh(), 100);
-    }
-  } else {
-    ScrollTrigger.refresh();
-  }
+  // Single refresh call
+  ScrollTrigger.refresh();
 }
 
 // Preloader listener
@@ -180,15 +214,12 @@ let preloaderCompleted = false;
 
 window.addEventListener('preloaderComplete', () => {
   preloaderCompleted = true;
-
-  if (isMobile && window.requestIdleCallback) {
-    requestIdleCallback(initializeScrollAnimations);
-  } else {
-    requestAnimationFrame(() => setTimeout(initializeScrollAnimations, 250));
-  }
+  
+  // Delay initialization to allow Lenis to settle
+  setTimeout(initializeScrollAnimations, 100);
 });
 
-// Resize handler
+// Resize handler - simplified to avoid conflicts
 let resizeTimer;
 const handleResize = () => {
   clearTimeout(resizeTimer);
@@ -196,44 +227,22 @@ const handleResize = () => {
 
   resizeTimer = setTimeout(() => {
     if (preloaderCompleted) {
-      if (isMobile && window.requestIdleCallback) {
-        requestIdleCallback(() => ScrollTrigger.refresh());
-      } else {
-        ScrollTrigger.refresh();
-      }
+      ScrollTrigger.refresh();
     }
   }, delay);
 };
 
 window.addEventListener('resize', handleResize, { passive: true });
 
-// Scroll detection
+// Orientation change handler for mobile
 if (isMobile) {
-  let scrollTimeout;
-  let scrollTicking = false;
-
-  const handleScroll = () => {
-    if (!scrollTicking) {
-      requestAnimationFrame(() => {
-        document.body.classList.add('scrolling');
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          document.body.classList.remove('scrolling');
-        }, 200);
-        scrollTicking = false;
-      });
-      scrollTicking = true;
-    }
-  };
-
-  window.addEventListener('scroll', handleScroll, { passive: true });
-
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
       if (preloaderCompleted) ScrollTrigger.refresh();
     }, 500);
   }, { passive: true });
 
+  // Visibility change handler
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       ScrollTrigger.getAll().forEach(trigger => trigger.disable());
@@ -241,14 +250,4 @@ if (isMobile) {
       ScrollTrigger.getAll().forEach(trigger => trigger.enable());
     }
   });
-
-} else {
-  let scrollTimeout;
-  window.addEventListener('scroll', () => {
-    document.body.classList.add('scrolling');
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      document.body.classList.remove('scrolling');
-    }, 150);
-  }, { passive: true });
 }
