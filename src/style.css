@@ -9,7 +9,7 @@
   font-family: "Gabriola";
 }
 body {
-  cursor: url("../mouse1.png") 0 0, auto;
+  cursor: url("../mouse1.png") 8 8, auto;
 }
 #preloader {
   position: fixed;
