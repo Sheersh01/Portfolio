@@ -11,7 +11,7 @@ const mobileConfig = {
   scaleChange: isMobile ? 1.08 : 1.15,
   filterIntensity: isMobile ? "110%" : "120%",
   scrubSpeed: isMobile ? 2 : 1.2,
-  textMovement: isMobile ? 10 : 15,
+  textMovement: isMobile ? 15 : 25,
   useFilters: !isLowEndDevice,
   useTransforms: true,
 };
@@ -32,124 +32,124 @@ function initializeScrollAnimations() {
     nullTargetWarn: false,
   });
 
-  // Right-side image animations
+  // Right-side image animations - ONE WAY ONLY
   gsap.utils.toArray(".img-container.right img").forEach((img) => {
-    gsap.set(img, {
+    // Set initial hidden state immediately
+    const initialProps = {
       force3D: true,
       transformOrigin: "center center",
       willChange: "transform, clip-path" + (mobileConfig.useFilters ? ", filter" : ""),
       backfaceVisibility: "hidden",
-    });
-
-    const fromProps = {
-      clipPath: "circle(9.0% at 100% 0)",
+      clipPath: "circle(5.0% at 100% 0)",
       scale: mobileConfig.scaleChange,
     };
+
+    if (mobileConfig.useFilters) {
+      initialProps.filter = `contrast(${mobileConfig.filterIntensity}) brightness(${mobileConfig.filterIntensity})`;
+    }
+
+    gsap.set(img, initialProps);
 
     const toProps = {
       scale: 1,
       clipPath: "circle(141.2% at 100% 0)",
       ease: "power2.out",
+      duration: 1.2,
       scrollTrigger: {
         trigger: img,
         start: "top 70%",
-        end: "top 10%",
-        scrub: mobileConfig.scrubSpeed,
+        toggleActions: "play none none none",
+        once: true, // Only trigger once
         fastScrollEnd: true,
-        preventOverlaps: true,
         invalidateOnRefresh: true,
         refreshPriority: isMobile ? -1 : 0,
-        toggleActions: "play none none reverse",
-        onLeaveBack: () => {
-          gsap.set(img, {
-            scale: mobileConfig.scaleChange,
-            clipPath: "circle(9.0% at 100% 0)",
-            ...(mobileConfig.useFilters && {
-              filter: `contrast(${mobileConfig.filterIntensity}) brightness(${mobileConfig.filterIntensity})`
-            }),
-          });
+        onEnter: () => {
+          // Mark as revealed when animation starts
+          img.setAttribute('data-revealed', 'true');
         }
       },
     };
 
     if (mobileConfig.useFilters) {
-      fromProps.filter = `contrast(${mobileConfig.filterIntensity}) brightness(${mobileConfig.filterIntensity})`;
       toProps.filter = "contrast(100%) brightness(100%)";
     }
 
-    gsap.fromTo(img, fromProps, toProps);
+    gsap.to(img, toProps);
   });
 
-  // Left-side image animations
+  // Left-side image animations - ONE WAY ONLY
   gsap.utils.toArray(".img-container.left img").forEach((img) => {
-    gsap.set(img, {
+    // Set initial hidden state immediately
+    const initialProps = {
       force3D: true,
       transformOrigin: "center center",
       willChange: "transform, clip-path" + (mobileConfig.useFilters ? ", filter" : ""),
       backfaceVisibility: "hidden",
-    });
-
-    const fromProps = {
-      clipPath: "circle(9.0% at 0 0)",
+      clipPath: "circle(5.0% at 0 0)",
       scale: mobileConfig.scaleChange,
     };
+
+    if (mobileConfig.useFilters) {
+      initialProps.filter = `contrast(${mobileConfig.filterIntensity}) brightness(${mobileConfig.filterIntensity})`;
+    }
+
+    gsap.set(img, initialProps);
 
     const toProps = {
       scale: 1,
       clipPath: "circle(141.2% at 0 0)",
       ease: "power2.out",
+      duration: 1.2,
       scrollTrigger: {
         trigger: img,
         start: "top 70%",
-        end: "top 10%",
-        scrub: mobileConfig.scrubSpeed,
+        toggleActions: "play none none none",
+        once: true, // Only trigger once
         fastScrollEnd: true,
-        preventOverlaps: true,
         invalidateOnRefresh: true,
         refreshPriority: isMobile ? -1 : 0,
-        toggleActions: "play none none reverse",
-        onLeaveBack: () => {
-          gsap.set(img, {
-            scale: mobileConfig.scaleChange,
-            clipPath: "circle(9.0% at 0 0)",
-            ...(mobileConfig.useFilters && {
-              filter: `contrast(${mobileConfig.filterIntensity}) brightness(${mobileConfig.filterIntensity})`
-            }),
-          });
+        onEnter: () => {
+          // Mark as revealed when animation starts
+          img.setAttribute('data-revealed', 'true');
         }
       },
     };
 
     if (mobileConfig.useFilters) {
-      fromProps.filter = `contrast(${mobileConfig.filterIntensity}) brightness(${mobileConfig.filterIntensity})`;
       toProps.filter = "contrast(100%) brightness(100%)";
     }
 
-    gsap.fromTo(img, fromProps, toProps);
+    gsap.to(img, toProps);
   });
 
-  // Text animations
-  gsap.utils.toArray(".img-container p").forEach((p) => {
+  // Text animations - ONE WAY ONLY
+  gsap.utils.toArray(".col p").forEach((p) => {
+    // Set initial hidden state immediately
     gsap.set(p, {
       force3D: true,
       willChange: "transform, opacity",
+      y: mobileConfig.textMovement,
+      opacity: 0,
     });
 
-    gsap.fromTo(
+    gsap.to(
       p,
-      { y: mobileConfig.textMovement, opacity: 0 },
       {
         y: 0,
         opacity: 1,
         ease: "power2.out",
+        duration: 0.8,
         scrollTrigger: {
           trigger: p,
           start: "top 90%",
-          end: "top 70%",
-          scrub: isMobile ? 1.5 : 0.8,
+          toggleActions: "play none none none",
+          once: true, // Only trigger once
           fastScrollEnd: true,
-          toggleActions: "play none none reverse",
           refreshPriority: -1,
+          onEnter: () => {
+            // Mark as revealed when animation starts
+            p.setAttribute('data-revealed', 'true');
+          }
         },
       }
     );
@@ -199,7 +199,7 @@ function initializeScrollAnimations() {
   if (isMobile) {
     ScrollTrigger.batch(".img-container", {
       onEnter: (elements) => elements.forEach(el => el.classList.add('in-view')),
-      onLeave: (elements) => elements.forEach(el => el.classList.remove('in-view')),
+      // Removed onLeave to prevent reverting
       refreshPriority: -2,
       interval: 0.1,
     });

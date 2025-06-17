@@ -11,10 +11,6 @@ function nav() {
     const activeItem = document.querySelector(".menu-item p#active"); // Active menu item
     const toggleButton1 = document.querySelector(".burger1"); // Close menu button
 
-    // Initial states for menu items and sub-nav
-    gsap.set(menuItems, { y: 225 });
-    gsap.set(subNav, { opacity: 0 });
-
     // Timeline for menu open/close animations
     const timeline = gsap.timeline({ paused: true });
     timeline

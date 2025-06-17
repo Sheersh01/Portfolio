@@ -1,11 +1,11 @@
 @import "tailwindcss";
-    @font-face {
-    font-family: 'Gabriola';
-    font-style: normal;
-    font-weight: normal;
-    src: local('Gabriola'), url('./fonts/gabriola.woff') format('woff');
-    }
-*{
+@font-face {
+  font-family: "Gabriola";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Gabriola"), url("./fonts/gabriola.woff") format("woff");
+}
+* {
   font-family: "Gabriola";
 }
 body {
@@ -58,28 +58,28 @@ body {
 }
 #gradient {
   opacity: 0;
-  transition: opacity 1.5s ease; 
+  transition: opacity 1.5s ease;
   mix-blend-mode: screen;
   /* filter: blur(20px);  */
   width: 100vw;
   height: 100vh;
 }
-.projects { 
-            overflow: hidden;
-        }
-        
-        .projects::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 200%; /* Make it taller for parallax effect */
-            background-image: url("./bg3.jpg");
-            background-position: center;
-            /* background-size: cover; */
-            /* background-repeat: no-repeat; */
-            filter: blur(3px);
-            z-index: -1;
-            will-change: transform;
-        }
+.projects {
+  overflow: hidden;
+}
+
+.projects::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%; /* Make it taller for parallax effect */
+  background-image: url("./bg3.jpg");
+  background-position: center;
+  /* background-size: cover; */
+  /* background-repeat: no-repeat; */
+  filter: blur(5px);
+  z-index: -1;
+  will-change: transform;
+}

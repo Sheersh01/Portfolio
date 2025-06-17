@@ -1,144 +1,122 @@
-/* Performance optimizations for the projects section */
-.projects {
-  /* Enable hardware acceleration for the entire section */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  /* Additional optimization for large sections */
-  contain: layout style paint;
-}
-
-.img-container {
-  width: fit-content;
-  height: 100%;
-  /* Enhanced GPU acceleration */
-  will-change: transform, filter;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  /* Optimize rendering */
-  contain: layout style paint;
-  /* Prevent subpixel rendering issues on mobile */
+/* Root optimizations */
+body {
+  touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.img-container img {
-  /* Force GPU layer for smoother animations */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Projects section */
+.projects {
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Prevent layout shifts */
+  contain: layout style paint;
+}
+
+/* Rows */
+.row {
+  transform: translateZ(0);
+  contain: layout style;
+}
+
+/* Columns */
+.col:nth-child(1),
+.col:nth-child(2) {
+  flex: 5;
+  contain: layout;
+}
+
+.col:nth-child(1) {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row;
+  text-align: start;
+}
+
+.col:nth-child(2) {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  text-align: end;
+}
+
+/* Image container */
+.img-container {
+  width: fit-content;
+  height: 100%;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, filter;
+  contain: layout style paint;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Images inside container */
+.img-container img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Additional mobile optimizations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
   image-rendering: optimizeQuality;
-  /* Prevent image dragging on mobile */
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
   user-select: none;
 }
 
-.img-container p {
-  position: relative;
-  padding: 5px 0;
-  opacity: 1;
-  /* Simplified transition for better performance */
+/* Caption paragraph */
+.col  p { 
+  font-weight: 500;
+  opacity: 0;
   transition: opacity 0.2s ease-out;
-  /* GPU acceleration */
   transform: translateZ(0);
   will-change: opacity;
-  /* Prevent text selection during animations */
   user-select: none;
-  /* Optimize text rendering */
   text-rendering: optimizeSpeed;
 }
 
-.col:nth-child(1) {
-  flex: 5;
-  display: flex;
-  justify-content: flex-end;
-  flex-direction: row;
-  text-align: start;
-  /* Performance optimization */
-  contain: layout;
-}
-
-.col:nth-child(2) {
-  justify-content: flex-end;
-  text-align: end;
-  flex: 5;
-  /* Performance optimization */
-  contain: layout;
-}
-
-/* Additional performance optimizations */
-.row {
-  /* Enable GPU acceleration for rows */
-  transform: translateZ(0);
-  /* Optimize rendering */
-  contain: layout style;
-}
-
-/* Enhanced mobile optimizations */
+/* ✅ Mobile optimizations */
 @media (max-width: 768px) {
   .img-container {
-    /* Reduce complexity on mobile */
     will-change: transform;
   }
-  
+
   .img-container img {
-    /* Optimize image rendering for mobile */
     image-rendering: -webkit-optimize-contrast;
-    /* Reduce transform complexity */
     transform: translate3d(0, 0, 0);
   }
-  
+
   .img-container p {
-    /* Simplify text animations on mobile */
-    will-change: opacity;
     transition: opacity 0.15s ease-out;
   }
 }
 
-/* Additional mobile-specific optimizations */
+/* ✅ High DPI devices (e.g. Retina) */
 @media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
-  /* High DPI mobile devices */
   .img-container img {
-    /* Further optimize for retina displays */
     image-rendering: -webkit-optimize-contrast;
   }
 }
 
-/* Low-end device optimizations */
+/* ✅ Low-end devices */
 @media (max-width: 768px) and (max-resolution: 150dpi) {
   .img-container {
-    /* Minimal GPU usage for low-end devices */
     will-change: auto;
     transform: none;
   }
-  
+
   .img-container img {
     transform: none;
-    /* Use software rendering for very low-end devices */
     image-rendering: optimizeSpeed;
   }
 }
 
-/* Enhanced mobile scroll optimizations */
-body {
-  /* Prevent zoom on double tap - compatible with Lenis */
-  touch-action: manipulation;
-  /* Optimize font rendering */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Prevent scrollbar layout shifts */
-html {
-  scrollbar-gutter: stable;
-}
-
-/* Optimize for reduced motion preferences */
+/* ✅ Reduced motion users */
 @media (prefers-reduced-motion: reduce) {
   .img-container,
   .img-container img,
@@ -150,9 +128,8 @@ html {
   }
 }
 
-/* Performance monitoring class */
+/* ✅ Performance emergency mode */
 .performance-mode .img-container {
-  /* Emergency performance mode */
   will-change: auto;
   transform: none;
   contain: layout;
@@ -163,7 +140,7 @@ html {
   image-rendering: optimizeSpeed;
 }
 
-/* Print optimizations */
+/* ✅ Print */
 @media print {
   .img-container {
     will-change: auto;
