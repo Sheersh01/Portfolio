@@ -93,16 +93,6 @@ nav{
   z-index: 2;
 }
 
-
-.overlay-nav .logo1{
-  align-items: center;
-}
-
-.overlay-nav .logo1 a{
-  text-decoration: none;
-  font-size: 30px;
-  color: #F5E7D3;
-}
 .overlay-nav .toggle-btn1{
   display: flex;
   justify-content: flex-end;

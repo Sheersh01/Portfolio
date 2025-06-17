@@ -27,8 +27,8 @@ varying vec2 vUv;
         float v = smoothstep(0.2, 0.8, normalizedElevation);
         
         // Create spooky color gradients
-        vec4 color1 = mix(c1, c2, v);
-        vec4 color2 = mix(c3, c4, v);
+        vec4 color1 = mix(c1, c3, v);
+        vec4 color2 = mix(c2, c4, v);
         
         // Final color blend
         vec4 finalColor = mix(color1, color2, uColorChange);
