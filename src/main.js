@@ -179,6 +179,10 @@ let initialViewportWidth = window.innerWidth;
 let initialViewportHeight = window.innerHeight;
 let isInitialSetup = true;
 
+// 🔧 MAIN FIX: Fixed viewport dimensions for coordinate calculations
+let fixedViewportWidth = window.innerWidth;
+let fixedViewportHeight = window.innerHeight;
+
 function setupMainContentScene() {
   if (mainContentScene) {
     mainContentScene.clear();
@@ -187,18 +191,18 @@ function setupMainContentScene() {
   mainContentScene.add(textGroup);
 }
 
-// Enhanced coordinate conversion functions
+// Enhanced coordinate conversion functions - 🔧 FIXED: Use stable viewport dimensions
 function screenToWorld(rect, camera) {
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
 
-  const x = (centerX / window.innerWidth) * 2 - 1;
-  const y = -(centerY / window.innerHeight) * 2 + 1;
+  const x = (centerX / fixedViewportWidth) * 2 - 1;
+  const y = -(centerY / fixedViewportHeight) * 2 + 1;
 
   const distance = camera.position.z;
   const vFOV = camera.fov * Math.PI / 180;
   const height = 2 * Math.tan(vFOV / 2) * distance;
-  const width = height * camera.aspect;
+  const width = height * (fixedViewportWidth / fixedViewportHeight); // Use fixed aspect ratio
 
   const worldX = x * (width / 2);
   const worldY = y * (height / 2);
@@ -210,10 +214,10 @@ function getWorldSize(rect, camera) {
   const distance = camera.position.z;
   const vFOV = camera.fov * Math.PI / 180;
   const height = 2 * Math.tan(vFOV / 2) * distance;
-  const width = height * camera.aspect;
+  const width = height * (fixedViewportWidth / fixedViewportHeight); // Use fixed aspect ratio
 
-  const worldWidth = (rect.width / window.innerWidth) * width;
-  const worldHeight = (rect.height / window.innerHeight) * height;
+  const worldWidth = (rect.width / fixedViewportWidth) * width;
+  const worldHeight = (rect.height / fixedViewportHeight) * height;
 
   return { width: worldWidth, height: worldHeight };
 }
@@ -224,16 +228,16 @@ function isElementInView(rect) {
   const vhBuffer = mobile ? 0.25 : 0.1; // 25% on mobile, 10% on desktop
   const vwBuffer = mobile ? 0.25 : 0.1;
 
-  const bufferTop = window.innerHeight * vhBuffer;
-  const bufferBottom = window.innerHeight * vhBuffer;
-  const bufferLeft = window.innerWidth * vwBuffer;
-  const bufferRight = window.innerWidth * vwBuffer;
+  const bufferTop = fixedViewportHeight * vhBuffer; // Use fixed viewport
+  const bufferBottom = fixedViewportHeight * vhBuffer;
+  const bufferLeft = fixedViewportWidth * vwBuffer;
+  const bufferRight = fixedViewportWidth * vwBuffer;
 
   return (
     rect.bottom > -bufferTop &&
-    rect.top < window.innerHeight + bufferBottom &&
+    rect.top < fixedViewportHeight + bufferBottom &&
     rect.right > -bufferLeft &&
-    rect.left < window.innerWidth + bufferRight
+    rect.left < fixedViewportWidth + bufferRight
   );
 }
 
@@ -402,7 +406,11 @@ function setupTextMeshes() {
   if (isInitialSetup) {
     initialViewportWidth = window.innerWidth;
     initialViewportHeight = window.innerHeight;
+    // 🔧 CRITICAL: Set fixed viewport dimensions for coordinate calculations
+    fixedViewportWidth = window.innerWidth;
+    fixedViewportHeight = window.innerHeight;
     isInitialSetup = false;
+    console.log('Fixed viewport dimensions set:', fixedViewportWidth, 'x', fixedViewportHeight);
   }
 }
 
@@ -544,6 +552,11 @@ window.addEventListener('resize', () => {
     initialViewportWidth = window.innerWidth;
     initialViewportHeight = window.innerHeight;
     
+    // 🔧 CRITICAL: Update fixed viewport dimensions for real resizes
+    fixedViewportWidth = window.innerWidth;
+    fixedViewportHeight = window.innerHeight;
+    console.log('Updated fixed viewport dimensions:', fixedViewportWidth, 'x', fixedViewportHeight);
+    
     // Longer debounce on mobile to reduce CPU usage
     const debounceTime = isMobile() ? 200 : 100;
     clearTimeout(window.resizeTimeout);
@@ -551,7 +564,7 @@ window.addEventListener('resize', () => {
       setupTextMeshes(); // Recalculate positions on resize
     }, debounceTime);
   } else if (animationComplete) {
-    console.log('Mobile URL bar change detected, ignoring...');
+    console.log('Mobile URL bar change detected, ignoring... Current:', window.innerWidth, 'x', window.innerHeight, 'Fixed:', fixedViewportWidth, 'x', fixedViewportHeight);
   }
 });
 
