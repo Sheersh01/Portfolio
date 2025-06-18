@@ -141,9 +141,9 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
     uniform float u_bandFreq;
     uniform vec3 u_color1;
     uniform vec3 u_color2;
-    uniform bool u_isMobile;
-    uniform float u_brightness;
-    uniform float u_contrast;
+    uniform bool u_isMobile;        // Add this uniform
+    uniform float u_brightness;     // Add this uniform  
+    uniform float u_contrast;       // Add this uniform
 
     ${qualitySettings.complexNoise ? complexNoiseFunction : simpleNoiseFunction}
 
@@ -267,7 +267,6 @@ if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     console.error('Program link error:', gl.getProgramInfoLog(program));
 }
 
-// Updated uniforms object to include all uniforms used in fragment shader
 const uniforms = {
     time: gl.getUniformLocation(program, 'u_time'),
     resolution: gl.getUniformLocation(program, 'u_resolution'),
@@ -276,10 +275,7 @@ const uniforms = {
     warpScale: gl.getUniformLocation(program, 'u_warpScale'),
     bandFreq: gl.getUniformLocation(program, 'u_bandFreq'),
     color1: gl.getUniformLocation(program, 'u_color1'),
-    color2: gl.getUniformLocation(program, 'u_color2'),
-    isMobile: gl.getUniformLocation(program, 'u_isMobile'),
-    brightness: gl.getUniformLocation(program, 'u_brightness'),
-    contrast: gl.getUniformLocation(program, 'u_contrast')
+    color2: gl.getUniformLocation(program, 'u_color2')
 };
 
 const positions = new Float32Array([
@@ -306,17 +302,13 @@ gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
 // Mobile-optimized parameters
-const speed = isMobile ? 0.06 : 0.08;
-const scale = isMobile ? 0.0008 : 0.001;
-const warpStrength = isMobile ? 6.0 : 8.0;
-const warpScale = isMobile ? 0.4 : 0.5;
-const bandFreq = isMobile ? 3.5 : 4.0;
+const speed = isMobile ? 0.06 : 0.08; // Slightly slower on mobile
+const scale = isMobile ? 0.0008 : 0.001; // Reduced scale for better performance
+const warpStrength = isMobile ? 6.0 : 8.0; // Reduced complexity
+const warpScale = isMobile ? 0.4 : 0.5; // Less complex warping
+const bandFreq = isMobile ? 3.5 : 4.0; // Slightly less frequency
 const color1 = [1.0, 0.1, 0.1];  // desaturated dull red
 const color2 = [0.0, 0.0, 0.0];  // black
-
-// Mobile-specific visual enhancement parameters
-const brightness = isMobile ? 0.1 : 0.0;  // Slightly brighter for mobile
-const contrast = isMobile ? 1.2 : 1.0;    // Higher contrast for mobile
 
 let startTime = Date.now();
 let lastFrameTime = 0;
@@ -365,7 +357,6 @@ function render(currentTime = 0) {
         gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
     }
 
-    // Set all uniforms including the missing ones
     gl.uniform1f(uniforms.time, time);
     gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
     gl.uniform1f(uniforms.scale, scale);
@@ -374,9 +365,6 @@ function render(currentTime = 0) {
     gl.uniform1f(uniforms.bandFreq, bandFreq);
     gl.uniform3f(uniforms.color1, ...color1);
     gl.uniform3f(uniforms.color2, ...color2);
-    gl.uniform1i(uniforms.isMobile, isMobile ? 1 : 0);  // Boolean uniform as integer
-    gl.uniform1f(uniforms.brightness, brightness);
-    gl.uniform1f(uniforms.contrast, contrast);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

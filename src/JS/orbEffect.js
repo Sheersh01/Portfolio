@@ -7,37 +7,15 @@ import pointsFragmentShader from '../shaders/orbFragment.glsl?raw';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Enhanced mobile detection and performance settings
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                 window.innerWidth < 768 || 
-                 ('ontouchstart' in window);
+// Mobile detection and performance settings
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 const isLowEndDevice = navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 4;
-
-// Mobile-specific color and brightness settings
-const colorSettings = {
-    mobile: {
-        brightness: 0.3,
-        contrast: 1.5,
-        pointSizeMult: 1.2,
-        intensityBoost: 1.4,
-        noiseReduction: 0.7
-    },
-    desktop: {
-        brightness: 0.0,
-        contrast: 1.0,
-        pointSizeMult: 1.0,
-        intensityBoost: 1.0,
-        noiseReduction: 1.0
-    }
-};
-
-const deviceSettings = isMobile ? colorSettings.mobile : colorSettings.desktop;
 
 // Dynamic quality settings based on device
 const qualitySettings = {
     subdivisions: isMobile ? (isLowEndDevice ? 70 : 70) : 80,
     pixelRatio: isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2),
-    pointSize: (isMobile ? 8.0 : 15.0) * deviceSettings.pointSizeMult,
+    pointSize: isMobile ? 8.0 : 15.0,
     antialias: !isMobile || !isLowEndDevice,
     shadowMapEnabled: false, // Disable shadows for mobile
     maxLights: isMobile ? 2 : 3
@@ -64,12 +42,6 @@ if (isMobile) {
     renderer.physicallyCorrectLights = false;
 }
 
-// Apply CSS enhancement for mobile
-if (isMobile) {
-    canvas.style.filter = 'brightness(1.3) contrast(1.2) saturate(1.4)';
-    canvas.style.opacity = '1.0';
-}
-
 // Create Points from Icosahedron Geometry with dynamic quality
 const geometry = new THREE.IcosahedronGeometry(2, qualitySettings.subdivisions);
 const pointsMaterial = new THREE.ShaderMaterial({
@@ -78,15 +50,12 @@ const pointsMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTime: { value: 0.0 },
         uColorChange: { value: 0.0 },
-        uNoiseIntensity: { value: (isMobile ? 0.2 : 0.3) * deviceSettings.noiseReduction },
+        uNoiseIntensity: { value: isMobile ? 0.2 : 0.3 },
         uPointSize: { value: qualitySettings.pointSize },
         uCameraPosition: { value: camera.position },
         uOpacity: { value: 0.0 }, // Start invisible
         uScale: { value: 0.0 }, // Start with zero scale
-        // Mobile optimization uniforms
-        uIsMobile: { value: isMobile },
-        uBrightness: { value: deviceSettings.brightness },
-        uContrast: { value: deviceSettings.contrast }
+         uIsMobile: { value: isMobile }    
     },
     transparent: true,
     blending: THREE.AdditiveBlending,
@@ -96,21 +65,18 @@ const pointsMaterial = new THREE.ShaderMaterial({
 const pointsMesh = new THREE.Points(geometry, pointsMaterial);
 scene.add(pointsMesh);
 
-// Enhanced lighting for mobile visibility
-const ambientLightIntensity = isMobile ? 0.4 : 0.2;
-const ambientLight = new THREE.AmbientLight(0x440000, ambientLightIntensity); // Slightly brighter red for mobile
+// Optimized Lighting for mobile
+const ambientLight = new THREE.AmbientLight(0x330000, isMobile ? 0.3 : 0.2);
 scene.add(ambientLight);
 
-const directionalLightIntensity = isMobile ? 0.5 : 0.4;
-const directionalLight = new THREE.DirectionalLight(0xff2222, directionalLightIntensity); // Brighter red for mobile
+const directionalLight = new THREE.DirectionalLight(0xff0000, isMobile ? 0.3 : 0.4);
 directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
 // Only add point light if not low-end mobile
 let pointLight;
 if (!isMobile || !isLowEndDevice) {
-    const pointLightIntensity = isMobile ? 0.8 : 0.6;
-    pointLight = new THREE.PointLight(0xff1111, pointLightIntensity, 12); // Enhanced for mobile
+    pointLight = new THREE.PointLight(0xff0000, 0.6, 12);
     pointLight.position.set(0, 0, 3);
     scene.add(pointLight);
 }
@@ -127,7 +93,7 @@ window.addEventListener('mousemove', (event) => {
     }
 });
 
-// Touch events for mobile (uncommented and enhanced for better mobile experience)
+// Touch events for mobile
 // window.addEventListener('touchstart', (event) => {
 //     isInteracting = true;
 //     const touch = event.touches[0];
@@ -136,12 +102,11 @@ window.addEventListener('mousemove', (event) => {
 // }, { passive: true });
 
 // window.addEventListener('touchmove', (event) => {
-//     if (event.touches.length === 1) { // Only handle single touch to avoid conflicts with scrolling
-//         const touch = event.touches[0];
-//         mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-//         mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
-//     }
-// }, { passive: true });
+//     event.preventDefault(); // Prevent scrolling while touching the orb
+//     const touch = event.touches[0];
+//     mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
+//     mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
+// }, { passive: false });
 
 // window.addEventListener('touchend', () => {
 //     isInteracting = false;
@@ -150,8 +115,8 @@ window.addEventListener('mousemove', (event) => {
 // Animation parameters with mobile optimization
 let animationSpeed = isMobile ? 0.8 : 1.0; // Slightly slower on mobile for better performance
 let colorChange = 0.0;
-let noiseIntensity = (isMobile ? 0.8 : 1.0) * deviceSettings.intensityBoost;
-let pointSize = (isMobile ? 1.5 : 2.0) * deviceSettings.pointSizeMult;
+let noiseIntensity = isMobile ? 0.8 : 1.0;
+let pointSize = isMobile ? 1.5 : 2.0;
 
 // Frame rate management for mobile
 let lastTime = 0;
@@ -173,9 +138,9 @@ function initializeAnimations() {
         ease: "power2.out"
     });
     
-    // Fade in the orb opacity with higher final value for mobile
+    // Fade in the orb opacity
     tl.to(pointsMaterial.uniforms.uOpacity, {
-        value: isMobile ? 1.2 : 1.0, // Slightly more opaque on mobile
+        value: 1.0,
         duration: isMobile ? 1.5 : 2,
         ease: "power2.out"
     }, "-=1");
@@ -212,7 +177,7 @@ window.addEventListener('preloaderComplete', () => {
     setTimeout(initializeAnimations, 200);
 });
 
-// Performance monitoring with mobile-specific adjustments
+// Performance monitoring
 let frameCount = 0;
 let lastFPSCheck = performance.now();
 
@@ -228,11 +193,6 @@ function checkPerformance() {
             // Reduce particle count or other quality settings
             pointsMaterial.uniforms.uNoiseIntensity.value *= 0.8;
             animationSpeed *= 0.9;
-            // Reduce visual effects but maintain visibility
-            deviceSettings.intensityBoost *= 0.95;
-        } else if (fps > 35 && isMobile) {
-            // Performance is good, can increase quality slightly
-            deviceSettings.intensityBoost = Math.min(deviceSettings.intensityBoost * 1.02, 1.6);
         }
         
         frameCount = 0;
@@ -273,11 +233,9 @@ function animate(currentTime = 0) {
     camera.position.z = 5 + Math.sin(elapsedTime * 0.1) * 0.5 * cameraMultiplier;
     camera.lookAt(scene.position);
 
-    // Make point light flicker and move with enhanced intensity for mobile (only if it exists)
+    // Make point light flicker and move (only if it exists)
     if (pointLight) {
-        const baseIntensity = isMobile ? 0.8 : 0.6;
-        const flickerAmount = isMobile ? 0.3 : 0.2;
-        pointLight.intensity = baseIntensity + Math.sin(elapsedTime * 12) * flickerAmount;
+        pointLight.intensity = 0.6 + Math.sin(elapsedTime * 12) * 0.2;
         pointLight.position.x = Math.sin(elapsedTime * 0.5) * 2;
         pointLight.position.y = Math.cos(elapsedTime * 0.7) * 2;
     }
@@ -294,7 +252,7 @@ function animate(currentTime = 0) {
 
 animate();
 
-// Enhanced responsive handling with mobile color adjustments
+// Enhanced responsive handling
 let resizeTimeout;
 window.addEventListener('resize', () => {
     // Debounce resize events for mobile
@@ -309,21 +267,12 @@ window.addEventListener('resize', () => {
         const newIsMobile = window.innerWidth < 768;
         if (newIsMobile !== isMobile) {
             // Adjust settings if orientation changed significantly
-            const newPointSize = (newIsMobile ? 8.0 : 15.0) * deviceSettings.pointSizeMult;
-            pointsMaterial.uniforms.uPointSize.value = newPointSize;
-            pointsMaterial.uniforms.uIsMobile.value = newIsMobile;
-            
-            // Update CSS filters
-            if (newIsMobile) {
-                canvas.style.filter = 'brightness(1.3) contrast(1.2) saturate(1.4)';
-            } else {
-                canvas.style.filter = 'none';
-            }
+            pointsMaterial.uniforms.uPointSize.value = newIsMobile ? 8.0 : 15.0;
         }
     }, 150);
 });
 
-// Enhanced auto color transition with mobile-friendly transitions
+// Optimized auto color transition with longer intervals on mobile
 const colorTransitionInterval = isMobile ? 5000 : 3000;
 setInterval(() => {
     if (Math.random() > 0.7) {
@@ -343,53 +292,16 @@ setInterval(() => {
     }
 }, colorTransitionInterval);
 
-// Enhanced visibility check for mobile battery optimization
+// Pause animation when page is not visible (mobile battery optimization)
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // Page is hidden, pause heavy animations but maintain minimal animation for smooth resume
-        animationSpeed = 0.1;
+        // Page is hidden, pause heavy animations
+        animationSpeed = 0;
     } else {
-        // Page is visible again, resume with brief boost for mobile visibility
-        animationSpeed = isMobile ? 1.0 : 1.0; // Temporary boost
-        setTimeout(() => {
-            animationSpeed = isMobile ? 0.8 : 1.0; // Return to normal
-        }, 1000);
+        // Page is visible again, resume
+        animationSpeed = isMobile ? 0.8 : 1.0;
     }
 });
-
-// Screen brightness and orientation change handlers for mobile
-if (isMobile) {
-    // Handle orientation changes
-    window.addEventListener('orientationchange', () => {
-        setTimeout(() => {
-            // Adjust color settings based on new orientation
-            const isLandscape = window.innerWidth > window.innerHeight;
-            if (isLandscape) {
-                // Landscape might have different lighting conditions
-                pointsMaterial.uniforms.uBrightness.value = deviceSettings.brightness * 0.9;
-            } else {
-                // Portrait mode
-                pointsMaterial.uniforms.uBrightness.value = deviceSettings.brightness;
-            }
-        }, 100);
-    });
-    
-    // Handle potential dark mode changes
-    if (window.matchMedia) {
-        const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        darkModeQuery.addEventListener('change', (e) => {
-            if (e.matches) {
-                // Dark mode - increase brightness more
-                pointsMaterial.uniforms.uBrightness.value = deviceSettings.brightness + 0.1;
-                pointsMaterial.uniforms.uContrast.value = deviceSettings.contrast + 0.1;
-            } else {
-                // Light mode - normal settings
-                pointsMaterial.uniforms.uBrightness.value = deviceSettings.brightness;
-                pointsMaterial.uniforms.uContrast.value = deviceSettings.contrast;
-            }
-        });
-    }
-}
 
 // Memory cleanup for mobile
 window.addEventListener('beforeunload', () => {
@@ -398,13 +310,3 @@ window.addEventListener('beforeunload', () => {
     pointsMaterial.dispose();
     renderer.dispose();
 });
-
-// Console log for debugging mobile settings
-if (isMobile) {
-    console.log('Mobile optimizations applied:', {
-        deviceSettings,
-        qualitySettings,
-        isLowEndDevice,
-        screenSize: `${window.innerWidth}x${window.innerHeight}`
-    });
-}
