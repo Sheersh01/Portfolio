@@ -184,7 +184,18 @@ let fixedViewportWidth = window.innerWidth;
 let fixedViewportHeight = window.innerHeight;
 let fixedAspectRatio = window.innerWidth / window.innerHeight;
 
+// 🚨 DEBUG: Add logging for viewport tracking
+// console.log('🚀 INITIAL SETUP:', {
+//   initialViewportWidth,
+//   initialViewportHeight,
+//   fixedViewportWidth,
+//   fixedViewportHeight,
+//   fixedAspectRatio,
+//   isMobile: isMobile()
+// });
+
 function setupMainContentScene() {
+  // console.log('📋 Setting up main content scene');
   if (mainContentScene) {
     mainContentScene.clear();
   }
@@ -208,6 +219,18 @@ function screenToWorld(rect, camera) {
   const worldX = x * (width / 2);
   const worldY = y * (height / 2);
 
+  // 🚨 DEBUG: Log coordinate conversion
+  // console.log('🌍 screenToWorld:', {
+  //   rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+  //   screen: { centerX, centerY },
+  //   normalized: { x, y },
+  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
+  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
+  //   world: { worldX, worldY },
+  //   cameraDistance: distance,
+  //   worldDimensions: { width, height }
+  // });
+
   return new THREE.Vector3(worldX, worldY, 0);
 }
 
@@ -219,6 +242,15 @@ function getWorldSize(rect, camera) {
 
   const worldWidth = (rect.width / fixedViewportWidth) * width;
   const worldHeight = (rect.height / fixedViewportHeight) * height;
+
+  // 🚨 DEBUG: Log size calculation
+  // console.log('📏 getWorldSize:', {
+  //   rectSize: { width: rect.width, height: rect.height },
+  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
+  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
+  //   worldSize: { width: worldWidth, height: worldHeight },
+  //   scaleFactor: { width: width / fixedViewportWidth, height: height / fixedViewportHeight }
+  // });
 
   return { width: worldWidth, height: worldHeight };
 }
@@ -234,12 +266,23 @@ function isElementInView(rect) {
   const bufferLeft = fixedViewportWidth * vwBuffer;
   const bufferRight = fixedViewportWidth * vwBuffer;
 
-  return (
+  const isVisible = (
     rect.bottom > -bufferTop &&
     rect.top < fixedViewportHeight + bufferBottom &&
     rect.right > -bufferLeft &&
     rect.left < fixedViewportWidth + bufferRight
   );
+
+  // 🚨 DEBUG: Log visibility check
+  // console.log('👁️ isElementInView:', {
+  //   rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right },
+  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
+  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
+  //   buffers: { top: bufferTop, bottom: bufferBottom, left: bufferLeft, right: bufferRight },
+  //   isVisible
+  // });
+
+  return isVisible;
 }
 
 // Mobile-optimized text texture creation
@@ -319,6 +362,16 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   texture.anisotropy = mobile ? 1 : renderer.capabilities.getMaxAnisotropy();
   texture.needsUpdate = true;
 
+  // 🚨 DEBUG: Log texture creation
+  // console.log('🎨 createEnhancedTextTexture:', {
+  //   text,
+  //   fontSize,
+  //   scaledFontSize,
+  //   canvasSize: { width: canvas.width, height: canvas.height },
+  //   scale,
+  //   mobile
+  // });
+
   return texture;
 }
 
@@ -328,6 +381,7 @@ function isRealResize() {
   
   if (!mobile) {
     // On desktop, any resize is considered real
+    // console.log('🖥️ Desktop resize detected - always real');
     return true;
   }
   
@@ -337,17 +391,35 @@ function isRealResize() {
   const widthChanged = Math.abs(window.innerWidth - initialViewportWidth) > 10;
   const heightChangedSignificantly = Math.abs(window.innerHeight - initialViewportHeight) > 150;
   
+  // 🚨 DEBUG: Log resize detection
+  // console.log('📱 Mobile resize detection:', {
+  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
+  //   initialViewport: { width: initialViewportWidth, height: initialViewportHeight },
+  //   widthDiff: window.innerWidth - initialViewportWidth,
+  //   heightDiff: window.innerHeight - initialViewportHeight,
+  //   widthChanged,
+  //   heightChangedSignificantly,
+  //   isRealResize: widthChanged || heightChangedSignificantly
+  // });
+  
   return widthChanged || heightChangedSignificantly;
 }
 
 // Mobile-optimized mesh setup with culling
 function setupTextMeshes() {
-  console.log('Setting up text meshes...');
+  // console.log('🔧 Setting up text meshes...');
+  // console.log('📊 Current viewport state:', {
+  //   current: { width: window.innerWidth, height: window.innerHeight },
+  //   fixed: { width: fixedViewportWidth, height: fixedViewportHeight },
+  //   initial: { width: initialViewportWidth, height: initialViewportHeight },
+  //   fixedAspectRatio
+  // });
+
   textGroup.clear();
   textMeshes.length = 0;
 
   const elements = document.querySelectorAll('.text-canvas');
-  console.log('Found elements:', elements.length);
+  // console.log('🔍 Found elements:', elements.length);
 
   elements.forEach((el, index) => {
     const rect = el.getBoundingClientRect();
@@ -355,7 +427,16 @@ function setupTextMeshes() {
     const computedStyle = getComputedStyle(el);
     const color = computedStyle.color;
 
-    if (rect.width === 0 || rect.height === 0) return; // Skip invisible elements
+    // console.log(`📝 Processing element ${index}:`, {
+    //   text,
+    //   rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+    //   color
+    // });
+
+    if (rect.width === 0 || rect.height === 0) {
+      // console.log(`⚠️ Skipping invisible element ${index}`);
+      return; // Skip invisible elements
+    }
 
     // Get font size from computed style
     const fontSize = parseFloat(computedStyle.fontSize);
@@ -369,6 +450,11 @@ function setupTextMeshes() {
 
     const worldPosition = screenToWorld(rect, camera);
     const worldSize = getWorldSize(rect, camera);
+
+    // console.log(`🌍 Element ${index} world transform:`, {
+    //   worldPosition: { x: worldPosition.x, y: worldPosition.y, z: worldPosition.z },
+    //   worldSize: { width: worldSize.width, height: worldSize.height }
+    // });
 
     // Create texture with mobile-optimized settings
     const texture = createEnhancedTextTexture(text, fontSize, color, textAlign, fontFamily, fontWeight);
@@ -394,14 +480,17 @@ function setupTextMeshes() {
     mesh.userData = {
       startTime: null,
       wasVisible: false,
-      element: el // Store reference to original element
+      element: el, // Store reference to original element
+      elementIndex: index
     };
 
     textGroup.add(mesh);
     textMeshes.push({ el, mesh, mat });
+
+    // console.log(`✅ Created mesh ${index} for "${text}"`);
   });
 
-  console.log('Total text meshes created:', textMeshes.length);
+  // console.log('📊 Total text meshes created:', textMeshes.length);
   
   // 🔧 NEW: Store initial viewport dimensions after first setup
   if (isInitialSetup) {
@@ -412,32 +501,72 @@ function setupTextMeshes() {
     fixedViewportHeight = window.innerHeight;
     fixedAspectRatio = window.innerWidth / window.innerHeight;
     isInitialSetup = false;
-    console.log('Fixed viewport dimensions set:', fixedViewportWidth, 'x', fixedViewportHeight, 'aspect:', fixedAspectRatio);
+    // console.log('🔒 Fixed viewport dimensions set:', {
+    //   fixedViewportWidth,
+    //   fixedViewportHeight,
+    //   fixedAspectRatio
+    // });
   }
 }
 
 // Mobile-optimized update with frustum culling
 function updateTextMeshPositions() {
+  // console.log('🔄 Updating text mesh positions...');
+  // console.log('📏 Current viewport vs fixed:', {
+  //   current: { width: window.innerWidth, height: window.innerHeight },
+  //   fixed: { width: fixedViewportWidth, height: fixedViewportHeight },
+  //   aspectRatio: { current: window.innerWidth / window.innerHeight, fixed: fixedAspectRatio }
+  // });
+
   const mobile = isMobile();
 
-  textMeshes.forEach(({ el, mesh, mat }) => {
+  textMeshes.forEach(({ el, mesh, mat }, index) => {
     const rect = el.getBoundingClientRect();
+
+    // console.log(`🔍 Checking element ${mesh.userData.elementIndex || index}:`, {
+    //   rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+    // });
 
     // More aggressive culling on mobile
     const isVisible = isElementInView(rect);
 
     if (isVisible) {
+      // console.log(`👁️ Element ${mesh.userData.elementIndex || index} is visible, updating position`);
+      
       // Update position for scrolling
       const worldPosition = screenToWorld(rect, camera);
       const worldSize = getWorldSize(rect, camera);
+
+      // console.log(`📐 Element ${mesh.userData.elementIndex || index} new transform:`, {
+      //   oldPosition: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
+      //   newPosition: { x: worldPosition.x, y: worldPosition.y, z: worldPosition.z },
+      //   positionDelta: {
+      //     x: worldPosition.x - mesh.position.x,
+      //     y: worldPosition.y - mesh.position.y
+      //   },
+      //   currentGeometry: {
+      //     width: mesh.geometry.parameters.width,
+      //     height: mesh.geometry.parameters.height
+      //   },
+      //   newSize: { width: worldSize.width, height: worldSize.height }
+      // });
 
       mesh.position.copy(worldPosition);
 
       // Less frequent geometry updates on mobile
       const threshold = mobile ? 0.2 : 0.1;
       const currentGeo = mesh.geometry;
-      if (Math.abs(currentGeo.parameters.width - worldSize.width) > threshold ||
-        Math.abs(currentGeo.parameters.height - worldSize.height) > threshold) {
+      const widthDiff = Math.abs(currentGeo.parameters.width - worldSize.width);
+      const heightDiff = Math.abs(currentGeo.parameters.height - worldSize.height);
+      
+      if (widthDiff > threshold || heightDiff > threshold) {
+        // console.log(`🔄 Element ${mesh.userData.elementIndex || index} geometry update needed:`, {
+        //   widthDiff,
+        //   heightDiff,
+        //   threshold,
+        //   oldSize: { width: currentGeo.parameters.width, height: currentGeo.parameters.height },
+        //   newSize: { width: worldSize.width, height: worldSize.height }
+        // });
 
         currentGeo.dispose();
         mesh.geometry = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
@@ -445,6 +574,7 @@ function updateTextMeshPositions() {
 
       mesh.visible = true;
     } else {
+      // console.log(`🚫 Element ${mesh.userData.elementIndex || index} is not visible`);
       mesh.visible = false;
       // Reset when out of view so it can animate again when back in view
       mesh.userData.wasVisible = false;
@@ -470,7 +600,7 @@ function animate() {
     if (elapsed > 6.2) {
       animationComplete = true;
 
-      console.log('Preloader complete, transitioning to main content...');
+      // console.log('🎬 Preloader complete, transitioning to main content...');
 
       // Hide preloader and show main content
       document.getElementById('preloader').style.display = 'none';
@@ -540,17 +670,38 @@ animate();
 
 // 🔧 MAIN FIX: Enhanced resize handler that ignores mobile URL bar changes
 window.addEventListener('resize', () => {
+  // console.log('🔄 RESIZE EVENT TRIGGERED');
+  // console.log('📊 Resize event data:', {
+  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
+  //   initialViewport: { width: initialViewportWidth, height: initialViewportHeight },
+  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
+  //   animationComplete,
+  //   isMobile: isMobile()
+  // });
+
   // Always update renderer size (this is necessary for proper rendering)
-  renderer.setPixelRatio(getDevicePixelRatio());
+  const oldPixelRatio = renderer.getPixelRatio();
+  const newPixelRatio = getDevicePixelRatio();
+  renderer.setPixelRatio(newPixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
+  
+  // console.log('🖥️ Renderer updated:', {
+  //   pixelRatio: { old: oldPixelRatio, new: newPixelRatio },
+  //   size: { width: window.innerWidth, height: window.innerHeight }
+  // });
 
   // 🔧 KEY FIX: Only update camera aspect ratio for real resizes
   if (animationComplete && isRealResize()) {
-    console.log('Real resize detected, updating camera and text meshes...');
+    // console.log('✅ Real resize detected, updating camera and text meshes...');
     
     // Update camera aspect ratio for real resizes
+    const oldAspect = camera.aspect;
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    
+    // console.log('📷 Camera updated:', {
+    //   aspect: { old: oldAspect, new: camera.aspect }
+    // });
     
     // Update our tracking dimensions
     initialViewportWidth = window.innerWidth;
@@ -560,23 +711,37 @@ window.addEventListener('resize', () => {
     fixedViewportWidth = window.innerWidth;
     fixedViewportHeight = window.innerHeight;
     fixedAspectRatio = window.innerWidth / window.innerHeight;
-    console.log('Updated fixed viewport dimensions:', fixedViewportWidth, 'x', fixedViewportHeight, 'aspect:', fixedAspectRatio);
+    // console.log('🔒 Updated fixed viewport dimensions:', {
+    //   fixedViewportWidth,
+    //   fixedViewportHeight,
+    //   fixedAspectRatio
+    // });
     
     // Longer debounce on mobile to reduce CPU usage
     const debounceTime = isMobile() ? 200 : 100;
     clearTimeout(window.resizeTimeout);
     window.resizeTimeout = setTimeout(() => {
+      // console.log('⏰ Debounced resize - calling setupTextMeshes');
       setupTextMeshes(); // Recalculate positions on resize
     }, debounceTime);
   } else if (animationComplete) {
     // For URL bar changes, keep camera aspect ratio fixed but still update renderer
+    const oldAspect = camera.aspect;
     camera.aspect = fixedAspectRatio;
     camera.updateProjectionMatrix();
-    console.log('Mobile URL bar change detected, keeping fixed aspect ratio:', fixedAspectRatio, 'Current viewport:', window.innerWidth, 'x', window.innerHeight);
+    // console.log('📱 Mobile URL bar change detected, keeping fixed aspect ratio:', {
+    //   fixedAspectRatio,
+    //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
+    //   cameraAspect: { old: oldAspect, new: camera.aspect }
+    // });
   } else {
     // Before animation complete, update camera normally (preloader phase)
+    const oldAspect = camera.aspect;
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    // console.log('🎬 Preloader phase - updating camera normally:', {
+    //   aspect: { old: oldAspect, new: camera.aspect }
+    // });
   }
 });
 
@@ -588,8 +753,16 @@ function handleScroll() {
   const currentScrollY = window.scrollY;
   const scrollDelta = Math.abs(currentScrollY - lastScrollY);
 
+  // console.log('📜 Scroll event:', {
+  //   currentScrollY,
+  //   lastScrollY,
+  //   scrollDelta,
+  //   viewport: { width: window.innerWidth, height: window.innerHeight }
+  // });
+
   // Only update on significant scroll (>5px)
   if (scrollDelta > 5) {
+    // console.log('📜 Significant scroll detected, updating positions');
     updateTextMeshPositions();
   }
   lastScrollY = currentScrollY;
@@ -599,7 +772,6 @@ window.addEventListener('scroll', () => {
   clearTimeout(scrollTimeout);
   scrollTimeout = setTimeout(handleScroll, 50);
 });
-
 // Additional setup when preloader completes
 window.addEventListener('preloaderComplete', () => {
   // Wait for browser to finish rendering
