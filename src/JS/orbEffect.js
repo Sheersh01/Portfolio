@@ -13,9 +13,9 @@ const isLowEndDevice = navigator.hardwareConcurrency <= 4 || navigator.deviceMem
 
 // Dynamic quality settings based on device
 const qualitySettings = {
-    subdivisions: isMobile ? (isLowEndDevice ? 80 : 80) : 80,
+    subdivisions: isMobile ? (isLowEndDevice ? 70 : 70) : 80,
     pixelRatio: isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2),
-    pointSize: isMobile ? 10.0 : 15.0,
+    pointSize: isMobile ? 8.0 : 15.0,
     antialias: !isMobile || !isLowEndDevice,
     shadowMapEnabled: false, // Disable shadows for mobile
     maxLights: isMobile ? 2 : 3
