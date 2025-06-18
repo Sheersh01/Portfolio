@@ -1,24 +1,30 @@
-import * as THREE from 'three';
-import vertex from './shaders/vertex.glsl?raw';
-import fragment from './shaders/fragment.glsl?raw';
+import * as THREE from "three";
+import vertex from "./shaders/vertex.glsl?raw";
+import fragment from "./shaders/fragment.glsl?raw";
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(
+  45,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
+);
 camera.position.z = 5;
 
 const renderer = new THREE.WebGLRenderer({
-  antialias: !isMobile(), // Disable antialiasing on mobile for better performance
+  antialias: !isMobile(),
   alpha: true,
-  powerPreference: "high-performance" // Request high-performance GPU on mobile
+  powerPreference: "high-performance",
 });
 
-// Enhanced mobile detection
 function isMobile() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-    window.innerWidth < 768;
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    ) || window.innerWidth < 768
+  );
 }
 
-// Get device pixel ratio with mobile-specific caps
 function getDevicePixelRatio() {
   if (isMobile()) {
     return Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x on mobile
@@ -26,13 +32,11 @@ function getDevicePixelRatio() {
   return Math.min(window.devicePixelRatio || 1, 3); // Cap at 3x on desktop
 }
 
-// 🔧 FIX 1: Set pixel ratio immediately after creating renderer
 renderer.setPixelRatio(getDevicePixelRatio());
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('preloader').appendChild(renderer.domElement);
+document.getElementById("preloader").appendChild(renderer.domElement);
 
-function createTextTexture(text, color = 'white') {
-  // Enhanced responsive scaling with mobile-first approach
+function createTextTexture(text, color = "white") {
   const width = window.innerWidth;
   const dpr = getDevicePixelRatio();
   const mobile = isMobile();
@@ -41,8 +45,8 @@ function createTextTexture(text, color = 'white') {
   let geometryScale = 1;
 
   if (width < 480) {
-    fontScale = 0.7; // Slightly smaller for very small screens
-    geometryScale = 0.6; // More aggressive scaling
+    fontScale = 0.7;
+    geometryScale = 0.6;
   } else if (width < 640) {
     fontScale = 0.6;
     geometryScale = 0.6;
@@ -60,92 +64,77 @@ function createTextTexture(text, color = 'white') {
     geometryScale = 1.0;
   }
 
-  // 🔧 FIX 4: Mobile-optimized texture scaling
   let scale;
   if (mobile) {
-    scale = Math.max(1.5, dpr * 1.5); // Lower minimum for mobile
+    scale = Math.max(1.5, dpr * 1.5);
   } else {
     scale = Math.max(2, dpr * 2);
   }
 
-  const baseWidth = mobile ? 512 : 1024; // Smaller base size for mobile
+  const baseWidth = mobile ? 512 : 1024;
   const baseHeight = mobile ? 128 : 256;
   const canvasWidth = baseWidth * scale;
   const canvasHeight = baseHeight * scale;
 
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
 
-  // Mobile-optimized rendering settings
-  ctx.imageSmoothingEnabled = !mobile; // Disable on mobile for performance
+  ctx.imageSmoothingEnabled = !mobile;
   if (!mobile) {
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = "high";
   }
 
   ctx.scale(scale, scale);
   ctx.fillStyle = color;
 
-  // Apply responsive font sizing
-  const baseFontSize = mobile ? 100 : 120; // Smaller base font for mobile
+  const baseFontSize = mobile ? 100 : 120;
   const responsiveFontSize = baseFontSize * fontScale;
 
   ctx.font = `bold ${responsiveFontSize}px Arial`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
   ctx.fillText(text, baseWidth / 2, baseHeight / 2);
 
   const texture = new THREE.CanvasTexture(canvas);
 
-  // Mobile-optimized filtering
   if (mobile) {
-    texture.minFilter = THREE.LinearFilter; // Always use linear on mobile
+    texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
   } else {
-    // 🔧 FIX 3: Option for sharper filtering on desktop
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
   }
-
   texture.generateMipmaps = false;
   texture.anisotropy = mobile ? 1 : renderer.capabilities.getMaxAnisotropy(); // Disable anisotropy on mobile
   texture.needsUpdate = true;
-
   return { texture, geometryScale };
 }
 
-// Enhanced responsive layout with better mobile handling
 function getResponsiveLayout() {
   const width = window.innerWidth;
-  // const mobile = isMobile();
 
   if (width < 640) {
-    // Vertical stack for mobile with tighter spacing
     const spacing = width < 480 ? 0.4 : 0.6;
     return {
-      positions: [0, 0, 0], // All centered horizontally
-      yOffsets: [spacing, 0, -spacing] // Vertical stack
+      positions: [0, 0, 0],
+      yOffsets: [spacing, 0, -spacing],
     };
   } else {
-    // Horizontal layout for larger screens
     const spacing = width < 768 ? 0.9 : 1.0;
     return {
       positions: [-spacing, 0, spacing],
-      yOffsets: [0, 0, 0]
+      yOffsets: [0, 0, 0],
     };
   }
 }
 
-// Update your preloader setup section
-const texts = ['Looks', 'Doesn`t', 'Matter'];
+const texts = ["Looks", "Doesn`t", "Matter"];
 const materials = [];
-
 const { positions, yOffsets } = getResponsiveLayout();
-
 texts.forEach((text, i) => {
   const { texture, geometryScale } = createTextTexture(text);
-
   const geometry = new THREE.PlaneGeometry(
     2.5 * geometryScale,
     0.625 * geometryScale
@@ -157,7 +146,7 @@ texts.forEach((text, i) => {
     uniforms: {
       uTime: { value: 0 },
       uTextTexture: { value: texture },
-      uIsRedWord: { value: text === 'Doesn`t' }
+      uIsRedWord: { value: text === "Doesn`t" },
     },
     transparent: true,
   });
@@ -169,33 +158,17 @@ texts.forEach((text, i) => {
   materials.push(material);
 });
 
-// TEXT-CANVAS MESH SETUP
 const textMeshes = [];
 const textGroup = new THREE.Group();
 let mainContentScene;
-
-// 🔧 NEW: Track viewport dimensions to detect real resize vs mobile URL bar
 let initialViewportWidth = window.innerWidth;
 let initialViewportHeight = window.innerHeight;
 let isInitialSetup = true;
-
-// 🔧 MAIN FIX: Fixed viewport dimensions for coordinate calculations
 let fixedViewportWidth = window.innerWidth;
 let fixedViewportHeight = window.innerHeight;
 let fixedAspectRatio = window.innerWidth / window.innerHeight;
 
-// 🚨 DEBUG: Add logging for viewport tracking
-// console.log('🚀 INITIAL SETUP:', {
-//   initialViewportWidth,
-//   initialViewportHeight,
-//   fixedViewportWidth,
-//   fixedViewportHeight,
-//   fixedAspectRatio,
-//   isMobile: isMobile()
-// });
-
 function setupMainContentScene() {
-  // console.log('📋 Setting up main content scene');
   if (mainContentScene) {
     mainContentScene.clear();
   }
@@ -203,147 +176,106 @@ function setupMainContentScene() {
   mainContentScene.add(textGroup);
 }
 
-// Enhanced coordinate conversion functions - 🔧 FIXED: Use stable viewport dimensions
 function screenToWorld(rect, camera) {
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
-
+  
+  // Always use the fixed viewport dimensions for consistency
   const x = (centerX / fixedViewportWidth) * 2 - 1;
   const y = -(centerY / fixedViewportHeight) * 2 + 1;
-
+  
   const distance = camera.position.z;
-  const vFOV = camera.fov * Math.PI / 180;
+  const vFOV = (camera.fov * Math.PI) / 180;
   const height = 2 * Math.tan(vFOV / 2) * distance;
-  const width = height * (fixedViewportWidth / fixedViewportHeight); // Use fixed aspect ratio
-
+  const width = height * fixedAspectRatio; // Use fixed aspect ratio
+  
   const worldX = x * (width / 2);
   const worldY = y * (height / 2);
-
-  // 🚨 DEBUG: Log coordinate conversion
-  // console.log('🌍 screenToWorld:', {
-  //   rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-  //   screen: { centerX, centerY },
-  //   normalized: { x, y },
-  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
-  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
-  //   world: { worldX, worldY },
-  //   cameraDistance: distance,
-  //   worldDimensions: { width, height }
-  // });
 
   return new THREE.Vector3(worldX, worldY, 0);
 }
 
 function getWorldSize(rect, camera) {
   const distance = camera.position.z;
-  const vFOV = camera.fov * Math.PI / 180;
+  const vFOV = (camera.fov * Math.PI) / 180;
   const height = 2 * Math.tan(vFOV / 2) * distance;
-  const width = height * (fixedViewportWidth / fixedViewportHeight); // Use fixed aspect ratio
-
+  const width = height * fixedAspectRatio; // Use fixed aspect ratio
+  
   const worldWidth = (rect.width / fixedViewportWidth) * width;
   const worldHeight = (rect.height / fixedViewportHeight) * height;
-
-  // 🚨 DEBUG: Log size calculation
-  // console.log('📏 getWorldSize:', {
-  //   rectSize: { width: rect.width, height: rect.height },
-  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
-  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
-  //   worldSize: { width: worldWidth, height: worldHeight },
-  //   scaleFactor: { width: width / fixedViewportWidth, height: height / fixedViewportHeight }
-  // });
 
   return { width: worldWidth, height: worldHeight };
 }
 
 function isElementInView(rect) {
   const mobile = isMobile();
-  // Use percentage-based buffers for better responsiveness
-  const vhBuffer = mobile ? 0.25 : 0.1; // 25% on mobile, 10% on desktop
+  const vhBuffer = mobile ? 0.25 : 0.1;
   const vwBuffer = mobile ? 0.25 : 0.1;
-
-  const bufferTop = fixedViewportHeight * vhBuffer; // Use fixed viewport
+  const bufferTop = fixedViewportHeight * vhBuffer;
   const bufferBottom = fixedViewportHeight * vhBuffer;
   const bufferLeft = fixedViewportWidth * vwBuffer;
   const bufferRight = fixedViewportWidth * vwBuffer;
-
-  const isVisible = (
+  const isVisible =
     rect.bottom > -bufferTop &&
     rect.top < fixedViewportHeight + bufferBottom &&
     rect.right > -bufferLeft &&
-    rect.left < fixedViewportWidth + bufferRight
-  );
-
-  // 🚨 DEBUG: Log visibility check
-  // console.log('👁️ isElementInView:', {
-  //   rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right },
-  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
-  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
-  //   buffers: { top: bufferTop, bottom: bufferBottom, left: bufferLeft, right: bufferRight },
-  //   isVisible
-  // });
+    rect.left < fixedViewportWidth + bufferRight;
 
   return isVisible;
 }
 
-// Mobile-optimized text texture creation
-function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 'center', fontFamily = 'Arial', fontWeight = 'normal') {
+function createEnhancedTextTexture(
+  text,
+  fontSize,
+  color = "white",
+  alignment = "center",
+  fontFamily = "Arial",
+  fontWeight = "normal"
+) {
   const dpr = getDevicePixelRatio();
   const mobile = isMobile();
-
-  // 🔧 FIX 4: Mobile-optimized scaling
   let scale;
   if (mobile) {
-    scale = Math.max(2, dpr * 1.5); // Lower scaling for mobile
+    scale = Math.max(2, dpr * 1.5);
   } else {
     scale = Math.max(3, dpr * 2);
   }
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  // Set font to measure text with scaled font size
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
   const scaledFontSize = fontSize * scale;
   ctx.font = `${fontWeight} ${scaledFontSize}px ${fontFamily}`;
-
-  // Handle multi-line text
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   const lineHeight = scaledFontSize * 1.2;
-  const maxWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
-
-  // Calculate canvas size with proper padding - mobile optimized
+  const maxWidth = Math.max(
+    ...lines.map((line) => ctx.measureText(line).width)
+  );
   const padding = (mobile ? 10 : 20) * scale;
   const minWidth = mobile ? 256 : 512;
   const minHeight = mobile ? 64 : 128;
-
   canvas.width = Math.max(maxWidth + padding * 2, minWidth);
   canvas.height = Math.max(lines.length * lineHeight + padding * 2, minHeight);
 
-  // Mobile-optimized rendering settings
-  ctx.imageSmoothingEnabled = !mobile; // Disable on mobile
+  ctx.imageSmoothingEnabled = !mobile;
   if (!mobile) {
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = "high";
   }
-
-  // Clear and set up context again after resizing
   ctx.fillStyle = color;
   ctx.font = `${fontWeight} ${scaledFontSize}px ${fontFamily}`;
-  ctx.textBaseline = 'top';
-
-  // Set text alignment
-  if (alignment === 'left') {
-    ctx.textAlign = 'left';
-  } else if (alignment === 'right') {
-    ctx.textAlign = 'right';
+  ctx.textBaseline = "top";
+  if (alignment === "left") {
+    ctx.textAlign = "left";
+  } else if (alignment === "right") {
+    ctx.textAlign = "right";
   } else {
-    ctx.textAlign = 'center';
+    ctx.textAlign = "center";
   }
 
-  // Draw each line
   lines.forEach((line, index) => {
     let x;
-    if (alignment === 'left') {
+    if (alignment === "left") {
       x = padding;
-    } else if (alignment === 'right') {
+    } else if (alignment === "right") {
       x = canvas.width - padding;
     } else {
       x = canvas.width / 2;
@@ -355,71 +287,33 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
 
   const texture = new THREE.CanvasTexture(canvas);
 
-  // Mobile-optimized texture settings
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
   texture.generateMipmaps = false;
   texture.anisotropy = mobile ? 1 : renderer.capabilities.getMaxAnisotropy();
   texture.needsUpdate = true;
 
-  // 🚨 DEBUG: Log texture creation
-  // console.log('🎨 createEnhancedTextTexture:', {
-  //   text,
-  //   fontSize,
-  //   scaledFontSize,
-  //   canvasSize: { width: canvas.width, height: canvas.height },
-  //   scale,
-  //   mobile
-  // });
-
   return texture;
 }
 
-// 🔧 NEW: Function to detect if this is a real resize or just mobile URL bar
 function isRealResize() {
   const mobile = isMobile();
-  
   if (!mobile) {
-    // On desktop, any resize is considered real
-    // console.log('🖥️ Desktop resize detected - always real');
     return true;
   }
   
-  // On mobile, only consider it a real resize if:
-  // 1. Width changed (orientation change)
-  // 2. Height changed significantly (more than 150px - typical URL bar height)
   const widthChanged = Math.abs(window.innerWidth - initialViewportWidth) > 10;
   const heightChangedSignificantly = Math.abs(window.innerHeight - initialViewportHeight) > 150;
   
-  // 🚨 DEBUG: Log resize detection
-  // console.log('📱 Mobile resize detection:', {
-  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
-  //   initialViewport: { width: initialViewportWidth, height: initialViewportHeight },
-  //   widthDiff: window.innerWidth - initialViewportWidth,
-  //   heightDiff: window.innerHeight - initialViewportHeight,
-  //   widthChanged,
-  //   heightChangedSignificantly,
-  //   isRealResize: widthChanged || heightChangedSignificantly
-  // });
-  
+  // On mobile, only treat as real resize if:
+  // 1. Width changed (orientation change)
+  // 2. Height changed by more than 150px (keyboard, significant UI change)
   return widthChanged || heightChangedSignificantly;
 }
-
-// Mobile-optimized mesh setup with culling
 function setupTextMeshes() {
-  // console.log('🔧 Setting up text meshes...');
-  // console.log('📊 Current viewport state:', {
-  //   current: { width: window.innerWidth, height: window.innerHeight },
-  //   fixed: { width: fixedViewportWidth, height: fixedViewportHeight },
-  //   initial: { width: initialViewportWidth, height: initialViewportHeight },
-  //   fixedAspectRatio
-  // });
-
   textGroup.clear();
   textMeshes.length = 0;
-
-  const elements = document.querySelectorAll('.text-canvas');
-  // console.log('🔍 Found elements:', elements.length);
+  const elements = document.querySelectorAll(".text-canvas");
 
   elements.forEach((el, index) => {
     const rect = el.getBoundingClientRect();
@@ -427,156 +321,86 @@ function setupTextMeshes() {
     const computedStyle = getComputedStyle(el);
     const color = computedStyle.color;
 
-    // console.log(`📝 Processing element ${index}:`, {
-    //   text,
-    //   rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-    //   color
-    // });
-
     if (rect.width === 0 || rect.height === 0) {
-      // console.log(`⚠️ Skipping invisible element ${index}`);
-      return; // Skip invisible elements
+      return;
     }
 
-    // Get font size from computed style
     const fontSize = parseFloat(computedStyle.fontSize);
-
-    // Get text alignment
     const textAlign = computedStyle.textAlign;
-
-    // Get font family and weight
-    const fontFamily = computedStyle.fontFamily || 'Arial';
-    const fontWeight = computedStyle.fontWeight || 'normal';
-
+    const fontFamily = computedStyle.fontFamily || "Arial";
+    const fontWeight = computedStyle.fontWeight || "normal";
     const worldPosition = screenToWorld(rect, camera);
     const worldSize = getWorldSize(rect, camera);
-
-    // console.log(`🌍 Element ${index} world transform:`, {
-    //   worldPosition: { x: worldPosition.x, y: worldPosition.y, z: worldPosition.z },
-    //   worldSize: { width: worldSize.width, height: worldSize.height }
-    // });
-
-    // Create texture with mobile-optimized settings
-    const texture = createEnhancedTextTexture(text, fontSize, color, textAlign, fontFamily, fontWeight);
-
+    const texture = createEnhancedTextTexture(
+      text,
+      fontSize,
+      color,
+      textAlign,
+      fontFamily,
+      fontWeight
+    );
     const geo = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
     const mat = new THREE.ShaderMaterial({
       vertexShader: vertex,
       fragmentShader: fragment,
       uniforms: {
-        uTime: { value: -1 }, // Signal this is canvas text
-        uCanvasTime: { value: 0 }, // NEW: Separate time variable for canvas effects
+        uTime: { value: -1 },
+        uCanvasTime: { value: 0 },
         uTextTexture: { value: texture },
-        uIsRedWord: { value: false }
+        uIsRedWord: { value: false },
       },
-      transparent: true
+      transparent: true,
     });
 
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.copy(worldPosition);
     mesh.visible = true;
-
-    // Track animation state
     mesh.userData = {
       startTime: null,
       wasVisible: false,
-      element: el, // Store reference to original element
-      elementIndex: index
+      element: el,
+      elementIndex: index,
     };
-
     textGroup.add(mesh);
     textMeshes.push({ el, mesh, mat });
-
-    // console.log(`✅ Created mesh ${index} for "${text}"`);
   });
-
-  // console.log('📊 Total text meshes created:', textMeshes.length);
-  
-  // 🔧 NEW: Store initial viewport dimensions after first setup
   if (isInitialSetup) {
     initialViewportWidth = window.innerWidth;
     initialViewportHeight = window.innerHeight;
-    // 🔧 CRITICAL: Set fixed viewport dimensions for coordinate calculations
     fixedViewportWidth = window.innerWidth;
     fixedViewportHeight = window.innerHeight;
     fixedAspectRatio = window.innerWidth / window.innerHeight;
     isInitialSetup = false;
-    // console.log('🔒 Fixed viewport dimensions set:', {
-    //   fixedViewportWidth,
-    //   fixedViewportHeight,
-    //   fixedAspectRatio
-    // });
   }
 }
 
-// Mobile-optimized update with frustum culling
 function updateTextMeshPositions() {
-  // console.log('🔄 Updating text mesh positions...');
-  // console.log('📏 Current viewport vs fixed:', {
-  //   current: { width: window.innerWidth, height: window.innerHeight },
-  //   fixed: { width: fixedViewportWidth, height: fixedViewportHeight },
-  //   aspectRatio: { current: window.innerWidth / window.innerHeight, fixed: fixedAspectRatio }
-  // });
-
   const mobile = isMobile();
-
   textMeshes.forEach(({ el, mesh, mat }, index) => {
     const rect = el.getBoundingClientRect();
-
-    // console.log(`🔍 Checking element ${mesh.userData.elementIndex || index}:`, {
-    //   rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
-    // });
-
-    // More aggressive culling on mobile
     const isVisible = isElementInView(rect);
 
     if (isVisible) {
-      // console.log(`👁️ Element ${mesh.userData.elementIndex || index} is visible, updating position`);
-      
-      // Update position for scrolling
       const worldPosition = screenToWorld(rect, camera);
       const worldSize = getWorldSize(rect, camera);
-
-      // console.log(`📐 Element ${mesh.userData.elementIndex || index} new transform:`, {
-      //   oldPosition: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
-      //   newPosition: { x: worldPosition.x, y: worldPosition.y, z: worldPosition.z },
-      //   positionDelta: {
-      //     x: worldPosition.x - mesh.position.x,
-      //     y: worldPosition.y - mesh.position.y
-      //   },
-      //   currentGeometry: {
-      //     width: mesh.geometry.parameters.width,
-      //     height: mesh.geometry.parameters.height
-      //   },
-      //   newSize: { width: worldSize.width, height: worldSize.height }
-      // });
-
       mesh.position.copy(worldPosition);
-
-      // Less frequent geometry updates on mobile
       const threshold = mobile ? 0.2 : 0.1;
       const currentGeo = mesh.geometry;
       const widthDiff = Math.abs(currentGeo.parameters.width - worldSize.width);
-      const heightDiff = Math.abs(currentGeo.parameters.height - worldSize.height);
-      
+      const heightDiff = Math.abs(
+        currentGeo.parameters.height - worldSize.height
+      );
+
       if (widthDiff > threshold || heightDiff > threshold) {
-        // console.log(`🔄 Element ${mesh.userData.elementIndex || index} geometry update needed:`, {
-        //   widthDiff,
-        //   heightDiff,
-        //   threshold,
-        //   oldSize: { width: currentGeo.parameters.width, height: currentGeo.parameters.height },
-        //   newSize: { width: worldSize.width, height: worldSize.height }
-        // });
-
         currentGeo.dispose();
-        mesh.geometry = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
+        mesh.geometry = new THREE.PlaneGeometry(
+          worldSize.width,
+          worldSize.height
+        );
       }
-
       mesh.visible = true;
     } else {
-      // console.log(`🚫 Element ${mesh.userData.elementIndex || index} is not visible`);
       mesh.visible = false;
-      // Reset when out of view so it can animate again when back in view
       mesh.userData.wasVisible = false;
     }
   });
@@ -589,204 +413,118 @@ function animate() {
   const elapsed = clock.getElapsedTime();
 
   if (!animationComplete) {
-    // PRELOADER PHASE - Keep your original perfect logic
     materials.forEach((mat) => {
       mat.uniforms.uTime.value = elapsed;
     });
-
     renderer.render(scene, camera);
-
-    // When preloader animation is complete - Your original timing!
     if (elapsed > 6.2) {
       animationComplete = true;
-
-      // console.log('🎬 Preloader complete, transitioning to main content...');
-
-      // Hide preloader and show main content
-      document.getElementById('preloader').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-
-      // Move renderer canvas to main content
-      const mainContentDiv = document.getElementById('main-content');
-      renderer.domElement.style.position = 'fixed';
-      renderer.domElement.style.top = '0';
-      renderer.domElement.style.left = '0';
-      renderer.domElement.style.width = '100vw';
-      renderer.domElement.style.height = '100vh';
-      renderer.domElement.style.pointerEvents = 'none';
-      renderer.domElement.style.zIndex = '100';
+      document.getElementById("preloader").style.display = "none";
+      document.getElementById("main-content").style.display = "block";
+      const mainContentDiv = document.getElementById("main-content");
+      renderer.domElement.style.position = "fixed";
+      renderer.domElement.style.top = "0";
+      renderer.domElement.style.left = "0";
+      renderer.domElement.style.width = "100vw";
+      renderer.domElement.style.height = "100vh";
+      renderer.domElement.style.pointerEvents = "none";
+      renderer.domElement.style.zIndex = "100";
       mainContentDiv.appendChild(renderer.domElement);
-
       setupMainContentScene();
-
-      // Setup text meshes after DOM settles
       setTimeout(() => {
         setupTextMeshes();
       }, 200);
-
-      // Dispatch custom event to signal home page animation can start
-      window.dispatchEvent(new CustomEvent('preloaderComplete'));
+      window.dispatchEvent(new CustomEvent("preloaderComplete"));
     }
   } else {
-    // MAIN CONTENT PHASE - Text canvas effects with mobile optimization
     textMeshes.forEach(({ el, mesh, mat }) => {
       const rect = el.getBoundingClientRect();
-
-      // More aggressive culling on mobile
       const isVisible = isElementInView(rect);
-
       if (isVisible) {
-        // Update position for scrolling
         const worldPosition = screenToWorld(rect, camera);
         mesh.position.copy(worldPosition);
-
-        // Handle separate canvas time
         if (!mesh.userData.wasVisible) {
           mesh.userData.startTime = elapsed;
           mesh.userData.wasVisible = true;
         }
-
-        // Use separate time variables
         const canvasTime = elapsed - (mesh.userData.startTime || elapsed);
-        mat.uniforms.uCanvasTime.value = canvasTime; // Use this for canvas-specific effects
-
+        mat.uniforms.uCanvasTime.value = canvasTime;
         mesh.visible = true;
       } else {
         mesh.visible = false;
-        // Reset when out of view so it can animate again when back in view
         mesh.userData.wasVisible = false;
       }
     });
-
     if (mainContentScene) {
       renderer.render(mainContentScene, camera);
     }
   }
-
   requestAnimationFrame(animate);
 }
-
 animate();
 
-// 🔧 MAIN FIX: Enhanced resize handler that ignores mobile URL bar changes
-window.addEventListener('resize', () => {
-  // console.log('🔄 RESIZE EVENT TRIGGERED');
-  // console.log('📊 Resize event data:', {
-  //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
-  //   initialViewport: { width: initialViewportWidth, height: initialViewportHeight },
-  //   fixedViewport: { width: fixedViewportWidth, height: fixedViewportHeight },
-  //   animationComplete,
-  //   isMobile: isMobile()
-  // });
-
-  // Always update renderer size (this is necessary for proper rendering)
+window.addEventListener("resize", () => {
   const oldPixelRatio = renderer.getPixelRatio();
   const newPixelRatio = getDevicePixelRatio();
   renderer.setPixelRatio(newPixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  
-  // console.log('🖥️ Renderer updated:', {
-  //   pixelRatio: { old: oldPixelRatio, new: newPixelRatio },
-  //   size: { width: window.innerWidth, height: window.innerHeight }
-  // });
 
-  // 🔧 KEY FIX: Only update camera aspect ratio for real resizes
   if (animationComplete && isRealResize()) {
-    // console.log('✅ Real resize detected, updating camera and text meshes...');
-    
-    // Update camera aspect ratio for real resizes
-    const oldAspect = camera.aspect;
+    // This is a real orientation/window resize
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    
-    // console.log('📷 Camera updated:', {
-    //   aspect: { old: oldAspect, new: camera.aspect }
-    // });
-    
-    // Update our tracking dimensions
     initialViewportWidth = window.innerWidth;
     initialViewportHeight = window.innerHeight;
-    
-    // 🔧 CRITICAL: Update fixed viewport dimensions for real resizes
     fixedViewportWidth = window.innerWidth;
     fixedViewportHeight = window.innerHeight;
     fixedAspectRatio = window.innerWidth / window.innerHeight;
-    // console.log('🔒 Updated fixed viewport dimensions:', {
-    //   fixedViewportWidth,
-    //   fixedViewportHeight,
-    //   fixedAspectRatio
-    // });
-    
-    // Longer debounce on mobile to reduce CPU usage
     const debounceTime = isMobile() ? 200 : 100;
     clearTimeout(window.resizeTimeout);
     window.resizeTimeout = setTimeout(() => {
-      // console.log('⏰ Debounced resize - calling setupTextMeshes');
-      setupTextMeshes(); // Recalculate positions on resize
+      setupTextMeshes();
     }, debounceTime);
   } else if (animationComplete) {
-    // For URL bar changes, keep camera aspect ratio fixed but still update renderer
-    const oldAspect = camera.aspect;
+    // This is likely a URL bar show/hide - maintain consistent world coordinates
+    // Keep the original camera aspect ratio
     camera.aspect = fixedAspectRatio;
     camera.updateProjectionMatrix();
-    // console.log('📱 Mobile URL bar change detected, keeping fixed aspect ratio:', {
-    //   fixedAspectRatio,
-    //   currentViewport: { width: window.innerWidth, height: window.innerHeight },
-    //   cameraAspect: { old: oldAspect, new: camera.aspect }
-    // });
+    
+    // Don't update text mesh positions for URL bar changes
+    // The existing positions should remain stable
   } else {
-    // Before animation complete, update camera normally (preloader phase)
-    const oldAspect = camera.aspect;
+    // During preloader animation
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    // console.log('🎬 Preloader phase - updating camera normally:', {
-    //   aspect: { old: oldAspect, new: camera.aspect }
-    // });
   }
 });
-
-// NEW: Improved scroll handling with delta check
 let lastScrollY = window.scrollY;
 let scrollTimeout;
 
 function handleScroll() {
   const currentScrollY = window.scrollY;
   const scrollDelta = Math.abs(currentScrollY - lastScrollY);
-
-  // console.log('📜 Scroll event:', {
-  //   currentScrollY,
-  //   lastScrollY,
-  //   scrollDelta,
-  //   viewport: { width: window.innerWidth, height: window.innerHeight }
-  // });
-
-  // Only update on significant scroll (>5px)
   if (scrollDelta > 5) {
-    // console.log('📜 Significant scroll detected, updating positions');
     updateTextMeshPositions();
   }
   lastScrollY = currentScrollY;
 }
 
-window.addEventListener('scroll', () => {
+window.addEventListener("scroll", () => {
   clearTimeout(scrollTimeout);
   scrollTimeout = setTimeout(handleScroll, 50);
 });
-// Additional setup when preloader completes
-window.addEventListener('preloaderComplete', () => {
-  // Wait for browser to finish rendering
+
+window.addEventListener("preloaderComplete", () => {
   requestAnimationFrame(() => {
     setTimeout(setupTextMeshes, 300);
   });
   setTimeout(() => {
-  document.getElementById('gradient').style.opacity = '0.2';
-}, 500); 
+    document.getElementById("gradient").style.opacity = "0.2";
+  }, 500);
 });
 
-// Memory cleanup on page unload (important for mobile)
-window.addEventListener('beforeunload', () => {
-  // Dispose of geometries and materials
-  materials.forEach(mat => {
+window.addEventListener("beforeunload", () => {
+  materials.forEach((mat) => {
     if (mat.uniforms.uTextTexture.value) {
       mat.uniforms.uTextTexture.value.dispose();
     }
@@ -800,6 +538,5 @@ window.addEventListener('beforeunload', () => {
     }
     mat.dispose();
   });
-
   renderer.dispose();
 });
