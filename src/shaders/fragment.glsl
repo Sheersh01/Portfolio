@@ -2,8 +2,9 @@ varying vec2 vUv;
 
 uniform sampler2D uTextTexture;
 uniform float uTime;
-uniform float uCanvasTime; // NEW: Separate time for canvas effects
+uniform float uCanvasTime;
 uniform bool uIsRedWord;
+uniform bool uIsBlackWord;
 
 vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
@@ -51,30 +52,51 @@ float cnoise(vec3 P) {
 }
 
 void main() {
-  // Use uTime for preloader effects, uCanvasTime for canvas text effects
   bool isCanvasText = uTime < 0.0;
   float timeToUse = isCanvasText ? uCanvasTime : uTime;
   
   float noise = cnoise(vec3(vUv * 40.0, timeToUse * 0.5)) * 0.5 + 0.5;
-
-  // For canvas text: Only fade in, no fade out
-  float fadeIn = smoothstep(noise - 0.1, noise + 0.1, clamp(timeToUse / 2.0, 0.0, 1.0));
   
-  // For preloader: Keep original behavior with fade out
-  float preloaderFadeOut = isCanvasText ? 1.0 : smoothstep(noise + 0.2, noise - 0.2, clamp((uTime - 4.5) / 1.0, 0.0, 1.0));
+  // Canvas text behavior (unchanged)
+  if (isCanvasText) {
+    float fadeIn = smoothstep(noise - 0.1, noise + 0.1, clamp(timeToUse / 2.0, 0.0, 1.0));
+    vec4 textColor = texture2D(uTextTexture, vUv);
+    gl_FragColor = vec4(textColor.rgb, textColor.a * fadeIn);
+    return;
+  }
+  
+  // Preloader sequence timing:
+  // 0.0 - 2.0: All words fade in
+  // 2.0 - 3.5: "Does" turns red AND others turn black (SIMULTANEOUSLY)
+  // 4.5 - 5.5: "Does" fades out
   
   vec4 textColor = texture2D(uTextTexture, vUv);
-
-  if (uIsRedWord && !isCanvasText) {
-    // Red effect only for preloader
-    float holdColor = smoothstep(2.5, 3.5, uTime);
-    vec3 red = mix(textColor.rgb, vec3(1.0, 0.0, 0.0), holdColor);
-    gl_FragColor = vec4(red, textColor.a * fadeIn * preloaderFadeOut);
-  } else if (!isCanvasText) {
-    // Preloader text with fade out
-    gl_FragColor = vec4(textColor.rgb, textColor.a * fadeIn * preloaderFadeOut);
+  
+  // Initial fade in for all words
+  float fadeIn = smoothstep(noise - 0.1, noise + 0.1, clamp(uTime / 2.5, 0.0, 1.0));
+  
+  // Synchronized color transition from 2.0 to 3.5 seconds
+  float colorTransition = smoothstep(2.0, 3.5, uTime);
+  
+  if (uIsRedWord) {
+    // "Does" behavior - turns red at the same time others turn black
+    float finalFadeOut = smoothstep(noise + 0.2, noise - 0.2, clamp((uTime - 4.5) / 1.0, 0.0, 1.0));
+    
+    vec3 finalColor = mix(textColor.rgb, vec3(1.0, 0.0, 0.0), colorTransition);
+    float finalAlpha = textColor.a * fadeIn * finalFadeOut;
+    
+    gl_FragColor = vec4(finalColor, finalAlpha);
+  } else if (uIsBlackWord) {
+    // "n't" behavior - fades to black at the same time red word turns red
+    vec3 finalColor = mix(textColor.rgb, vec3(0.0, 0.0, 0.0), colorTransition);
+    float finalAlpha = textColor.a * fadeIn;
+    
+    gl_FragColor = vec4(finalColor, finalAlpha);
   } else {
-    // Canvas text - only fade in, stays visible
-    gl_FragColor = vec4(textColor.rgb, textColor.a * fadeIn);
+    // "Looks" and "Matter" behavior - fade to black at the same time red word turns red
+    vec3 finalColor = mix(textColor.rgb, vec3(0.0, 0.0, 0.0), colorTransition);
+    float finalAlpha = textColor.a * fadeIn;
+    
+    gl_FragColor = vec4(finalColor, finalAlpha);
   }
 }

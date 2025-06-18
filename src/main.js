@@ -57,19 +57,19 @@ function createTextTexture(text, color = "white") {
   let fontScale = 1;
   let geometryScale = 1;
 
-  if (width < 480) {
-    fontScale = 0.7;
-    geometryScale = 0.6;
-  } else if (width < 640) {
+  if (width <= 480) {
+    fontScale = 0.6;
+    geometryScale = 0.5;
+  } else if (width <= 640) {
     fontScale = 0.6;
     geometryScale = 0.6;
-  } else if (width < 768) {
+  } else if (width <= 768) {
     fontScale = 0.8;
     geometryScale = 0.8;
-  } else if (width < 1024) {
+  } else if (width <= 1024) {
     fontScale = 0.75;
     geometryScale = 0.75;
-  } else if (width < 1280) {
+  } else if (width <= 1280) {
     fontScale = 0.6;
     geometryScale = 1.0;
   } else {
@@ -127,31 +127,49 @@ function createTextTexture(text, color = "white") {
 
 function getResponsiveLayout() {
   const width = window.innerWidth;
-
-  if (width < 640) {
-    const spacing = width < 480 ? 0.4 : 0.6;
-    return {
-      positions: [0, 0, 0],
-      yOffsets: [spacing, 0, -spacing],
-    };
+  
+  // Clean spacing calculation
+  let Rightspacing,Leftspacing, doesSpacing;
+  
+  if (width <= 480) {
+    Leftspacing = 0.7;
+    Rightspacing = 0.6;
+    doesSpacing = 0.13;
+  } else if (width <= 640) {
+    Leftspacing = 0.7;
+    Rightspacing = 0.6;
+    doesSpacing = 0.15;
+  } else if (width <= 768) {
+    Leftspacing = 0.8;
+    Rightspacing = 0.7;
+    doesSpacing = 0.15;
+  }else if (width <= 1024) {
+    Leftspacing = 0.9;
+    Rightspacing = 0.8;
+    doesSpacing = 0.16;
   } else {
-    const spacing = width < 768 ? 0.9 :0.9;
-    return {
-      positions: [-spacing, 0, spacing],
-      yOffsets: [0, 0, 0],
-    };
+    Leftspacing = 1.05;
+    Rightspacing = 0.9;
+    doesSpacing = 0.21;
   }
+
+  return {
+    positions: [-Leftspacing, -doesSpacing, doesSpacing, Rightspacing], // "Looks", "Does", "n't", "Matter"
+    yOffsets: [0, 0, 0, 0], // All on same line
+  };
 }
 
-const texts = ["Looks", "Doesn't", "Matter"];
+const texts = ["Looks", "Does", "n't", "Matter"];
 const materials = [];
 const { positions, yOffsets } = getResponsiveLayout();
 texts.forEach((text, i) => {
   const { texture, geometryScale } = createTextTexture(text);
-  const geometry = new THREE.PlaneGeometry(
-    2.5 * geometryScale,
-    0.625 * geometryScale
-  );
+  
+  // Adjust geometry size for "n't" to be smaller
+  const width = text === "n't" ? 2.5 * geometryScale : 2.5 * geometryScale;
+  const height = 0.625 * geometryScale;
+  
+  const geometry = new THREE.PlaneGeometry(width, height);
 
   const material = new THREE.ShaderMaterial({
     vertexShader: vertex,
@@ -159,7 +177,8 @@ texts.forEach((text, i) => {
     uniforms: {
       uTime: { value: 0 },
       uTextTexture: { value: texture },
-      uIsRedWord: { value: text === "Doesn't" },
+      uIsRedWord: { value: text === "Does" }, // Only "Does" turns red
+      uIsBlackWord: { value: text === "n't" }, // "n't" turns black with others
     },
     transparent: true,
   });
@@ -571,6 +590,12 @@ window.addEventListener("preloaderComplete", () => {
     const gradient = document.getElementById("gradient");
     if (gradient) {
       gradient.style.opacity = "0.25";
+    }
+  }, 7000);
+  setTimeout(() => {
+    const nav = document.querySelector("nav");
+    if (nav) {
+      nav.style.opacity = "1.0";
     }
   }, 7000);
 // Cleanup on page unload

@@ -10,6 +10,18 @@ function nav() {
     const menuItems = document.querySelectorAll(".menu-item p"); // Individual menu items
     const activeItem = document.querySelector(".menu-item p#active"); // Active menu item
     const toggleButton1 = document.querySelector(".burger1"); // Close menu button
+    
+    // Get overlay content elements for fade-in animation
+    const overlayContent = document.querySelector(".overlay-menu");
+    const leftLinks = document.querySelectorAll(".overlay-menu .text");
+    const rightDescription = document.querySelector(".overlay-menu .w-full.lg\\:w-\\[50\\%\\]");
+    const cardImage = document.querySelector(".overlay-menu img");
+
+    // Set initial states for fade-in elements
+    gsap.set([overlayContent, leftLinks, rightDescription, cardImage], {
+        opacity: 0,
+        y: 30
+    });
 
     // Timeline for menu open/close animations
     const timeline = gsap.timeline({ paused: true });
@@ -19,7 +31,36 @@ function nav() {
             clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", // Expand overlay
             ease: "power4.inOut",
         })
-       
+        // Fade in the main container
+        .to(overlayContent, {
+            duration: 0.8,
+            opacity: 1,
+            y: 0,
+            ease: "power2.out"
+        }, "-=0.8") // Start 0.8s before the previous animation ends
+        // Stagger fade-in for left navigation links
+        .to(leftLinks, {
+            duration: 0.6,
+            opacity: 1,
+            y: 0,
+            stagger: 0.1, // 0.1s delay between each link
+            ease: "power2.out"
+        }, "-=0.6")
+        // Fade in right description
+        .to(rightDescription, {
+            duration: 0.8,
+            opacity: 1,
+            y: 0,
+            ease: "power2.out"
+        }, "-=0.4")
+        // Fade in and rotate the card image
+        .to(cardImage, {
+            duration: 1,
+            opacity: 1,
+            y: 0,
+            rotation: -40, // Restore the rotation
+            ease: "back.out(1.7)"
+        }, "-=0.6");
 
     // Open menu
     toggleButton.addEventListener("click", function () {
@@ -37,6 +78,7 @@ function nav() {
 }
 nav();
 
+// Your existing text animation code
 let elements = document.querySelectorAll(".text");
 
 elements.forEach((element) => {
@@ -50,6 +92,7 @@ elements.forEach((element) => {
 
   let textContainer2 = document.createElement("div");
   textContainer2.classList.add("block");
+  
   // ✅ Use max length of both strings to avoid cutoff
   const maxLength = Math.max(originalText.length, hoverText.length);
   for (let i = 0; i < maxLength; i++) {
@@ -72,7 +115,6 @@ elements.forEach((element) => {
   element.appendChild(textContainer1);
   element.appendChild(textContainer2);
 });
-
 
 elements.forEach((element) => {
   element.addEventListener("mouseover", () => {

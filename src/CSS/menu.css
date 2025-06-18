@@ -176,3 +176,7 @@ nav{
 .letter:nth-child(23) { transition-delay: 0.69s; }
 .letter:nth-child(24) { transition-delay: 0.72s; }
 .letter:nth-child(25) { transition-delay: 0.75s; }
+nav {
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
