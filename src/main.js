@@ -565,14 +565,14 @@ window.addEventListener("preloaderComplete", () => {
   requestAnimationFrame(() => {
     setTimeout(setupTextMeshes, 300);
   });
-  setTimeout(() => {
+ 
+});
+ setTimeout(() => {
     const gradient = document.getElementById("gradient");
     if (gradient) {
-      gradient.style.opacity = "0.2";
+      gradient.style.opacity = "0.35";
     }
-  }, 500);
-});
-
+  }, 7000);
 // Cleanup on page unload
 window.addEventListener("beforeunload", () => {
   materials.forEach((mat) => {

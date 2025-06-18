@@ -60,6 +60,7 @@ a,button{
   }
 }
 #gradient {
+   background: transparent;
   opacity: 0;
   transition: opacity 1.5s ease;
   mix-blend-mode: screen;

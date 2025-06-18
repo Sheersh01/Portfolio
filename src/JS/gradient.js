@@ -5,8 +5,9 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 const isLowEndDevice = navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 4;
 
 // Try WebGL2 first, fallback to WebGL1 for better mobile compatibility
-const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
+const gl = canvas.getContext('webgl2', { alpha: true }) || 
+           canvas.getContext('webgl', { alpha: true }) || 
+           canvas.getContext('experimental-webgl', { alpha: true });
 if (!gl) {
     alert('WebGL not supported');
 }
@@ -238,8 +239,12 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
         
         float vignette = 1.0 - smoothstep(vignetteStart, vignetteEnd, dist);
         color *= (1.0 - vignetteStrength) + vignetteStrength * vignette;
-        
-        ${isWebGL2 ? 'fragColor' : 'gl_FragColor'} = vec4(color, 1.0);
+          float alpha = length(color);
+            if (u_isMobile) {
+        alpha = min(1.0, alpha * 1.5);
+    }
+
+         ${isWebGL2 ? 'fragColor' : 'gl_FragColor'} = vec4(color, alpha);
     }
 `;
 
@@ -262,7 +267,8 @@ const program = gl.createProgram();
 gl.attachShader(program, vertexShader);
 gl.attachShader(program, fragmentShader);
 gl.linkProgram(program);
-
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     console.error('Program link error:', gl.getProgramInfoLog(program));
 }
@@ -338,6 +344,9 @@ function checkPerformance() {
 }
 
 function render(currentTime = 0) {
+     gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    
     // Frame rate limiting for mobile
     if (qualitySettings.frameSkipping && currentTime - lastFrameTime < frameInterval) {
         requestAnimationFrame(render);
