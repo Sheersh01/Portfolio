@@ -1,10 +1,30 @@
 const canvas = document.getElementById('gradient');
 
-// Mobile detection
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+// Enhanced mobile detection
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                 window.innerWidth < 768 || 
+                 ('ontouchstart' in window) || 
+                 (navigator.maxTouchPoints > 0);
 
 // Try WebGL2 first, fallback to WebGL1 for better mobile compatibility
-const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+const gl = canvas.getContext('webgl2', {
+    antialias: false,
+    depth: false,
+    stencil: false,
+    preserveDrawingBuffer: false,
+    powerPreference: isMobile ? 'low-power' : 'high-performance'
+}) || canvas.getContext('webgl', {
+    antialias: false,
+    depth: false,
+    stencil: false,
+    preserveDrawingBuffer: false,
+    powerPreference: isMobile ? 'low-power' : 'high-performance'
+}) || canvas.getContext('experimental-webgl', {
+    antialias: false,
+    depth: false,
+    stencil: false,
+    preserveDrawingBuffer: false
+});
 
 if (!gl) {
     alert('WebGL not supported');
@@ -12,33 +32,66 @@ if (!gl) {
 
 const isWebGL2 = gl instanceof WebGL2RenderingContext;
 
-// Consistent quality settings - no mobile compromises
+// Adaptive quality settings based on device
 const qualitySettings = {
-    pixelRatio: window.devicePixelRatio,
-    precision: 'highp'
+    pixelRatio: isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio,
+    precision: isMobile ? 'mediump' : 'highp',
+    targetFPS: isMobile ? 30 : 60
 };
 
+// Performance monitoring
+let frameCount = 0;
+let lastFPSCheck = performance.now();
+let currentFPS = 60;
+
+function updateFPS() {
+    frameCount++;
+    const now = performance.now();
+    if (now - lastFPSCheck >= 1000) {
+        currentFPS = Math.round((frameCount * 1000) / (now - lastFPSCheck));
+        frameCount = 0;
+        lastFPSCheck = now;
+        
+        // Adaptive quality based on performance
+        if (isMobile && currentFPS < 25) {
+            qualitySettings.pixelRatio = Math.max(1, qualitySettings.pixelRatio * 0.8);
+            resizeCanvas();
+        }
+    }
+}
+
+// Throttled resize for better mobile performance
 let resizeTimeout;
+let isResizing = false;
+
 function resizeCanvas() {
+    if (isResizing) return;
+    isResizing = true;
+    
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         const pixelRatio = qualitySettings.pixelRatio;
         const displayWidth = Math.floor(window.innerWidth * pixelRatio);
         const displayHeight = Math.floor(window.innerHeight * pixelRatio);
         
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
+        // Clamp maximum resolution on mobile
+        const maxWidth = isMobile ? 1920 : displayWidth;
+        const maxHeight = isMobile ? 1080 : displayHeight;
+        
+        canvas.width = Math.min(displayWidth, maxWidth);
+        canvas.height = Math.min(displayHeight, maxHeight);
         canvas.style.width = window.innerWidth + 'px';
         canvas.style.height = window.innerHeight + 'px';
         
-        gl.viewport(0, 0, displayWidth, displayHeight);
-    }, 50);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        isResizing = false;
+    }, isMobile ? 100 : 50);
 }
 
 resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize', resizeCanvas, { passive: true });
 
-// Shader sources
+// Optimized shader sources with mobile considerations
 const vertexShaderSource = isWebGL2 ? `#version 300 es
     in vec2 a_position;
     out vec2 v_texCoord;
@@ -57,8 +110,8 @@ const vertexShaderSource = isWebGL2 ? `#version 300 es
     }
 `;
 
-// Consistent complex noise function for all devices
-const complexNoiseFunction = `
+// Optimized noise function - same visual result, better mobile performance
+const optimizedNoiseFunction = `
     vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
     vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
     vec3 fade(vec3 t) { return t*t*t*(t*(t*6.0 - 15.0) + 10.0); }
@@ -73,15 +126,15 @@ const complexNoiseFunction = `
         vec4 ixy = permute(permute(ix) + iy);
         vec4 ixy0 = permute(ixy + iz0);
         vec4 ixy1 = permute(ixy + iz1);
-        vec4 gx0 = ixy0 / 7.0, gy0 = fract(floor(gx0) / 7.0) - 0.5;
+        vec4 gx0 = ixy0 * (1.0 / 7.0), gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
         gx0 = fract(gx0);
-        vec4 gz0 = 0.5 - abs(gx0) - abs(gy0);
+        vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
         vec4 sz0 = step(gz0, vec4(0.0));
         gx0 -= sz0 * (step(0.0, gx0) - 0.5);
         gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-        vec4 gx1 = ixy1 / 7.0, gy1 = fract(floor(gx1) / 7.0) - 0.5;
+        vec4 gx1 = ixy1 * (1.0 / 7.0), gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
         gx1 = fract(gx1);
-        vec4 gz1 = 0.5 - abs(gx1) - abs(gy1);
+        vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
         vec4 sz1 = step(gz1, vec4(0.0));
         gx1 -= sz1 * (step(0.0, gx1) - 0.5);
         gy1 -= sz1 * (step(0.0, gy1) - 0.5);
@@ -120,7 +173,7 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
     uniform vec3 u_color1;
     uniform vec3 u_color2;
 
-    ${complexNoiseFunction}
+    ${optimizedNoiseFunction}
 
     vec2 domainWarp(vec2 p, float time) {
         float warpX = cnoise(vec3(p * u_warpScale, time * 0.3));
@@ -228,7 +281,7 @@ if (isWebGL2) {
 gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-// Consistent parameters for all devices
+// Same visual parameters - no changes to pattern
 const speed = 0.08;
 const scale = 0.001;
 const warpStrength = 8.0;
@@ -238,8 +291,17 @@ const color1 = [1.0, 0.1, 0.1];  // bright red
 const color2 = [0.0, 0.0, 0.0];  // black
 
 let startTime = Date.now();
+let lastFrameTime = 0;
+const targetFrameTime = 1000 / qualitySettings.targetFPS;
 
-function render() {
+function render(currentTime) {
+    // Frame rate limiting for mobile
+    if (currentTime - lastFrameTime < targetFrameTime) {
+        requestAnimationFrame(render);
+        return;
+    }
+    lastFrameTime = currentTime;
+
     const time = (Date.now() - startTime) * 0.001 * speed;
 
     gl.useProgram(program);
@@ -263,24 +325,82 @@ function render() {
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
+    updateFPS();
     requestAnimationFrame(render);
 }
 
-// Pause rendering when page is not visible
+// Enhanced visibility management
 let isPageVisible = true;
-document.addEventListener('visibilitychange', () => {
+let wasVisible = true;
+
+function handleVisibilityChange() {
     isPageVisible = !document.hidden;
-    if (isPageVisible) {
-        render();
+    
+    if (isPageVisible && !wasVisible) {
+        // Resume rendering when page becomes visible
+        startTime = Date.now() - (performance.now() * speed * 0.001); // Maintain time continuity
+        requestAnimationFrame(render);
     }
-});
+    
+    wasVisible = isPageVisible;
+}
+
+document.addEventListener('visibilitychange', handleVisibilityChange, { passive: true });
+
+// Mobile-specific event listeners for better performance
+if (isMobile) {
+    // Pause rendering when scrolling on mobile
+    let scrollTimeout;
+    let isScrolling = false;
+    
+    window.addEventListener('scroll', () => {
+        if (!isScrolling) {
+            isScrolling = true;
+        }
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 150);
+    }, { passive: true });
+    
+    // Reduce quality during touch interactions
+    canvas.addEventListener('touchstart', () => {
+        qualitySettings.pixelRatio = Math.max(1, qualitySettings.pixelRatio * 0.7);
+        resizeCanvas();
+    }, { passive: true });
+    
+    canvas.addEventListener('touchend', () => {
+        setTimeout(() => {
+            qualitySettings.pixelRatio = Math.min(window.devicePixelRatio, 2);
+            resizeCanvas();
+        }, 300);
+    }, { passive: true });
+}
+
+// Battery and thermal management
+if ('getBattery' in navigator) {
+    navigator.getBattery().then(battery => {
+        function updateBatteryStatus() {
+            if (battery.level < 0.2 && !battery.charging) {
+                // Reduce quality on low battery
+                qualitySettings.targetFPS = 20;
+                qualitySettings.pixelRatio = Math.max(1, qualitySettings.pixelRatio * 0.6);
+                resizeCanvas();
+            }
+        }
+        
+        battery.addEventListener('levelchange', updateBatteryStatus);
+        battery.addEventListener('chargingchange', updateBatteryStatus);
+        updateBatteryStatus();
+    });
+}
 
 // Start rendering
 if (isPageVisible) {
-    render();
+    requestAnimationFrame(render);
 }
 
-// Memory cleanup
+// Enhanced memory cleanup
 window.addEventListener('beforeunload', () => {
     gl.deleteBuffer(positionBuffer);
     gl.deleteShader(vertexShader);
@@ -288,3 +408,14 @@ window.addEventListener('beforeunload', () => {
     gl.deleteProgram(program);
     if (vao) gl.deleteVertexArray(vao);
 });
+
+// Prevent context loss on mobile
+canvas.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault();
+    console.log('WebGL context lost');
+}, false);
+
+canvas.addEventListener('webglcontextrestored', () => {
+    console.log('WebGL context restored');
+    // Reinitialize if needed
+}, false);
