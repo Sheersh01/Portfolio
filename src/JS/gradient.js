@@ -242,12 +242,11 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
         vec3 color = getColor(gradientValue);
         
         ${qualitySettings.complexNoise ? `
-        float brightness = u_isMobile ? 0.7 + 0.2 * cnoise(vec3(pos * 1.5, u_time * 0.1)) 
-                                      : 0.85 + 0.3 * cnoise(vec3(pos * 1.5, u_time * 0.1));
-        color *= brightness;
-        ` : `
-        color *= u_isMobile ? 0.8 : 0.9;
-        `}
+float brightness = u_isMobile ? 0.8 : 0.9;  // Fixed constant values
+color *= brightness;
+` : `
+color *= u_isMobile ? 0.8 : 0.9;
+`}
         
         // Enhanced vignette for mobile - stronger darkening
         float dist = length(uv - 0.5);

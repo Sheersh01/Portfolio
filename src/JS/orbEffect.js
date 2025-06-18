@@ -41,9 +41,9 @@ if (isMobile) {
     renderer.shadowMap.enabled = false;
     renderer.physicallyCorrectLights = false;
 }
-
+const radius= isMobile ? 1.5 : 2;
 // Create Points from Icosahedron Geometry with dynamic quality
-const geometry = new THREE.IcosahedronGeometry(2, qualitySettings.subdivisions);
+const geometry = new THREE.IcosahedronGeometry(radius, qualitySettings.subdivisions);
 const pointsMaterial = new THREE.ShaderMaterial({
     vertexShader: pointsVertexShader,
     fragmentShader: pointsFragmentShader,

@@ -53,6 +53,7 @@ html {
   contain: layout style paint;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
 }
 
 /* Images inside container */
@@ -71,7 +72,7 @@ html {
 
 /* Caption paragraph */
 .col  p { 
-  font-weight: 600;
+  font-weight: 00;
   opacity: 0;
   transition: opacity 0.2s ease-out;
   transform: translateZ(0);
