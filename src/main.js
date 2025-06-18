@@ -182,33 +182,32 @@ function screenToWorld(rect, camera) {
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
   
-  // Compensate for URL bar changes by adjusting the Y coordinate
-  const compensatedCenterY = centerY - (currentViewportOffset / 2);
-  
-  // Use fixed viewport dimensions for consistency
-  const x = (centerX / fixedViewportWidth) * 2 - 1;
-  const y = -(compensatedCenterY / fixedViewportHeight) * 2 + 1;
+  // Use current viewport dimensions
+  const x = (centerX / window.innerWidth) * 2 - 1;
+  const y = -(centerY / window.innerHeight) * 2 + 1;
   
   const distance = camera.position.z;
   const vFOV = (camera.fov * Math.PI) / 180;
   const height = 2 * Math.tan(vFOV / 2) * distance;
-  const width = height * fixedAspectRatio;
+  const currentAspect = window.innerWidth / window.innerHeight;
+  const width = height * currentAspect;
   
   const worldX = x * (width / 2);
   const worldY = y * (height / 2);
 
   return new THREE.Vector3(worldX, worldY, 0);
 }
-
-// Keep getWorldSize unchanged as it doesn't depend on position
+ 
 function getWorldSize(rect, camera) {
   const distance = camera.position.z;
   const vFOV = (camera.fov * Math.PI) / 180;
   const height = 2 * Math.tan(vFOV / 2) * distance;
-  const width = height * fixedAspectRatio;
   
-  const worldWidth = (rect.width / fixedViewportWidth) * width;
-  const worldHeight = (rect.height / fixedViewportHeight) * height;
+  const currentAspect = window.innerWidth / window.innerHeight;
+  const width = height * currentAspect;
+  
+  const worldWidth = (rect.width / window.innerWidth) * width;
+  const worldHeight = (rect.height / window.innerHeight) * height;
 
   return { width: worldWidth, height: worldHeight };
 }
@@ -504,46 +503,56 @@ function animate() {
 animate();
 
 // Enhanced resize handler that compensates for mobile URL bar changes
+// Replace your existing resize handler with this improved version
 window.addEventListener("resize", () => {
   const oldPixelRatio = renderer.getPixelRatio();
   const newPixelRatio = getDevicePixelRatio();
   renderer.setPixelRatio(newPixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  if (animationComplete && isRealResize()) {
-    // This is a real orientation/window resize - reset everything
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    initialViewportWidth = window.innerWidth;
-    initialViewportHeight = window.innerHeight;
-    fixedViewportWidth = window.innerWidth;
-    fixedViewportHeight = window.innerHeight;
-    fixedAspectRatio = window.innerWidth / window.innerHeight;
-    currentViewportOffset = 0; // Reset offset
+  if (animationComplete) {
+    const mobile = isMobile();
+    const currentAspect = window.innerWidth / window.innerHeight;
     
-    const debounceTime = isMobile() ? 200 : 100;
-    clearTimeout(window.resizeTimeout);
-    window.resizeTimeout = setTimeout(() => {
-      setupTextMeshes();
-    }, debounceTime);
-  } else if (animationComplete) {
-    // This is likely a URL bar show/hide
-    // Calculate the viewport offset caused by URL bar
-    currentViewportOffset = window.innerHeight - initialViewportHeight;
+    // Check if this is a real resize (orientation change or desktop resize)
+    const isRealResize = !mobile || 
+      Math.abs(window.innerWidth - fixedViewportWidth) > 10 ||
+      Math.abs(window.innerHeight - fixedViewportHeight) > 200; // Increased threshold
     
-    // Keep the original camera settings
-    camera.aspect = fixedAspectRatio;
-    camera.updateProjectionMatrix();
-    
-    // Update positions to compensate for the viewport change
-    updateTextMeshPositions();
+    if (isRealResize) {
+      // Real resize - update everything
+      camera.aspect = currentAspect;
+      camera.updateProjectionMatrix();
+      
+      initialViewportWidth = window.innerWidth;
+      initialViewportHeight = window.innerHeight;
+      fixedViewportWidth = window.innerWidth;
+      fixedViewportHeight = window.innerHeight;
+      fixedAspectRatio = currentAspect;
+      currentViewportOffset = 0;
+      
+      const debounceTime = mobile ? 300 : 100;
+      clearTimeout(window.resizeTimeout);
+      window.resizeTimeout = setTimeout(() => {
+        setupTextMeshes();
+      }, debounceTime);
+    } else {
+      // URL bar change - maintain aspect ratio but update camera
+      camera.aspect = currentAspect; // Use current aspect, not fixed
+      camera.updateProjectionMatrix();
+      
+      // Update viewport offset for positioning
+      currentViewportOffset = window.innerHeight - initialViewportHeight;
+      
+      // Update positions and sizes immediately
+      updateTextMeshPositions();
+    }
   } else {
     // During preloader animation
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
   }
 });
-
 let lastScrollY = window.scrollY;
 let scrollTimeout;
 
