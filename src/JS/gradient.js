@@ -302,13 +302,13 @@ gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
 // Mobile-optimized parameters
-const speed = isMobile ? 0.06 : 0.08; // Slightly slower on mobile
+const speed = isMobile ? 0.065 : 0.08; // Slightly slower on mobile
 const scale = isMobile ? 0.0008 : 0.001; // Reduced scale for better performance
-const warpStrength = isMobile ? 6.0 : 8.0; // Reduced complexity
-const warpScale = isMobile ? 0.4 : 0.5; // Less complex warping
+const warpStrength = isMobile ? 7.0 : 8.0; // Reduced complexity
+const warpScale = isMobile ? 0.45 : 0.5; // Less complex warping
 const bandFreq = isMobile ? 3.5 : 4.0; // Slightly less frequency
-const color1 = [1.0, 0.1, 0.1];  // desaturated dull red
-const color2 = [0.0, 0.0, 0.0];  // black
+const color1 = isMobile ? [0.8,0.2,0.2] : [1.0, 0.1, 0.1];  // desaturated dull red
+const color2 = isMobile ? [0.5,0.5,0.5] : [0.0, 0.0, 0.0];  // black
 
 let startTime = Date.now();
 let lastFrameTime = 0;

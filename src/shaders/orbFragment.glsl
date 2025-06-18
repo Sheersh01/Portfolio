@@ -24,7 +24,7 @@ void main() {
 
     // LIGHT MOBILE PALETTE
     vec4 light1 = vec4(0.1, 0.05, 0.05, 1.0);   // Soft dark
-    vec4 light2 = vec4(0.6, 0.2, 0.2, 1.0);     // Soft red
+    vec4 light2 = vec4(0.8, 0.6, 0.6, 1.0);     // Soft red
     vec4 light3 = vec4(1.0, 0.4, 0.4, 1.0);     // Bright red
     vec4 light4 = vec4(1.0, 1.0, 1.0, 1.0);     // White
 
