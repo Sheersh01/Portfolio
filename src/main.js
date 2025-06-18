@@ -36,6 +36,19 @@ renderer.setPixelRatio(getDevicePixelRatio());
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("preloader").appendChild(renderer.domElement);
 
+// Key viewport handling variables
+let baseViewportHeight = window.innerHeight; // The "reference" viewport height
+let currentScaleFactor = 1.0; // Track how much we need to scale to maintain size
+let fixedViewportWidth = window.innerWidth;
+let fixedViewportHeight = window.innerHeight;
+
+// Calculate the scale factor needed to maintain consistent text size
+function calculateScaleFactor() {
+  // When viewport gets shorter (URL bar appears), we need to scale UP to maintain size
+  // When viewport gets taller (URL bar disappears), we need to scale DOWN
+  return baseViewportHeight / window.innerHeight;
+}
+
 function createTextTexture(text, color = "white") {
   const width = window.innerWidth;
   const dpr = getDevicePixelRatio();
@@ -107,7 +120,7 @@ function createTextTexture(text, color = "white") {
     texture.magFilter = THREE.LinearFilter;
   }
   texture.generateMipmaps = false;
-  texture.anisotropy = mobile ? 1 : renderer.capabilities.getMaxAnisotropy(); // Disable anisotropy on mobile
+  texture.anisotropy = mobile ? 1 : renderer.capabilities.getMaxAnisotropy();
   texture.needsUpdate = true;
   return { texture, geometryScale };
 }
@@ -161,13 +174,7 @@ texts.forEach((text, i) => {
 const textMeshes = [];
 const textGroup = new THREE.Group();
 let mainContentScene;
-let initialViewportWidth = window.innerWidth;
-let initialViewportHeight = window.innerHeight;
-let isInitialSetup = true;
-let fixedViewportWidth = window.innerWidth;
-let fixedViewportHeight = window.innerHeight;
-let fixedAspectRatio = window.innerWidth / window.innerHeight;
-let currentViewportOffset = 0; // Track the URL bar offset
+let animationComplete = false;
 
 function setupMainContentScene() {
   if (mainContentScene) {
@@ -177,12 +184,12 @@ function setupMainContentScene() {
   mainContentScene.add(textGroup);
 }
 
-// Modified screenToWorld function that compensates for URL bar offset
+// Modified screenToWorld function - simplified, no compensation needed
 function screenToWorld(rect, camera) {
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
   
-  // Use current viewport dimensions
+  // Use current viewport - no tricks needed
   const x = (centerX / window.innerWidth) * 2 - 1;
   const y = -(centerY / window.innerHeight) * 2 + 1;
   
@@ -197,7 +204,8 @@ function screenToWorld(rect, camera) {
 
   return new THREE.Vector3(worldX, worldY, 0);
 }
- 
+
+// Modified getWorldSize function - simplified
 function getWorldSize(rect, camera) {
   const distance = camera.position.z;
   const vFOV = (camera.fov * Math.PI) / 180;
@@ -218,7 +226,6 @@ function isElementInView(rect) {
   const vhBuffer = mobile ? 0.25 : 0.1;
   const vwBuffer = mobile ? 0.25 : 0.1;
   
-  // Use the current viewport height for visibility checking
   const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
   
@@ -308,23 +315,14 @@ function createEnhancedTextTexture(
   return texture;
 }
 
-// Improved isRealResize function
-function isRealResize() {
-  const mobile = isMobile();
-  if (!mobile) {
-    return true;
-  }
-  
-  const widthChanged = Math.abs(window.innerWidth - initialViewportWidth) > 10;
-  const heightChangedSignificantly = Math.abs(window.innerHeight - initialViewportHeight) > 150;
-  
-  return widthChanged || heightChangedSignificantly;
-}
-
 function setupTextMeshes() {
   textGroup.clear();
   textMeshes.length = 0;
   const elements = document.querySelectorAll(".text-canvas");
+
+  // Update base viewport height when setting up meshes
+  baseViewportHeight = window.innerHeight;
+  currentScaleFactor = 1.0;
 
   elements.forEach((el, index) => {
     const rect = el.getBoundingClientRect();
@@ -371,44 +369,48 @@ function setupTextMeshes() {
       wasVisible: false,
       element: el,
       elementIndex: index,
+      baseScale: 1.0 // Store the original scale
     };
     textGroup.add(mesh);
     textMeshes.push({ el, mesh, mat });
   });
-  if (isInitialSetup) {
-    initialViewportWidth = window.innerWidth;
-    initialViewportHeight = window.innerHeight;
-    fixedViewportWidth = window.innerWidth;
-    fixedViewportHeight = window.innerHeight;
-    fixedAspectRatio = window.innerWidth / window.innerHeight;
-    isInitialSetup = false;
-  }
 }
 
 function updateTextMeshPositions() {
   const mobile = isMobile();
+  
+  // Calculate current scale factor
+  currentScaleFactor = calculateScaleFactor();
+  
   textMeshes.forEach(({ el, mesh, mat }, index) => {
     const rect = el.getBoundingClientRect();
     const isVisible = isElementInView(rect);
 
     if (isVisible) {
+      // Update position normally
       const worldPosition = screenToWorld(rect, camera);
-      const worldSize = getWorldSize(rect, camera);
       mesh.position.copy(worldPosition);
+      
+      // Apply scale compensation to maintain consistent size
+      mesh.scale.setScalar(currentScaleFactor);
+      
+      // Update geometry size if needed (for interaction/collision detection)
+      const worldSize = getWorldSize(rect, camera);
       const threshold = mobile ? 0.2 : 0.1;
       const currentGeo = mesh.geometry;
-      const widthDiff = Math.abs(currentGeo.parameters.width - worldSize.width);
-      const heightDiff = Math.abs(
-        currentGeo.parameters.height - worldSize.height
-      );
+      
+      // Compare against base size (before scale compensation)
+      const baseWorldWidth = worldSize.width / currentScaleFactor;
+      const baseWorldHeight = worldSize.height / currentScaleFactor;
+      
+      const widthDiff = Math.abs(currentGeo.parameters.width - baseWorldWidth);
+      const heightDiff = Math.abs(currentGeo.parameters.height - baseWorldHeight);
 
       if (widthDiff > threshold || heightDiff > threshold) {
         currentGeo.dispose();
-        mesh.geometry = new THREE.PlaneGeometry(
-          worldSize.width,
-          worldSize.height
-        );
+        mesh.geometry = new THREE.PlaneGeometry(baseWorldWidth, baseWorldHeight);
       }
+      
       mesh.visible = true;
     } else {
       mesh.visible = false;
@@ -417,34 +419,28 @@ function updateTextMeshPositions() {
   });
 }
 
-// Alternative approach: Use Visual Viewport API if available
+// Visual Viewport API handler for additional precision
 function setupVisualViewportHandler() {
   if (window.visualViewport && isMobile()) {
     let initialVisualViewportHeight = window.visualViewport.height;
     
     window.visualViewport.addEventListener('resize', () => {
       if (animationComplete) {
-        // Calculate offset based on visual viewport change
-        const visualViewportOffset = window.visualViewport.height - initialVisualViewportHeight;
-        currentViewportOffset = visualViewportOffset;
-        
-        // Update positions immediately
+        // Update positions immediately when visual viewport changes
         updateTextMeshPositions();
       }
     });
     
-    // Reset on orientation change
+    // Reset on significant changes
     window.visualViewport.addEventListener('scroll', () => {
       if (Math.abs(window.visualViewport.height - initialVisualViewportHeight) > 150) {
         initialVisualViewportHeight = window.visualViewport.height;
-        currentViewportOffset = 0;
       }
     });
   }
 }
 
 const clock = new THREE.Clock();
-let animationComplete = false;
 
 function animate() {
   const elapsed = clock.getElapsedTime();
@@ -470,7 +466,6 @@ function animate() {
       setupMainContentScene();
       setTimeout(() => {
         setupTextMeshes();
-        // Call this after the main setup
         setupVisualViewportHandler();
       }, 200);
       window.dispatchEvent(new CustomEvent("preloaderComplete"));
@@ -482,6 +477,10 @@ function animate() {
       if (isVisible) {
         const worldPosition = screenToWorld(rect, camera);
         mesh.position.copy(worldPosition);
+        
+        // Apply scale compensation
+        mesh.scale.setScalar(currentScaleFactor);
+        
         if (!mesh.userData.wasVisible) {
           mesh.userData.startTime = elapsed;
           mesh.userData.wasVisible = true;
@@ -502,8 +501,7 @@ function animate() {
 }
 animate();
 
-// Enhanced resize handler that compensates for mobile URL bar changes
-// Replace your existing resize handler with this improved version
+// Simplified resize handler
 window.addEventListener("resize", () => {
   const oldPixelRatio = renderer.getPixelRatio();
   const newPixelRatio = getDevicePixelRatio();
@@ -512,24 +510,21 @@ window.addEventListener("resize", () => {
 
   if (animationComplete) {
     const mobile = isMobile();
-    const currentAspect = window.innerWidth / window.innerHeight;
     
-    // Check if this is a real resize (orientation change or desktop resize)
+    // Always update camera aspect ratio to prevent stretching
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    
+    // Determine if this is a real resize or just URL bar
     const isRealResize = !mobile || 
       Math.abs(window.innerWidth - fixedViewportWidth) > 10 ||
-      Math.abs(window.innerHeight - fixedViewportHeight) > 200; // Increased threshold
+      Math.abs(window.innerHeight - fixedViewportHeight) > 200;
     
     if (isRealResize) {
-      // Real resize - update everything
-      camera.aspect = currentAspect;
-      camera.updateProjectionMatrix();
-      
-      initialViewportWidth = window.innerWidth;
-      initialViewportHeight = window.innerHeight;
+      // Real resize - reset base viewport and recreate meshes
+      baseViewportHeight = window.innerHeight;
       fixedViewportWidth = window.innerWidth;
       fixedViewportHeight = window.innerHeight;
-      fixedAspectRatio = currentAspect;
-      currentViewportOffset = 0;
       
       const debounceTime = mobile ? 300 : 100;
       clearTimeout(window.resizeTimeout);
@@ -537,14 +532,7 @@ window.addEventListener("resize", () => {
         setupTextMeshes();
       }, debounceTime);
     } else {
-      // URL bar change - maintain aspect ratio but update camera
-      camera.aspect = currentAspect; // Use current aspect, not fixed
-      camera.updateProjectionMatrix();
-      
-      // Update viewport offset for positioning
-      currentViewportOffset = window.innerHeight - initialViewportHeight;
-      
-      // Update positions and sizes immediately
+      // URL bar change - just update positions with scale compensation
       updateTextMeshPositions();
     }
   } else {
@@ -553,6 +541,8 @@ window.addEventListener("resize", () => {
     camera.updateProjectionMatrix();
   }
 });
+
+// Optimized scroll handler
 let lastScrollY = window.scrollY;
 let scrollTimeout;
 
@@ -570,15 +560,20 @@ window.addEventListener("scroll", () => {
   scrollTimeout = setTimeout(handleScroll, 50);
 });
 
+// Event handlers
 window.addEventListener("preloaderComplete", () => {
   requestAnimationFrame(() => {
     setTimeout(setupTextMeshes, 300);
   });
   setTimeout(() => {
-    document.getElementById("gradient").style.opacity = "0.2";
+    const gradient = document.getElementById("gradient");
+    if (gradient) {
+      gradient.style.opacity = "0.2";
+    }
   }, 500);
 });
 
+// Cleanup on page unload
 window.addEventListener("beforeunload", () => {
   materials.forEach((mat) => {
     if (mat.uniforms.uTextTexture.value) {
