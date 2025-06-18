@@ -182,6 +182,7 @@ let isInitialSetup = true;
 // 🔧 MAIN FIX: Fixed viewport dimensions for coordinate calculations
 let fixedViewportWidth = window.innerWidth;
 let fixedViewportHeight = window.innerHeight;
+let fixedAspectRatio = window.innerWidth / window.innerHeight;
 
 function setupMainContentScene() {
   if (mainContentScene) {
@@ -409,8 +410,9 @@ function setupTextMeshes() {
     // 🔧 CRITICAL: Set fixed viewport dimensions for coordinate calculations
     fixedViewportWidth = window.innerWidth;
     fixedViewportHeight = window.innerHeight;
+    fixedAspectRatio = window.innerWidth / window.innerHeight;
     isInitialSetup = false;
-    console.log('Fixed viewport dimensions set:', fixedViewportWidth, 'x', fixedViewportHeight);
+    console.log('Fixed viewport dimensions set:', fixedViewportWidth, 'x', fixedViewportHeight, 'aspect:', fixedAspectRatio);
   }
 }
 
@@ -538,15 +540,17 @@ animate();
 
 // 🔧 MAIN FIX: Enhanced resize handler that ignores mobile URL bar changes
 window.addEventListener('resize', () => {
-  // Always update camera and renderer (these are lightweight operations)
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  // Always update renderer size (this is necessary for proper rendering)
   renderer.setPixelRatio(getDevicePixelRatio());
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  // 🔧 KEY FIX: Only recreate text meshes for real resizes
+  // 🔧 KEY FIX: Only update camera aspect ratio for real resizes
   if (animationComplete && isRealResize()) {
-    console.log('Real resize detected, updating text meshes...');
+    console.log('Real resize detected, updating camera and text meshes...');
+    
+    // Update camera aspect ratio for real resizes
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
     
     // Update our tracking dimensions
     initialViewportWidth = window.innerWidth;
@@ -555,7 +559,8 @@ window.addEventListener('resize', () => {
     // 🔧 CRITICAL: Update fixed viewport dimensions for real resizes
     fixedViewportWidth = window.innerWidth;
     fixedViewportHeight = window.innerHeight;
-    console.log('Updated fixed viewport dimensions:', fixedViewportWidth, 'x', fixedViewportHeight);
+    fixedAspectRatio = window.innerWidth / window.innerHeight;
+    console.log('Updated fixed viewport dimensions:', fixedViewportWidth, 'x', fixedViewportHeight, 'aspect:', fixedAspectRatio);
     
     // Longer debounce on mobile to reduce CPU usage
     const debounceTime = isMobile() ? 200 : 100;
@@ -564,7 +569,14 @@ window.addEventListener('resize', () => {
       setupTextMeshes(); // Recalculate positions on resize
     }, debounceTime);
   } else if (animationComplete) {
-    console.log('Mobile URL bar change detected, ignoring... Current:', window.innerWidth, 'x', window.innerHeight, 'Fixed:', fixedViewportWidth, 'x', fixedViewportHeight);
+    // For URL bar changes, keep camera aspect ratio fixed but still update renderer
+    camera.aspect = fixedAspectRatio;
+    camera.updateProjectionMatrix();
+    console.log('Mobile URL bar change detected, keeping fixed aspect ratio:', fixedAspectRatio, 'Current viewport:', window.innerWidth, 'x', window.innerHeight);
+  } else {
+    // Before animation complete, update camera normally (preloader phase)
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
   }
 });
 
