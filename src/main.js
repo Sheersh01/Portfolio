@@ -174,6 +174,11 @@ const textMeshes = [];
 const textGroup = new THREE.Group();
 let mainContentScene;
 
+// 🔧 NEW: Track viewport dimensions to detect real resize vs mobile URL bar
+let initialViewportWidth = window.innerWidth;
+let initialViewportHeight = window.innerHeight;
+let isInitialSetup = true;
+
 function setupMainContentScene() {
   if (mainContentScene) {
     mainContentScene.clear();
@@ -312,14 +317,32 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   return texture;
 }
 
+// 🔧 NEW: Function to detect if this is a real resize or just mobile URL bar
+function isRealResize() {
+  const mobile = isMobile();
+  
+  if (!mobile) {
+    // On desktop, any resize is considered real
+    return true;
+  }
+  
+  // On mobile, only consider it a real resize if:
+  // 1. Width changed (orientation change)
+  // 2. Height changed significantly (more than 150px - typical URL bar height)
+  const widthChanged = Math.abs(window.innerWidth - initialViewportWidth) > 10;
+  const heightChangedSignificantly = Math.abs(window.innerHeight - initialViewportHeight) > 150;
+  
+  return widthChanged || heightChangedSignificantly;
+}
+
 // Mobile-optimized mesh setup with culling
 function setupTextMeshes() {
-  // console.log('Setting up text meshes...');
+  console.log('Setting up text meshes...');
   textGroup.clear();
   textMeshes.length = 0;
 
   const elements = document.querySelectorAll('.text-canvas');
-  // console.log('Found elements:', elements.length);
+  console.log('Found elements:', elements.length);
 
   elements.forEach((el, index) => {
     const rect = el.getBoundingClientRect();
@@ -373,7 +396,14 @@ function setupTextMeshes() {
     textMeshes.push({ el, mesh, mat });
   });
 
-  // console.log('Total text meshes created:', textMeshes.length);
+  console.log('Total text meshes created:', textMeshes.length);
+  
+  // 🔧 NEW: Store initial viewport dimensions after first setup
+  if (isInitialSetup) {
+    initialViewportWidth = window.innerWidth;
+    initialViewportHeight = window.innerHeight;
+    isInitialSetup = false;
+  }
 }
 
 // Mobile-optimized update with frustum culling
@@ -430,7 +460,7 @@ function animate() {
     if (elapsed > 6.2) {
       animationComplete = true;
 
-      // console.log('Preloader complete, transitioning to main content...');
+      console.log('Preloader complete, transitioning to main content...');
 
       // Hide preloader and show main content
       document.getElementById('preloader').style.display = 'none';
@@ -498,22 +528,30 @@ function animate() {
 
 animate();
 
-// 🔧 FIX 2: Enhanced resize handler with mobile-specific optimizations
+// 🔧 MAIN FIX: Enhanced resize handler that ignores mobile URL bar changes
 window.addEventListener('resize', () => {
+  // Always update camera and renderer (these are lightweight operations)
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
-  // Update pixel ratio on resize (important for device orientation changes)
   renderer.setPixelRatio(getDevicePixelRatio());
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  if (animationComplete) {
+  // 🔧 KEY FIX: Only recreate text meshes for real resizes
+  if (animationComplete && isRealResize()) {
+    console.log('Real resize detected, updating text meshes...');
+    
+    // Update our tracking dimensions
+    initialViewportWidth = window.innerWidth;
+    initialViewportHeight = window.innerHeight;
+    
     // Longer debounce on mobile to reduce CPU usage
     const debounceTime = isMobile() ? 200 : 100;
     clearTimeout(window.resizeTimeout);
     window.resizeTimeout = setTimeout(() => {
       setupTextMeshes(); // Recalculate positions on resize
     }, debounceTime);
+  } else if (animationComplete) {
+    console.log('Mobile URL bar change detected, ignoring...');
   }
 });
 
