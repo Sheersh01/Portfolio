@@ -143,7 +143,7 @@ function getResponsiveLayout() {
   }
 }
 
-const texts = ["Looks", "Doesn`t", "Matter"];
+const texts = ["Looks", "Does", "Matter"];
 const materials = [];
 const { positions, yOffsets } = getResponsiveLayout();
 texts.forEach((text, i) => {
@@ -159,7 +159,7 @@ texts.forEach((text, i) => {
     uniforms: {
       uTime: { value: 0 },
       uTextTexture: { value: texture },
-      uIsRedWord: { value: text === "Doesn`t" },
+      uIsRedWord: { value: text === "Does" },
     },
     transparent: true,
   });
