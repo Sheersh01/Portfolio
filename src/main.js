@@ -173,8 +173,6 @@ texts.forEach((text, i) => {
 const textMeshes = [];
 const textGroup = new THREE.Group();
 let mainContentScene;
-// 🔧 NEW: Track processed elements to prevent re-rendering
-const processedElements = new WeakSet();
 
 function setupMainContentScene() {
   if (mainContentScene) {
@@ -314,117 +312,102 @@ function createEnhancedTextTexture(text, fontSize, color = 'white', alignment = 
   return texture;
 }
 
-// 🔧 FIXED: Create mesh for new elements only
-function createTextMeshForElement(el) {
-  const rect = el.getBoundingClientRect();
-  const text = el.innerText.trim();
-  const computedStyle = getComputedStyle(el);
-  const color = computedStyle.color;
-
-  if (rect.width === 0 || rect.height === 0) return null; // Skip invisible elements
-
-  // Get font size from computed style
-  const fontSize = parseFloat(computedStyle.fontSize);
-  const textAlign = computedStyle.textAlign;
-  const fontFamily = computedStyle.fontFamily || 'Arial';
-  const fontWeight = computedStyle.fontWeight || 'normal';
-
-  const worldPosition = screenToWorld(rect, camera);
-  const worldSize = getWorldSize(rect, camera);
-
-  // Create texture with mobile-optimized settings
-  const texture = createEnhancedTextTexture(text, fontSize, color, textAlign, fontFamily, fontWeight);
-
-  const geo = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
-  const mat = new THREE.ShaderMaterial({
-    vertexShader: vertex,
-    fragmentShader: fragment,
-    uniforms: {
-      uTime: { value: -1 }, // Signal this is canvas text
-      uCanvasTime: { value: 0 }, // NEW: Separate time variable for canvas effects
-      uTextTexture: { value: texture },
-      uIsRedWord: { value: false }
-    },
-    transparent: true
-  });
-
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.copy(worldPosition);
-  mesh.visible = true;
-
-  // Track animation state
-  mesh.userData = {
-    startTime: null,
-    wasVisible: false,
-    element: el, // Store reference to original element
-    everVisible: false // 🔧 NEW: Track if element was ever visible
-  };
-
-  return { mesh, mat };
-}
-
-// 🔧 FIXED: Only create meshes for new elements, keep existing ones
+// Mobile-optimized mesh setup with culling
 function setupTextMeshes() {
-  const elements = document.querySelectorAll('.text-canvas');
-  
-  elements.forEach((el) => {
-    // Skip if already processed
-    if (processedElements.has(el)) {
-      return;
-    }
+  // console.log('Setting up text meshes...');
+  textGroup.clear();
+  textMeshes.length = 0;
 
-    const meshData = createTextMeshForElement(el);
-    if (meshData) {
-      const { mesh, mat } = meshData;
-      
-      textGroup.add(mesh);
-      textMeshes.push({ el, mesh, mat });
-      
-      // Mark as processed
-      processedElements.add(el);
-    }
+  const elements = document.querySelectorAll('.text-canvas');
+  // console.log('Found elements:', elements.length);
+
+  elements.forEach((el, index) => {
+    const rect = el.getBoundingClientRect();
+    const text = el.innerText.trim();
+    const computedStyle = getComputedStyle(el);
+    const color = computedStyle.color;
+
+    if (rect.width === 0 || rect.height === 0) return; // Skip invisible elements
+
+    // Get font size from computed style
+    const fontSize = parseFloat(computedStyle.fontSize);
+
+    // Get text alignment
+    const textAlign = computedStyle.textAlign;
+
+    // Get font family and weight
+    const fontFamily = computedStyle.fontFamily || 'Arial';
+    const fontWeight = computedStyle.fontWeight || 'normal';
+
+    const worldPosition = screenToWorld(rect, camera);
+    const worldSize = getWorldSize(rect, camera);
+
+    // Create texture with mobile-optimized settings
+    const texture = createEnhancedTextTexture(text, fontSize, color, textAlign, fontFamily, fontWeight);
+
+    const geo = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
+    const mat = new THREE.ShaderMaterial({
+      vertexShader: vertex,
+      fragmentShader: fragment,
+      uniforms: {
+        uTime: { value: -1 }, // Signal this is canvas text
+        uCanvasTime: { value: 0 }, // NEW: Separate time variable for canvas effects
+        uTextTexture: { value: texture },
+        uIsRedWord: { value: false }
+      },
+      transparent: true
+    });
+
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(worldPosition);
+    mesh.visible = true;
+
+    // Track animation state
+    mesh.userData = {
+      startTime: null,
+      wasVisible: false,
+      element: el // Store reference to original element
+    };
+
+    textGroup.add(mesh);
+    textMeshes.push({ el, mesh, mat });
   });
+
+  // console.log('Total text meshes created:', textMeshes.length);
 }
 
-// 🔧 FIXED: Only update positions, don't recreate meshes
+// Mobile-optimized update with frustum culling
 function updateTextMeshPositions() {
   const mobile = isMobile();
 
   textMeshes.forEach(({ el, mesh, mat }) => {
     const rect = el.getBoundingClientRect();
+
+    // More aggressive culling on mobile
     const isVisible = isElementInView(rect);
 
     if (isVisible) {
       // Update position for scrolling
       const worldPosition = screenToWorld(rect, camera);
+      const worldSize = getWorldSize(rect, camera);
+
       mesh.position.copy(worldPosition);
 
-      // 🔧 FIXED: Once visible, stay visible (don't hide mesh)
-      if (!mesh.userData.everVisible) {
-        mesh.userData.everVisible = true;
-      }
+      // Less frequent geometry updates on mobile
+      const threshold = mobile ? 0.2 : 0.1;
+      const currentGeo = mesh.geometry;
+      if (Math.abs(currentGeo.parameters.width - worldSize.width) > threshold ||
+        Math.abs(currentGeo.parameters.height - worldSize.height) > threshold) {
 
-      // Only update geometry if there's a significant size change
-      // and only if the element hasn't been visible before
-      if (!mesh.userData.wasVisible) {
-        const worldSize = getWorldSize(rect, camera);
-        const threshold = mobile ? 0.3 : 0.2; // Larger threshold to reduce updates
-        const currentGeo = mesh.geometry;
-        
-        if (Math.abs(currentGeo.parameters.width - worldSize.width) > threshold ||
-            Math.abs(currentGeo.parameters.height - worldSize.height) > threshold) {
-          currentGeo.dispose();
-          mesh.geometry = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
-        }
+        currentGeo.dispose();
+        mesh.geometry = new THREE.PlaneGeometry(worldSize.width, worldSize.height);
       }
 
       mesh.visible = true;
     } else {
-      // 🔧 FIXED: Only hide if it was never visible before
-      if (!mesh.userData.everVisible) {
-        mesh.visible = false;
-      }
-      // Don't reset wasVisible anymore - let it stay persistent
+      mesh.visible = false;
+      // Reset when out of view so it can animate again when back in view
+      mesh.userData.wasVisible = false;
     }
   });
 }
@@ -446,6 +429,8 @@ function animate() {
     // When preloader animation is complete - Your original timing!
     if (elapsed > 6.2) {
       animationComplete = true;
+
+      // console.log('Preloader complete, transitioning to main content...');
 
       // Hide preloader and show main content
       document.getElementById('preloader').style.display = 'none';
@@ -476,6 +461,8 @@ function animate() {
     // MAIN CONTENT PHASE - Text canvas effects with mobile optimization
     textMeshes.forEach(({ el, mesh, mat }) => {
       const rect = el.getBoundingClientRect();
+
+      // More aggressive culling on mobile
       const isVisible = isElementInView(rect);
 
       if (isVisible) {
@@ -483,7 +470,7 @@ function animate() {
         const worldPosition = screenToWorld(rect, camera);
         mesh.position.copy(worldPosition);
 
-        // Handle separate canvas time - only start timing when first visible
+        // Handle separate canvas time
         if (!mesh.userData.wasVisible) {
           mesh.userData.startTime = elapsed;
           mesh.userData.wasVisible = true;
@@ -491,16 +478,13 @@ function animate() {
 
         // Use separate time variables
         const canvasTime = elapsed - (mesh.userData.startTime || elapsed);
-        mat.uniforms.uCanvasTime.value = canvasTime;
+        mat.uniforms.uCanvasTime.value = canvasTime; // Use this for canvas-specific effects
 
-        // 🔧 FIXED: Mark as ever visible and keep visible
-        mesh.userData.everVisible = true;
         mesh.visible = true;
       } else {
-        // 🔧 FIXED: Only hide if never been visible
-        if (!mesh.userData.everVisible) {
-          mesh.visible = false;
-        }
+        mesh.visible = false;
+        // Reset when out of view so it can animate again when back in view
+        mesh.userData.wasVisible = false;
       }
     });
 
@@ -514,14 +498,8 @@ function animate() {
 
 animate();
 
-// 🔧 FIXED: Prevent mesh recreation on mobile browser URL bar changes
-let isResizing = false;
-let resizeTimeout;
-
+// 🔧 FIX 2: Enhanced resize handler with mobile-specific optimizations
 window.addEventListener('resize', () => {
-  if (isResizing) return; // Prevent multiple simultaneous resize handlers
-  isResizing = true;
-  
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
@@ -529,45 +507,34 @@ window.addEventListener('resize', () => {
   renderer.setPixelRatio(getDevicePixelRatio());
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  // 🔧 FIXED: Don't recreate meshes, just update positions
   if (animationComplete) {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      updateTextMeshPositions(); // Only update positions, don't recreate
-      isResizing = false;
-    }, 100); // Shorter timeout since we're not recreating
-  } else {
-    isResizing = false;
+    // Longer debounce on mobile to reduce CPU usage
+    const debounceTime = isMobile() ? 200 : 100;
+    clearTimeout(window.resizeTimeout);
+    window.resizeTimeout = setTimeout(() => {
+      setupTextMeshes(); // Recalculate positions on resize
+    }, debounceTime);
   }
 });
 
-// 🔧 IMPROVED: More efficient scroll handling
+// NEW: Improved scroll handling with delta check
 let lastScrollY = window.scrollY;
 let scrollTimeout;
-let isScrolling = false;
 
 function handleScroll() {
-  if (isScrolling) return;
-  isScrolling = true;
-  
   const currentScrollY = window.scrollY;
   const scrollDelta = Math.abs(currentScrollY - lastScrollY);
 
-  // Only update on significant scroll (>3px) - reduced threshold
-  if (scrollDelta > 3) {
+  // Only update on significant scroll (>5px)
+  if (scrollDelta > 5) {
     updateTextMeshPositions();
   }
   lastScrollY = currentScrollY;
-  
-  // Reset scroll flag
-  setTimeout(() => {
-    isScrolling = false;
-  }, 16); // ~60fps
 }
 
 window.addEventListener('scroll', () => {
   clearTimeout(scrollTimeout);
-  scrollTimeout = setTimeout(handleScroll, 16); // Reduced timeout for smoother updates
+  scrollTimeout = setTimeout(handleScroll, 50);
 });
 
 // Additional setup when preloader completes
@@ -577,11 +544,11 @@ window.addEventListener('preloaderComplete', () => {
     setTimeout(setupTextMeshes, 300);
   });
   setTimeout(() => {
-    document.getElementById('gradient').style.opacity = '0.2';
-  }, 500); 
+  document.getElementById('gradient').style.opacity = '0.2';
+}, 500); 
 });
 
-// 🔧 IMPROVED: Cleanup with proper disposal
+// Memory cleanup on page unload (important for mobile)
 window.addEventListener('beforeunload', () => {
   // Dispose of geometries and materials
   materials.forEach(mat => {
@@ -599,8 +566,5 @@ window.addEventListener('beforeunload', () => {
     mat.dispose();
   });
 
-  // Clear the processed elements set
-  processedElements.clear();
-  
   renderer.dispose();
 });

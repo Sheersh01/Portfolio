@@ -1,592 +1,453 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-    <link rel="stylesheet" href="/src/style.css" />
-    <link rel="stylesheet" href="./src/CSS/imgReveal.css" />
-    <link rel="stylesheet" href="./src/CSS/menu.css" />
-    <!-- Lenis CSS -->
-    <style>
-      html.lenis {
-        height: auto;
-      }
 
-      .lenis.lenis-smooth {
-        scroll-behavior: auto;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="stylesheet" href="./src/CSS/imgReveal.css" />
+  <link rel="stylesheet" href="./src/CSS/menu.css" />
+  <!-- Lenis CSS -->
+  <style>
+    html.lenis {
+      height: auto;
+    }
 
-      .lenis.lenis-smooth [data-lenis-prevent] {
-        overscroll-behavior: contain;
-      }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto;
+    }
 
-      .lenis.lenis-stopped {
-        overflow: hidden;
-      }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
 
-      .lenis.lenis-scrolling iframe {
-        pointer-events: none;
-      }
-    </style>
-  </head>
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
 
-  <body>
-    <div id="preloader" class=""></div>
-    <nav>
+    .lenis.lenis-scrolling iframe {
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="preloader" class=""></div>
+  <nav>
+    <div class="left">
+      <h1 class="lg:text-[2vw] md:text-[3vw] text-[5vw]">Sheersh Saxena</h1>
+    </div>
+    <div class="toggle-btn magnet-target">
+      <button class="burger" onclick="this.classList.toggle('active')"></button>
+    </div>
+  </nav>
+
+  <div class="overlay">
+    <nav class="overlay-nav">
       <div class="left">
         <h1 class="lg:text-[2vw] md:text-[3vw] text-[5vw]">Sheersh Saxena</h1>
       </div>
-      <div class="toggle-btn magnet-target">
-        <button
-          class="burger"
-          onclick="this.classList.toggle('active')"
-        ></button>
+      <div class="toggle-btn1 magnet-target">
+        <button class="burger1" onclick="this.classList.toggle('active')"></button>
       </div>
     </nav>
-    <div class="overlay">
-      <nav class="overlay-nav">
-        <div class="left">
-          <h1 class="lg:text-[2vw] md:text-[3vw] text-[5vw]">Sheersh Saxena</h1>
+
+    <!-- Overlay Content Section -->
+    <div
+      class="overlay-menu w-full flex lg:justify-end justify-between items-center px-2 mb-10 lg:px-8 lg:pt-6 text-[#B8AC94]">
+      <img
+        class="absolute md:-bottom-[100px] -bottom-[50px] md:-right-[100px] -right-[50px] -rotate-40 lg:h-[400px] md:h-[300px] h-[200px] opacity-[80%]"
+        src="./card.png" alt="" />
+
+      <div class="flex flex-col lg:flex-row lg:py-24 justify-evenly lg:mt-20 md:mt-10 px-4 font-thin">
+        <!-- Left Links Column -->
+        <div class="flex flex-col gap-6 mb-10 md:w-[40%] w-full text-[#B8AC94] uppercase">
+          <a href="#" data-text-original="Home" data-text-hover="Say you love it <3"
+            class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
+          <a href="#" data-text-original="About" data-text-hover="Stalker spotted!!!"
+            class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
+          <a href="#" data-text-original="Work" data-text-hover="Need more proof -_-"
+            class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
+          <a href="#" data-text-original="Contact" data-text-hover="Want my number?"
+            class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"></a>
         </div>
-        <div class="toggle-btn1 magnet-target">
-          <button
-            class="burger1"
-            onclick="this.classList.toggle('active')"
-          ></button>
+
+        <!-- Right Description -->
+        <div class="w-full lg:w-[50%] lg:-translate-y-10 text-[#B8AC94]">
+          <p class="font-thin mb-4 lg:text-[3vw] md:text-[4vw] text-[6vw] leading-none">
+            Well i wanted to make navigation menu not pages.
+          </p>
+          <a href="#"
+            class="inline-flex items-center gap-2 font-semibold text-[#B8AC94] transition-all hover:gap-4 lg:text-[1.5vw] md:text-[3vw] text-[5vw] border border-[#B8AC94] px-4 py-2 hover:bg-[#B8AC94] hover:text-[#260404]">
+            It does Nothing
+          </a>
         </div>
-      </nav>
-      <!-- Overlay Content Section -->
-      <div
-        class="overlay-menu w-full flex lg:justify-end justify-between items-center px-2 mb-10 lg:px-8 lg:pt-6 text-[#B8AC94]"
-      >
-        <img
-          class="absolute md:-bottom-[100px] -bottom-[50px] md:-right-[100px] -right-[50px] -rotate-40 lg:h-[400px] md:h-[300px] h-[200px] opacity-[80%]"
-          src="public\card.png"
-          alt=""
-        />
-        <div
-          class="flex flex-col lg:flex-row lg:py-24 justify-evenly lg:mt-20 md:mt-10 px-4 font-thin"
-        >
-          <!-- Left Links Column -->
-          <div
-            class="flex flex-col gap-6 mb-10 md:w-[40%] w-full text-[#B8AC94] uppercase"
-          >
-            <a
-              href="/"
-              data-text-original="Home"
-              data-text-hover="Say you love it <3"
-              class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
-            ></a>
-            <a
-              href="/"
-              data-text-original="About"
-              data-text-hover="Stalker spotted!!!"
-              class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
-            ></a>
-            <a
-              href="/"
-              data-text-original="Work"
-              data-text-hover="Need more proof -_-"
-              class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
-            ></a>
-            <a
-              href="/"
-              data-text-original="Contact"
-              data-text-hover="Want my number?"
-              class="text lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
-            ></a>
+      </div>
+    </div>
+  </div>
+
+  <div id="main-content" style="display: block"
+    class="w-full text-[#B8AC94] font-[Gabriola] container relative bg-transparent">
+
+    <div class="website-content bg-black relative">
+
+      <div id="hero" class="h-screen relative text-center leading-none">
+        <canvas class="orb"></canvas>
+        <div class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center">
+          <h1 class="lg:text-[4vw] md:text-[5vw] text-[6.5vw] md:w-[50%] w-[80%] opacity-0">
+            No one cares about your personality at first glance.
+          </h1>
+          <h1
+            class="lg:text-[2vw] md:text-[3.2vw] text-[5vw] w-[50%] text-right overflow-hidden text-[#cd0c0c] opacity-0">
+            — Trust Me
+          </h1>
+        </div>
+      </div>
+
+      <div class="fixed top-0 left-0 gradient-bg pointer-events-none">
+        <canvas id="gradient"></canvas>
+      </div>
+
+      <div id="description" class="min-h-screen relative">
+        <div class="w-full md:px-4 px-2 py-20 flex flex-col z-[9]">
+          <h1
+            class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[25%] md:w-[50%] w-fit self-start">
+            Hi I am Sheersh Saxena <br />
+            I don't care about UX.
+          </h1>
+
+          <h1
+            class="text-canvas opacity-0 lg:text-[2.5vw] md:text-[4vw] text-[6vw] leading-none pb-20 mb-30 lg:w-[35%] md:w-[60%] w-fit self-end text-right">
+            Sure, frontend is easy… Just like painting <br />
+            the Mona Lisa with a toothbrush.
+          </h1>
+
+          <h1
+            class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[30%] md:w-[50%] w-fit self-start">
+            Sure I used ChatGPT for half of this <br />
+            at least I don't write SQL.
+          </h1>
+
+          <!-- 
+    <h1 class="text-canvas opacity-0 text-[20vw] leading-none self-center text-center"> 
+      Hi Recruiters
+    </h1>  
+    -->
+        </div>
+
+        <img class="absolute w-full -bottom-[4vw] left-0 z-[99] object-fit" src="./torn1.png" alt="" />
+      </div>
+
+      <div class="projects pt-30 pb-80 relative">
+        <h1 class="text-canvas text-[15vw] leading-none text-center mb-20 opacity-0 w-[50%] mx-auto">
+          Projects
+        </h1>
+
+        <div class="min-h-screen w-full text-[14px] uppercase font-medium">
+          <!-- Row 1 -->
+          <div class="row w-full flex lg:h-[300px] md:h-[250px] h-[200px]" id="row-1">
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container right overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./src/images/eSummit.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  ESummit-IIITN
+                </p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
           </div>
 
-          <div class="w-full lg:w-[50%] lg:-translate-y-10 text-[#B8AC94]">
-            <p class="font-thin mb-4 lg:text-[3vw] md:text-[4vw] text-[6vw]">
-              These pages don't open for just anyone, come back when you're
-              stronger.
-            </p>
+          <!-- Row 2 -->
+          <div class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]" id="row-2">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container left overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./src/images/Planets.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  3D Planets Interface
+                </p>
+              </div>
+            </div>
+          </div>
 
-            <a
-              href="/"
-              class="inline-flex items-center gap-2 font-semibold text-[#B8AC94] transition-all hover:gap-4 lg:text-[1.5vw] md:text-[3vw] text-[5vw] border border-[#B8AC94] px-4 py-2 hover:bg-[#B8AC94] hover:text-[#260404]"
-            >
-              Nothing
+          <!-- Row 3 -->
+          <div class="row w-full flex lg:h-[150px] md:h-[175px] h-[200px]" id="row-3">
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container right overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./src/images/Nagaravrtta.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  Nagaravrtta
+                </p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="row w-full flex lg:h-[400px] md:h-[300px] h-[200px]" id="row-4">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container left overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./src/images/MahabalAgroInd.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  Organic Manure Company
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 5 -->
+          <div class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]" id="row-5">
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container right overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./src/images/3d.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  3D Model Integration
+                </p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+
+          <!-- 
+          <div class="row w-full flex lg:h-[300px] md:h-[250px] h-[200px]" id="row-6">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container left overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./red6.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  Image alt
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row w-full flex lg:h-[200px] md:h-[200px] h-[200px]" id="row-7">
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container right overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./red6.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  Image alt
+                </p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+
+          <div class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]" id="row-8">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container left overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./red6.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  Image alt
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row w-full flex lg:h-[300px] md:h-[250px] h-[200px]" id="row-9">
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container right overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./red6.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  Image alt
+                </p>
+              </div>
+            </div>
+            <div class="col h-full flex flex-col"></div>
+          </div>
+
+          <div class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]" id="row-10">
+            <div class="col h-full flex flex-col"></div>
+            <div class="col h-full flex flex-col relative">
+              <div class="h-full">
+                <div class="img-container left overflow-hidden">
+                  <img class="w-full h-full object-cover" src="./red6.png" alt="" loading="lazy" />
+                </div>
+                <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
+                  Image alt
+                </p>
+              </div>
+            </div>
+          </div> -->
+        </div>
+      </div>
+
+      <div class="w-full min-h-screen pt-30 relative">
+        <img class="absolute w-full -top-[3vw] left-0 object-fit" src="./torn1.png" alt="" />
+
+        <div class="w-full md:px-4 px-2 py-20 flex flex-col z-[9]">
+          <h1
+            class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[25%] md:w-[50%] w-[80%] self-start">
+            Don't scroll this far and <br />
+            still hire someone else.
+          </h1>
+
+          <h1
+            class="text-canvas opacity-0 lg:text-[2.5vw] md:text-[4vw] text-[6vw] leading-none pb-20 mb-30 lg:w-[35%] md:w-[60%] w-[90%] self-end text-right">
+            Hire me before I start a YouTube channel <br />
+            called 'Dev Rants & Unemployment'.
+          </h1>
+
+          <h1
+            class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[30%] md:w-[50%] w-[70%] self-start">
+            That's it — just the footer left <br />
+            Where to next?
+          </h1>
+        </div>
+      </div>
+
+      <footer id="footer" class="pt-10 w-full">
+        <div
+          class="marquee-container relative overflow-x-hidden text-[#9f9072] hover:bg-[#B8AC94] hover:text-[#700404] hover:rounded-full uppercase md:mx-16 overflow-hidden mb-20 flex items-center transition-all">
+          <div class="marquee-content whitespace-nowrap">
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              Let's Talk
+            </h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              ~
+            </h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              Let's Talk
+            </h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              ~
+            </h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              Let's Talk
+            </h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              ~
+            </h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              Let's Talk
+            </h1>
+            <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
+              ~
+            </h1>
+          </div>
+        </div>
+
+        <div class="flex md:flex-row flex-col justify-between md:px-10 px-4 md:mb-30 mb-20 gap-4">
+          <div class="lg:text-[2vw] md:text-[4.8vw] text-[6vw] mb-8">
+            <a href="mailto:saxenasheersh5@gmail.com" target="_blank" rel="noopener noreferrer">
+              <h1 data-text-original="Email" data-text-hover="Email"
+                class="cursor-pointer text text lg:h-[2.8vw] md:h-[5vw] h-[6vw] w-fit">
+                Email
+              </h1>
+            </a>
+            <a href="https://github.com/Sheersh01" target="_blank" rel="noopener noreferrer">
+              <h1 data-text-original="Github" data-text-hover="Github"
+                class="cursor-pointer text text lg:h-[2.8vw] md:h-[5vw] h-[6vw] w-fit">
+                Github
+              </h1>
+            </a>
+            <a href="https://www.linkedin.com/in/sheersh-saxena/" target="_blank" rel="noopener noreferrer">
+              <h1 data-text-original="LinkedIn" data-text-hover="LinkedIn"
+                class="cursor-pointer text text lg:h-[2.8vw] md:h-[5vw] h-[6vw] w-fit">
+                LinkedIn
+              </h1>
             </a>
           </div>
-        </div>
-      </div>
-    </div>
-    <div
-      id="main-content"
-      style="display: block"
-      class="w-full text-[#B8AC94] font-[Gabriola] container relative bg-transparent"
-    >
-      <div class="website-content bg-black relative">
-        <div id="hero" class="h-screen relative text-center leading-none">
-          <canvas class="orb"></canvas>
-          <div
-            class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center"
-          >
-            <h1
-              class="lg:text-[4vw] md:text-[5vw] text-[6.5vw] md:w-[50%] w-[80%] opacity-0"
-            >
-              No one cares about your personality at first glance.
+
+          <div class="md:text-[4vw] text-[7vw] leading-none md:w-[50%] w-full">
+            <h1>
+              Got questions? Google exists. But if you're serious — hit me up.
             </h1>
-            <h1
-              class="lg:text-[2vw] md:text-[3.2vw] text-[5vw] w-[50%] text-right overflow-hidden text-[#cd0c0c] opacity-0"
-            >
-              — Trust Me
-            </h1>
+            <button
+              class="border rounded-full md:px-8 px-4 md:py-2 py-1 md:text-[1.5vw] text-[4vw] cursor-pointer hover:bg-[#B8AC94] hover:text-[#700404]">
+              <a href="mailto:saxenasheersh5@gmail.com" target="_blank" rel="noopener noreferrer">Email Me</a>
+            </button>
           </div>
         </div>
 
-        <div class="fixed top-0 left-0 gradient-bg pointer-events-none">
-          <canvas id="gradient"></canvas>
-        </div>
-
-        <div id="description" class="min-h-screen relative">
-          <div class="w-full md:px-4 px-2 py-20 flex flex-col z-[9]">
-            <h1
-              class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[25%] md:w-[50%] w-fit self-start"
-            >
-              Hi I am Sheersh Saxena <br />
-              I don't care about UX.
-            </h1>
-
-            <h1
-              class="text-canvas opacity-0 lg:text-[2.5vw] md:text-[4vw] text-[6vw] leading-none pb-20 mb-30 lg:w-[35%] md:w-[60%] w-fit self-end text-right"
-            >
-              Sure, frontend is easy… Just like painting <br />
-              the Mona Lisa with a toothbrush.
-            </h1>
-
-            <h1
-              class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[30%] md:w-[50%] w-fit self-start"
-            >
-              Sure I used ChatGPT for half of this <br />
-              at least I don't write SQL.
-            </h1>
-
-            <!-- <h1 class="text-canvas opacity-0 text-[20vw] leading-none self-center text-center"> 
-            Hi Recruiters
-          </h1>  -->
-          </div>
-          <img
-            class="absolute w-full -bottom-[4vw] left-0 z-[99] object-fit"
-            src="./torn1.png"
-            alt=""
-          />
-        </div>
-
-        <div class="projects pt-30 pb-80 relative">
-          <h1
-            class="text-canvas text-[15vw] leading-none text-center mb-20 opacity-0 w-[50%] mx-auto"
-          >
-            Projects
-          </h1>
-          <div class="min-h-screen w-full text-[14px] uppercase font-medium">
-            <!-- Row 1 -->
-            <div
-              class="row w-full flex lg:h-[300px] md:h-[250px] h-[200px]"
-              id="row-1"
-            >
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container right overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-              <div class="col h-full flex flex-col"></div>
-            </div>
-
-            <!-- Row 2 -->
-            <div
-              class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]"
-              id="row-2"
-            >
-              <div class="col h-full flex flex-col"></div>
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container left overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 3 -->
-            <div
-              class="row w-full flex lg:h-[150px] md:h-[175px] h-[200px]"
-              id="row-3"
-            >
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container right overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-              <div class="col h-full flex flex-col"></div>
-            </div>
-
-            <!-- Row 4 -->
-            <div
-              class="row w-full flex lg:h-[400px] md:h-[300px] h-[200px]"
-              id="row-4"
-            >
-              <div class="col h-full flex flex-col"></div>
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container left overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 5 -->
-            <div
-              class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]"
-              id="row-5"
-            >
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container right overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-              <div class="col h-full flex flex-col"></div>
-            </div>
-
-            <!-- Row 6 -->
-            <div
-              class="row w-full flex lg:h-[300px] md:h-[250px] h-[200px]"
-              id="row-6"
-            >
-              <div class="col h-full flex flex-col"></div>
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container left overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 7 -->
-            <div
-              class="row w-full flex lg:h-[200px] md:h-[200px] h-[200px]"
-              id="row-7"
-            >
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container right overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-              <div class="col h-full flex flex-col"></div>
-            </div>
-
-            <!-- Row 8 -->
-            <div
-              class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]"
-              id="row-8"
-            >
-              <div class="col h-full flex flex-col"></div>
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container left overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 9 -->
-            <div
-              class="row w-full flex lg:h-[300px] md:h-[250px] h-[200px]"
-              id="row-9"
-            >
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container right overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-              <div class="col h-full flex flex-col"></div>
-            </div>
-
-            <!-- Row 10 -->
-            <div
-              class="row w-full flex lg:h-[500px] md:h-[350px] h-[200px]"
-              id="row-10"
-            >
-              <div class="col h-full flex flex-col"></div>
-              <div class="col h-full flex flex-col relative">
-                <div class="h-full">
-                  <div class="img-container left overflow-hidden">
-                    <img
-                      class="w-full h-full object-cover"
-                      src="./red6.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="lg:text-[1.2vw] md:text-[2vw] text-[4vw]">
-                    Image alt
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="w-full min-h-screen pt-30 relative">
-          <img
-            class="absolute w-full -top-[3vw] left-0 object-fit"
-            src="./torn1.png"
-            alt=""
-          />
-          <div class="w-full md:px-4 px-2 py-20 flex flex-col z-[9]">
-            <h1
-              class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[25%] md:w-[50%] w-fit self-start"
-            >
-              Don't scroll this far and <br />
-              still hire someone else.
-            </h1>
-
-            <h1
-              class="text-canvas opacity-0 lg:text-[2.5vw] md:text-[4vw] text-[6vw] leading-none pb-20 mb-30 lg:w-[35%] md:w-[60%] w-fit self-end text-right"
-            >
-              Hire me before I start a YouTube channel <br />
-              called 'Dev Rants & Unemployment'.
-            </h1>
-
-            <h1
-              class="text-canvas opacity-0 lg:text-[3vw] md:text-[5vw] text-[6vw] leading-none pb-10 mb-30 lg:w-[30%] md:w-[50%] w-fit self-start"
-            >
-         That's it — just the footer left <br> Where to next?
-            </h1>
-          </div>
-        </div>
-
-        <footer id="footer" class="pt-10 w-full">
-          <div
-            class="marquee-container relative overflow-x-hidden text-[#9f9072] hover:bg-[#B8AC94] hover:text-[#700404] hover:rounded-full uppercase md:mx-16 overflow-hidden mb-20 flex items-center transition-all"
-          >
-            <div class="marquee-content whitespace-nowrap">
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                Let's Talk
-              </h1>
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                ~
-              </h1>
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                Let's Talk
-              </h1>
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                ~
-              </h1>
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                Let's Talk
-              </h1>
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                ~
-              </h1>
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                Let's Talk
-              </h1>
-              <h1 class="md:text-[10vw] text-[10vw] inline-block md:mr-14 mr-6">
-                ~
-              </h1>
-            </div>
-          </div>
-          <div
-            class="flex md:flex-row flex-col justify-between md:px-10 px-4 md:mb-30 mb-20"
-          >
-         <div class="lg:text-[2vw] md:text-[4.8vw] text-[6vw] mb-6">
-  <a href="mailto:saxenasheersh5@gmail.com" target="_blank" rel="noopener noreferrer">
-    <h1
-      data-text-original="Email"
-      data-text-hover="Email"
-      class="cursor-pointer text text lg:h-[2.8vw] md:h-[5vw] h-[6vw] w-fit"
-    >
-      Email
-    </h1>
-  </a>
-
-  <a href="https://github.com/Sheersh01" target="_blank" rel="noopener noreferrer">
-    <h1
-      data-text-original="Github"
-      data-text-hover="Github"
-      class="cursor-pointer text text lg:h-[2.8vw] md:h-[5vw] h-[6vw] w-fit"
-    >
-      Github
-    </h1>
-  </a>
-
-  <a href="https://www.linkedin.com/in/sheersh-saxena/" target="_blank" rel="noopener noreferrer">
-    <h1
-      data-text-original="LinkedIn"
-      data-text-hover="LinkedIn"
-      class="cursor-pointer text text lg:h-[2.8vw] md:h-[5vw] h-[6vw] w-fit"
-    >
-      LinkedIn
-    </h1>
-  </a>
-</div>
-
-            <div
-              class="md:text-[4vw] text-[8vw] leading-none md:w-[50%] w-full"
-            >
-              <h1>
-                Got questions? Google exists. But if you're serious — hit me up.
-              </h1>
-              <button
-                class="border rounded-full md:px-8 px-4 md:py-2 py-1 md:text-[1.5vw] text-[4vw] cursor-pointer hover:bg-[#B8AC94] hover:text-[#700404]"
-              >
-         <a href="mailto:saxenasheersh5@gmail.com" target="_blank" rel="noopener noreferrer">Email Me </a>
-              </button>
-            </div>
-          </div>
-          <div class="flex justify-between md:px-10 px-4 pb-10">
-            <div class="flex md:gap-16 gap-2">
-              <div class="leading-none">
-                <h1 class="md:text-[1.5vw] text-[3vw]">Design & Development</h1>
-                <h1 class="md:text-[2vw] text-[3vw]">Sheersh Saxena</h1>
-              </div>
-              <div class="leading-none">
-                <h1 class="md:text-[2vw] text-[3vw]">Based in</h1>
-                <h1 class="md:text-[1.5vw] text-[3vw]">India</h1>
-              </div>
+        <div class="flex justify-between md:px-10 px-4 pb-10">
+          <div class="flex md:gap-16 gap-5">
+            <div class="leading-none">
+              <h1 class="md:text-[1.5vw] text-[4vw]">Design & Development</h1>
+              <h1 class="md:text-[2vw] text-[4vw]">Sheersh Saxena</h1>
             </div>
             <div class="leading-none">
-              <h1 class="md:text-[1.5vw] text-[3vw]">Available for work?</h1>
-              <h1 class="md:text-[1.5vw] text-[3vw]">
-                Unless it's ugly. Then no.
-              </h1>
+              <h1 class="md:text-[2vw] text-[4vw]">Based in</h1>
+              <h1 class="md:text-[1.5vw] text-[4vw]">India</h1>
             </div>
           </div>
-        </footer>
-      </div>
+          <div class="leading-none">
+            <h1 class="md:text-[1.5vw] text-[4vw]">Available for work?</h1>
+            <h1 class="md:text-[1.5vw] text-[4vw]">
+              Unless it's ugly. Then no.
+            </h1>
+          </div>
+        </div>
+      </footer>
+      
     </div>
 
-    <script type="module">
-      import Lenis from "lenis";
-      import { ScrollTrigger } from "gsap/ScrollTrigger";
+  </div>
 
-      // Initialize Lenis
-      const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        wheelMultiplier: 1,
-        touchMultiplier: 2,
-        infinite: false,
-      });
+  <script type="module">
+    import Lenis from "lenis";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-      // Connect Lenis with ScrollTrigger
-      lenis.on("scroll", ScrollTrigger.update);
+    // Initialize Lenis
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
 
-      // Animate on scroll
-      function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
+    // Connect Lenis with ScrollTrigger
+    lenis.on("scroll", ScrollTrigger.update);
 
+    // Animate on scroll
+    function raf(time) {
+      lenis.raf(time);
       requestAnimationFrame(raf);
+    }
 
-      // Optional: Add scroll-to functionality for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener("click", function (e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute("href"));
-          if (target) {
-            lenis.scrollTo(target);
-          }
-        });
+    requestAnimationFrame(raf);
+
+    // Optional: Add scroll-to functionality for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute("href"));
+        if (target) {
+          lenis.scrollTo(target);
+        }
       });
-    </script>
+    });
+  </script>
 
-    <script type="module" src="./src/JS/imgReveal.js"></script>
-    <script type="module" src="./src/JS/menu.js"></script>
-    <script type="module" src="./src/JS/gradient.js"></script>
-    <script type="module" src="./src/JS/orbEffect.js"></script>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+  <script type="module" src="./src/JS/imgReveal.js"></script>
+  <script type="module" src="./src/JS/menu.js"></script>
+  <script type="module" src="./src/JS/gradient.js"></script>
+  <script type="module" src="./src/JS/orbEffect.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>
