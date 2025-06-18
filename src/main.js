@@ -570,7 +570,7 @@ window.addEventListener("preloaderComplete", () => {
  setTimeout(() => {
     const gradient = document.getElementById("gradient");
     if (gradient) {
-      gradient.style.opacity = "0.35";
+      gradient.style.opacity = "0.3";
     }
   }, 7000);
 // Cleanup on page unload

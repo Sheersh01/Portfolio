@@ -1,18 +1,32 @@
+// Debug logging function
+function debugLog(message) {
+    // console.log(`[WebGL Debug] ${message}`);
+}
+
 const canvas = document.getElementById('gradient');
+if (!canvas) {
+    debugLog('ERROR: Canvas element not found!');
+    throw new Error('Canvas element with id "gradient" not found');
+}
 
 // Mobile detection and performance settings
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 const isLowEndDevice = navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 4;
 
+debugLog(`Mobile: ${isMobile}, Low-end device: ${isLowEndDevice}`);
+debugLog(`Hardware concurrency: ${navigator.hardwareConcurrency}, Device memory: ${navigator.deviceMemory}`);
+
 // Try WebGL2 first, fallback to WebGL1 for better mobile compatibility
-const gl = canvas.getContext('webgl2', { alpha: true }) || 
-           canvas.getContext('webgl', { alpha: true }) || 
-           canvas.getContext('experimental-webgl', { alpha: true });
+const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
 if (!gl) {
+    debugLog('ERROR: WebGL not supported');
     alert('WebGL not supported');
+    throw new Error('WebGL not supported');
 }
 
 const isWebGL2 = gl instanceof WebGL2RenderingContext;
+debugLog(`WebGL version: ${isWebGL2 ? '2.0' : '1.0'}`);
 
 // Dynamic quality settings for mobile
 const qualitySettings = {
@@ -21,6 +35,8 @@ const qualitySettings = {
     complexNoise: !isMobile || !isLowEndDevice,
     frameSkipping: isMobile && isLowEndDevice
 };
+
+debugLog(`Quality settings: ${JSON.stringify(qualitySettings)}`);
 
 let resizeTimeout;
 function resizeCanvas() {
@@ -37,6 +53,8 @@ function resizeCanvas() {
         canvas.style.height = window.innerHeight + 'px';
         
         gl.viewport(0, 0, displayWidth, displayHeight);
+        
+        debugLog(`Canvas resized: ${displayWidth}x${displayHeight} (display: ${window.innerWidth}x${window.innerHeight})`);
     }, isMobile ? 150 : 50);
 }
 
@@ -142,27 +160,27 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
     uniform float u_bandFreq;
     uniform vec3 u_color1;
     uniform vec3 u_color2;
-    uniform bool u_isMobile;        // Add this uniform
-    uniform float u_brightness;     // Add this uniform  
-    uniform float u_contrast;       // Add this uniform
+    uniform bool u_isMobile;        
+    uniform float u_brightness;     
+    uniform float u_contrast;
 
     ${qualitySettings.complexNoise ? complexNoiseFunction : simpleNoiseFunction}
 
     // Mobile color enhancement function
     vec3 enhanceForMobile(vec3 color) {
         if (u_isMobile) {
-            // Gamma correction for mobile displays
-            color = pow(color, vec3(1.0/2.4));
+            // Reduce overall brightness for mobile
+            color *= 0.8;
             
-            // Apply brightness and contrast adjustments
+            // Apply subtle brightness and contrast adjustments
             color = (color - 0.5) * u_contrast + 0.5 + u_brightness;
             
-            // Increase saturation for better visibility
+            // Gentle saturation adjustment (much less aggressive)
             float luminance = dot(color, vec3(0.299, 0.587, 0.114));
-            color = mix(vec3(luminance), color, 1.5);
+            color = mix(vec3(luminance), color, 1.1);
             
-            // Expand color range
-            color *= 1.4;
+            // Apply gamma correction for mobile displays (lighter gamma)
+           
         }
         
         return clamp(color, 0.0, 1.0);
@@ -224,55 +242,67 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
         vec3 color = getColor(gradientValue);
         
         ${qualitySettings.complexNoise ? `
-        float brightness = u_isMobile ? 0.9 + 0.4 * cnoise(vec3(pos * 1.5, u_time * 0.1)) 
+        float brightness = u_isMobile ? 0.7 + 0.2 * cnoise(vec3(pos * 1.5, u_time * 0.1)) 
                                       : 0.85 + 0.3 * cnoise(vec3(pos * 1.5, u_time * 0.1));
         color *= brightness;
         ` : `
-        color *= u_isMobile ? 1.0 : 0.9;
+        color *= u_isMobile ? 0.8 : 0.9;
         `}
         
-        // Enhanced vignette for mobile
+        // Enhanced vignette for mobile - stronger darkening
         float dist = length(uv - 0.5);
-        float vignetteStart = u_isMobile ? 0.4 : 0.3;
-        float vignetteEnd = u_isMobile ? 0.9 : 0.8;
-        float vignetteStrength = u_isMobile ? 0.4 : 0.3;
+        float vignetteStart = u_isMobile ? 0.2 : 0.3;
+        float vignetteEnd = u_isMobile ? 0.8 : 0.8;
+        float vignetteStrength = u_isMobile ? 0.7 : 0.3;
         
         float vignette = 1.0 - smoothstep(vignetteStart, vignetteEnd, dist);
         color *= (1.0 - vignetteStrength) + vignetteStrength * vignette;
-          float alpha = length(color);
-            if (u_isMobile) {
-        alpha = min(1.0, alpha * 1.5);
-    }
-
-         ${isWebGL2 ? 'fragColor' : 'gl_FragColor'} = vec4(color, alpha);
+        
+        ${isWebGL2 ? 'fragColor' : 'gl_FragColor'} = vec4(color, 1.0);
     }
 `;
 
 function createShader(gl, type, source) {
+    debugLog(`Creating ${type === gl.VERTEX_SHADER ? 'vertex' : 'fragment'} shader`);
+    
     const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
+    
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+        const error = gl.getShaderInfoLog(shader);
+        debugLog(`ERROR: Shader compile error: ${error}`);
+        console.error('Shader source:', source);
         gl.deleteShader(shader);
         return null;
     }
+    
+    debugLog(`${type === gl.VERTEX_SHADER ? 'Vertex' : 'Fragment'} shader compiled successfully`);
     return shader;
 }
 
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
+if (!vertexShader || !fragmentShader) {
+    debugLog('ERROR: Failed to create shaders');
+    throw new Error('Failed to create shaders');
+}
+
 const program = gl.createProgram();
 gl.attachShader(program, vertexShader);
 gl.attachShader(program, fragmentShader);
 gl.linkProgram(program);
-gl.enable(gl.BLEND);
-gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
 if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error('Program link error:', gl.getProgramInfoLog(program));
+    const error = gl.getProgramInfoLog(program);
+    debugLog(`ERROR: Program link error: ${error}`);
+    throw new Error(`Program link error: ${error}`);
 }
 
+debugLog('Program linked successfully');
+
+// Get all uniform locations with error checking
 const uniforms = {
     time: gl.getUniformLocation(program, 'u_time'),
     resolution: gl.getUniformLocation(program, 'u_resolution'),
@@ -281,8 +311,18 @@ const uniforms = {
     warpScale: gl.getUniformLocation(program, 'u_warpScale'),
     bandFreq: gl.getUniformLocation(program, 'u_bandFreq'),
     color1: gl.getUniformLocation(program, 'u_color1'),
-    color2: gl.getUniformLocation(program, 'u_color2')
+    color2: gl.getUniformLocation(program, 'u_color2'),
+    isMobile: gl.getUniformLocation(program, 'u_isMobile'),
+    brightness: gl.getUniformLocation(program, 'u_brightness'),
+    contrast: gl.getUniformLocation(program, 'u_contrast')
 };
+
+// Check for missing uniforms
+Object.entries(uniforms).forEach(([name, location]) => {
+    if (location === null) {
+        debugLog(`WARNING: Uniform '${name}' not found in shader`);
+    }
+});
 
 const positions = new Float32Array([
     -1, -1,
@@ -296,30 +336,40 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 
 const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
+if (positionAttributeLocation === -1) {
+    debugLog('ERROR: Position attribute not found');
+    throw new Error('Position attribute not found');
+}
 
 // Use VAO for WebGL2, fallback for WebGL1
 let vao;
 if (isWebGL2) {
     vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
+    debugLog('Using WebGL2 VAO');
 }
 
 gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
 // Mobile-optimized parameters
-const speed = isMobile ? 0.065 : 0.08; // Slightly slower on mobile
-const scale = isMobile ? 0.0008 : 0.001; // Reduced scale for better performance
-const warpStrength = isMobile ? 7.0 : 8.0; // Reduced complexity
-const warpScale = isMobile ? 0.45 : 0.5; // Less complex warping
-const bandFreq = isMobile ? 3.5 : 4.0; // Slightly less frequency
-const color1 = [1.0, 0.1, 0.1];  // desaturated dull red
-const color2 = [0.0, 0.0, 0.0];  // black
+const speed = isMobile ? 0.070 : 0.08;
+const scale = isMobile ? 0.001 : 0.001;
+const warpStrength = isMobile ? 8.0 : 8.0;
+const warpScale = isMobile ? 0.5 : 0.5;
+const bandFreq = isMobile ? 3.5 : 4.0;
+const color1 = [0.8, 0.2, 0.2];  // darker, more muted red
+const color2 = [0.0, 0.0, 0.0];     // black
+const brightness = isMobile ? 0.0 : 0.0;  // negative brightness for mobile
+const contrast = isMobile ? 1.0 : 1.0;     // lower contrast for mobile
+
+debugLog(`Animation parameters: speed=${speed}, scale=${scale}, warpStrength=${warpStrength}`);
 
 let startTime = Date.now();
 let lastFrameTime = 0;
 let frameCount = 0;
 let lastFPSCheck = performance.now();
+let renderErrors = 0;
 
 // Frame rate management for mobile
 const targetFPS = isMobile ? 30 : 60;
@@ -332,54 +382,84 @@ function checkPerformance() {
     
     if (now - lastFPSCheck >= 5000) { // Check every 5 seconds
         const fps = (frameCount * 1000) / (now - lastFPSCheck);
+        debugLog(`Performance: ${fps.toFixed(1)} FPS, Render errors: ${renderErrors}`);
         
         // If performance is poor on mobile, could trigger further optimizations
         if (fps < 20 && isMobile) {
-            console.log('Performance warning: Low FPS detected');
+            debugLog('WARNING: Low FPS detected');
         }
         
         frameCount = 0;
         lastFPSCheck = now;
+        renderErrors = 0;
     }
 }
 
 function render(currentTime = 0) {
-     gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    
-    // Frame rate limiting for mobile
-    if (qualitySettings.frameSkipping && currentTime - lastFrameTime < frameInterval) {
-        requestAnimationFrame(render);
-        return;
-    }
-    lastFrameTime = currentTime;
+    try {
+        // Frame rate limiting for mobile
+        if (qualitySettings.frameSkipping && currentTime - lastFrameTime < frameInterval) {
+            requestAnimationFrame(render);
+            return;
+        }
+        lastFrameTime = currentTime;
 
-    const time = (Date.now() - startTime) * 0.001 * speed;
+        const time = (Date.now() - startTime) * 0.001 * speed;
 
-    gl.useProgram(program);
-    
-    if (isWebGL2) {
-        gl.bindVertexArray(vao);
-    } else {
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.enableVertexAttribArray(positionAttributeLocation);
-        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-    }
+        // Check for WebGL context loss
+        if (gl.isContextLost()) {
+            debugLog('ERROR: WebGL context lost');
+            return;
+        }
 
-    gl.uniform1f(uniforms.time, time);
-    gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
-    gl.uniform1f(uniforms.scale, scale);
-    gl.uniform1f(uniforms.warpStrength, warpStrength);
-    gl.uniform1f(uniforms.warpScale, warpScale);
-    gl.uniform1f(uniforms.bandFreq, bandFreq);
-    gl.uniform3f(uniforms.color1, ...color1);
-    gl.uniform3f(uniforms.color2, ...color2);
+        gl.useProgram(program);
+        
+        if (isWebGL2) {
+            gl.bindVertexArray(vao);
+        } else {
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(positionAttributeLocation);
+            gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+        }
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        // Set uniforms with error checking
+        if (uniforms.time) gl.uniform1f(uniforms.time, time);
+        if (uniforms.resolution) gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+        if (uniforms.scale) gl.uniform1f(uniforms.scale, scale);
+        if (uniforms.warpStrength) gl.uniform1f(uniforms.warpStrength, warpStrength);
+        if (uniforms.warpScale) gl.uniform1f(uniforms.warpScale, warpScale);
+        if (uniforms.bandFreq) gl.uniform1f(uniforms.bandFreq, bandFreq);
+        if (uniforms.color1) gl.uniform3f(uniforms.color1, ...color1);
+        if (uniforms.color2) gl.uniform3f(uniforms.color2, ...color2);
+        if (uniforms.isMobile) gl.uniform1i(uniforms.isMobile, isMobile ? 1 : 0);
+        if (uniforms.brightness) gl.uniform1f(uniforms.brightness, brightness);
+        if (uniforms.contrast) gl.uniform1f(uniforms.contrast, contrast);
 
-    // Performance monitoring for mobile
-    if (isMobile) {
-        checkPerformance();
+        // Check for GL errors before drawing
+        const error = gl.getError();
+        if (error !== gl.NO_ERROR) {
+            debugLog(`WARNING: GL error before draw: ${error}`);
+            renderErrors++;
+        }
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        // Check for GL errors after drawing
+        const drawError = gl.getError();
+        if (drawError !== gl.NO_ERROR) {
+            debugLog(`ERROR: GL error after draw: ${drawError}`);
+            renderErrors++;
+        }
+
+        // Performance monitoring for mobile
+        if (isMobile) {
+            checkPerformance();
+        }
+
+    } catch (error) {
+        debugLog(`ERROR in render loop: ${error.message}`);
+        renderErrors++;
+        console.error(error);
     }
 
     requestAnimationFrame(render);
@@ -389,6 +469,7 @@ function render(currentTime = 0) {
 let isPageVisible = true;
 document.addEventListener('visibilitychange', () => {
     isPageVisible = !document.hidden;
+    debugLog(`Page visibility changed: ${isPageVisible ? 'visible' : 'hidden'}`);
     if (isPageVisible) {
         // Resume rendering
         render();
@@ -396,13 +477,20 @@ document.addEventListener('visibilitychange', () => {
     // Animation automatically pauses when page is hidden due to requestAnimationFrame
 });
 
-// Start rendering only if page is visible
-if (isPageVisible) {
-    render();
-}
+// Handle WebGL context loss/restore
+canvas.addEventListener('webglcontextlost', (event) => {
+    debugLog('WebGL context lost');
+    event.preventDefault();
+});
+
+canvas.addEventListener('webglcontextrestored', () => {
+    debugLog('WebGL context restored - would need to reinitialize');
+    // Would need to recreate all WebGL resources here
+});
 
 // Memory cleanup for mobile
 window.addEventListener('beforeunload', () => {
+    debugLog('Cleaning up WebGL resources');
     // Clean up WebGL resources
     gl.deleteBuffer(positionBuffer);
     gl.deleteShader(vertexShader);
@@ -410,3 +498,9 @@ window.addEventListener('beforeunload', () => {
     gl.deleteProgram(program);
     if (vao) gl.deleteVertexArray(vao);
 });
+
+// Start rendering only if page is visible
+debugLog('Starting render loop');
+if (isPageVisible) {
+    render();
+}
