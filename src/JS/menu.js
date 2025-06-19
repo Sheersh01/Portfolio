@@ -3,7 +3,6 @@ import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import SplitType from "split-type";
 gsap.registerPlugin(ScrambleTextPlugin);
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const trigger = document.querySelector("#trigger-button");
   const message = document.getElementById("funny-message");
@@ -38,6 +37,44 @@ document.addEventListener("DOMContentLoaded", () => {
     clickCount++;
   });
 });
+
+// Scroll lock utilities
+function disableScroll() {
+  // Get the current scroll position
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+  
+  // Add styles to prevent scrolling
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollTop}px`;
+  document.body.style.left = `-${scrollLeft}px`;
+  document.body.style.width = '100%';
+  
+  // Store scroll position for restoration
+  document.body.setAttribute('data-scroll-top', scrollTop);
+  document.body.setAttribute('data-scroll-left', scrollLeft);
+}
+
+function enableScroll() {
+  // Get stored scroll position
+  const scrollTop = parseInt(document.body.getAttribute('data-scroll-top') || '0');
+  const scrollLeft = parseInt(document.body.getAttribute('data-scroll-left') || '0');
+  
+  // Remove styles that prevent scrolling
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.width = '';
+  
+  // Restore scroll position
+  window.scrollTo(scrollLeft, scrollTop);
+  
+  // Clean up attributes
+  document.body.removeAttribute('data-scroll-top');
+  document.body.removeAttribute('data-scroll-left');
+}
 
 function nav() {
     const toggleButton = document.querySelector(".burger"); // Open menu button
@@ -100,6 +137,7 @@ function nav() {
 
     // Open menu
     toggleButton.addEventListener("click", function () {
+        disableScroll(); // Prevent scrolling
         timeline.play(); // Play open animation
         toggleButton.classList.add("active"); // Highlight open button
         toggleButton1.classList.remove("active"); // Remove highlight from close button
@@ -107,9 +145,29 @@ function nav() {
 
     // Close menu
     toggleButton1.addEventListener("click", function () {
+        enableScroll(); // Re-enable scrolling
         timeline.reverse(); // Reverse the animation to close menu
         toggleButton1.classList.add("active"); // Highlight close button
         toggleButton.classList.remove("active"); // Remove highlight from open button
+    });
+
+    // Optional: Close menu when clicking outside or pressing Escape
+    overlay.addEventListener("click", function(e) {
+        if (e.target === overlay) {
+            enableScroll();
+            timeline.reverse();
+            toggleButton1.classList.add("active");
+            toggleButton.classList.remove("active");
+        }
+    });
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape" && timeline.progress() > 0) {
+            enableScroll();
+            timeline.reverse();
+            toggleButton1.classList.add("active");
+            toggleButton.classList.remove("active");
+        }
     });
 }
 nav();
