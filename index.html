@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+ <!-- Light theme favicon -->
+<link rel="icon" href="./favicon.png" media="(prefers-color-scheme: light)">
+<!-- Dark theme favicon -->
+<link rel="icon" href="./favicon2.png" media="(prefers-color-scheme: dark)">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sheersh Saxena</title>
     <link rel="stylesheet" href="/src/style.css" />
@@ -610,15 +614,15 @@
       import Lenis from "lenis";
       import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-      // Initialize Lenis
-      const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        wheelMultiplier: 1,
-        touchMultiplier: 2,
-        infinite: false,
-      });
+   const lenis = new Lenis({
+  duration: 2.0, // ⬅️ increase from 1.2 to something like 2.0 for smoother, slower easing
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // exponential ease-out
+  smoothWheel: true,
+  wheelMultiplier: 0.8, // ⬅️ lower this for smoother mouse wheel scroll
+  touchMultiplier: 1.5, // ⬅️ adjust for touchpad/touch devices
+  infinite: false,
+});
+
 
       // Connect Lenis with ScrollTrigger
       lenis.on("scroll", ScrollTrigger.update);
