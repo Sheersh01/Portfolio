@@ -72,7 +72,10 @@ function createTextTexture(text, color = "white") {
   } else if (width <= 1280) {
     fontScale = 0.6;
     geometryScale = 1.0;
-  } else {
+  } else if (width <= 1680) {
+    fontScale = 0.8;
+    geometryScale = 1.0;
+  }else {
     fontScale = 0.8;
     geometryScale = 1.0;
   }
@@ -147,10 +150,14 @@ function getResponsiveLayout() {
     Leftspacing = 0.9;
     Rightspacing = 0.8;
     doesSpacing = 0.16;
-  } else {
+  } else  if (width <= 1680) {
     Leftspacing = 1.05;
     Rightspacing = 0.9;
     doesSpacing = 0.21;
+  }else {
+    Leftspacing = 1.8;
+    Rightspacing = 1.5;
+    doesSpacing = 0.35;
   }
 
   return {
