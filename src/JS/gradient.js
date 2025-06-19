@@ -16,6 +16,43 @@ const isLowEndDevice = navigator.hardwareConcurrency <= 4 || navigator.deviceMem
 debugLog(`Mobile: ${isMobile}, Low-end device: ${isLowEndDevice}`);
 debugLog(`Hardware concurrency: ${navigator.hardwareConcurrency}, Device memory: ${navigator.deviceMemory}`);
 
+// ENHANCED VIEWPORT HANDLING - Based on Three.js technique
+let baseViewportHeight = window.innerHeight; // Reference viewport height
+let baseViewportWidth = window.innerWidth;   // Reference viewport width
+let currentScaleFactor = 1.0;                // Track scale compensation needed
+let fixedViewportWidth = window.innerWidth;
+let fixedViewportHeight = window.innerHeight;
+
+// Calculate scale factor to maintain consistent visual size
+function calculateScaleFactor() {
+    // When viewport gets shorter (URL bar appears), scale UP to maintain size
+    // When viewport gets taller (URL bar disappears), scale DOWN
+    return baseViewportHeight / window.innerHeight;
+}
+
+// Smart viewport dimension getter with scale compensation
+const getViewportDimensions = () => {
+    if (window.visualViewport && isMobile) {
+        return {
+            width: window.visualViewport.width,
+            height: window.visualViewport.height,
+            scaleFactor: calculateScaleFactor()
+        };
+    }
+    return {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        scaleFactor: calculateScaleFactor()
+    };
+};
+
+// Store initial dimensions
+const viewport = getViewportDimensions();
+baseViewportHeight = viewport.height;
+baseViewportWidth = viewport.width;
+fixedViewportWidth = viewport.width;
+fixedViewportHeight = viewport.height;
+
 // Try WebGL2 first, fallback to WebGL1 for better mobile compatibility
 const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
@@ -39,27 +76,137 @@ const qualitySettings = {
 debugLog(`Quality settings: ${JSON.stringify(qualitySettings)}`);
 
 let resizeTimeout;
+let isRealResize = false;
+
+// ENHANCED RESIZE FUNCTION - Implements Three.js technique
 function resizeCanvas() {
+    const viewport = getViewportDimensions();
+    currentScaleFactor = viewport.scaleFactor;
+    
+    // Smart resize detection - distinguish real resizes from URL bar changes
+    if (isMobile) {
+        const widthChange = Math.abs(viewport.width - fixedViewportWidth);
+        const heightChange = Math.abs(viewport.height - fixedViewportHeight);
+        
+        // Determine if this is a real resize or just URL bar
+        isRealResize = widthChange > 10 || heightChange > 200;
+        
+        if (!isRealResize) {
+            // Just URL bar - apply scale compensation without full resize
+            debugLog(`URL bar change detected: scale factor ${currentScaleFactor.toFixed(3)}`);
+            updateCanvasScale();
+            return;
+        } else {
+            // Real resize - reset base dimensions
+            debugLog(`Real resize detected: ${widthChange}x${heightChange}`);
+            baseViewportHeight = viewport.height;
+            baseViewportWidth = viewport.width;
+            fixedViewportWidth = viewport.width;
+            fixedViewportHeight = viewport.height;
+            currentScaleFactor = 1.0;
+        }
+    }
+    
     // Debounce resize for mobile
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-        const pixelRatio = qualitySettings.pixelRatio;
-        const displayWidth = Math.floor(window.innerWidth * pixelRatio);
-        const displayHeight = Math.floor(window.innerHeight * pixelRatio);
-        
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-        canvas.style.width = window.innerWidth + 'px';
-        canvas.style.height = window.innerHeight + 'px';
-        
-        gl.viewport(0, 0, displayWidth, displayHeight);
-        
-        debugLog(`Canvas resized: ${displayWidth}x${displayHeight} (display: ${window.innerWidth}x${window.innerHeight})`);
+        performFullResize(viewport);
     }, isMobile ? 150 : 50);
 }
 
-resizeCanvas();
+// Scale compensation update - maintains visual consistency during URL bar changes
+function updateCanvasScale() {
+    // Apply scale compensation to canvas rendering
+    // This maintains consistent visual size when viewport height changes
+    const currentViewport = getViewportDimensions();
+    
+    // Update canvas style to maintain visual consistency
+    canvas.style.transform = `scale(${currentScaleFactor})`;
+    canvas.style.transformOrigin = 'center center';
+    
+    // Slight position adjustment to prevent visual jumping
+    const offsetY = (currentViewport.height - baseViewportHeight) * 0.1;
+    canvas.style.top = `${offsetY}px`;
+    
+    debugLog(`Applied scale compensation: ${currentScaleFactor.toFixed(3)}`);
+}
+
+// Full resize for real dimension changes
+function performFullResize(viewport) {
+    // Reset any scale transformations for real resizes
+    canvas.style.transform = '';
+    canvas.style.top = '';
+    
+    const pixelRatio = qualitySettings.pixelRatio;
+    const displayWidth = Math.floor(viewport.width * pixelRatio);
+    const displayHeight = Math.floor(viewport.height * pixelRatio);
+    
+    // Only resize if dimensions actually changed significantly
+    if (Math.abs(canvas.width - displayWidth) > 10 || Math.abs(canvas.height - displayHeight) > 10) {
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+        canvas.style.width = viewport.width + 'px';
+        canvas.style.height = viewport.height + 'px';
+        
+        gl.viewport(0, 0, displayWidth, displayHeight);
+        
+        debugLog(`Canvas fully resized: ${displayWidth}x${displayHeight} (display: ${viewport.width}x${viewport.height})`);
+    }
+}
+
+// Initial canvas setup
+const initialPixelRatio = qualitySettings.pixelRatio;
+const initialDisplayWidth = Math.floor(baseViewportWidth * initialPixelRatio);
+const initialDisplayHeight = Math.floor(baseViewportHeight * initialPixelRatio);
+
+canvas.width = initialDisplayWidth;
+canvas.height = initialDisplayHeight;
+canvas.style.width = baseViewportWidth + 'px';
+canvas.style.height = baseViewportHeight + 'px';
+
+gl.viewport(0, 0, initialDisplayWidth, initialDisplayHeight);
+
+// Enhanced event listeners for viewport changes
 window.addEventListener('resize', resizeCanvas);
+
+// ENHANCED VISUAL VIEWPORT HANDLING - Based on Three.js approach
+if (window.visualViewport && isMobile) {
+    let initialVisualViewportHeight = window.visualViewport.height;
+    
+    window.visualViewport.addEventListener('resize', () => {
+        debugLog('Visual viewport resize detected');
+        resizeCanvas();
+    });
+    
+    // Reset on significant changes
+    window.visualViewport.addEventListener('scroll', () => {
+        if (Math.abs(window.visualViewport.height - initialVisualViewportHeight) > 150) {
+            initialVisualViewportHeight = window.visualViewport.height;
+            baseViewportHeight = window.visualViewport.height;
+            debugLog('Visual viewport baseline reset');
+        }
+    });
+}
+
+// Handle orientation changes specifically
+window.addEventListener('orientationchange', () => {
+    debugLog('Orientation change detected');
+    // Wait for orientation change to complete
+    setTimeout(() => {
+        const viewport = getViewportDimensions();
+        baseViewportHeight = viewport.height;
+        baseViewportWidth = viewport.width;
+        fixedViewportWidth = viewport.width;
+        fixedViewportHeight = viewport.height;
+        currentScaleFactor = 1.0;
+        
+        // Reset any transforms
+        canvas.style.transform = '';
+        canvas.style.top = '';
+        
+        performFullResize(viewport);
+    }, 500);
+});
 
 // Optimized shader versions
 const vertexShaderSource = isWebGL2 ? `#version 300 es
@@ -146,6 +293,7 @@ const complexNoiseFunction = `
     }
 `;
 
+// Enhanced fragment shader with scale compensation support
 const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
     precision ${qualitySettings.precision} float;
 
@@ -163,40 +311,36 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
     uniform bool u_isMobile;        
     uniform float u_brightness;     
     uniform float u_contrast;
+    uniform float u_scaleFactor;    // NEW: Scale compensation factor
 
     ${qualitySettings.complexNoise ? complexNoiseFunction : simpleNoiseFunction}
 
     // Mobile color enhancement function
     vec3 enhanceForMobile(vec3 color) {
         if (u_isMobile) {
-            // Reduce overall brightness for mobile
             color *= 0.8;
-            
-            // Apply subtle brightness and contrast adjustments
             color = (color - 0.5) * u_contrast + 0.5 + u_brightness;
-            
-            // Gentle saturation adjustment (much less aggressive)
             float luminance = dot(color, vec3(0.299, 0.587, 0.114));
             color = mix(vec3(luminance), color, 1.1);
-            
-            // Apply gamma correction for mobile displays (lighter gamma)
-           
         }
         
         return clamp(color, 0.0, 1.0);
     }
 
     vec2 domainWarp(vec2 p, float time) {
-        float warpX = cnoise(vec3(p * u_warpScale, time * 0.3));
-        float warpY = cnoise(vec3(p * u_warpScale + 100.0, time * 0.3));
+        // Apply scale compensation to maintain consistent noise pattern
+        vec2 scaledP = p * u_scaleFactor;
+        
+        float warpX = cnoise(vec3(scaledP * u_warpScale, time * 0.3));
+        float warpY = cnoise(vec3(scaledP * u_warpScale + 100.0, time * 0.3));
         vec2 warp1 = vec2(warpX, warpY) * u_warpStrength;
-        vec2 warpedP = p + warp1;
+        vec2 warpedP = scaledP + warp1;
         
         ${qualitySettings.complexNoise ? `
         float warpX2 = cnoise(vec3(warpedP * u_warpScale * 0.7, time * 0.2));
         float warpY2 = cnoise(vec3(warpedP * u_warpScale * 0.7 + 200.0, time * 0.2));
         vec2 warp2 = vec2(warpX2, warpY2) * u_warpStrength * 0.5;
-        return p + warp1 + warp2;
+        return scaledP + warp1 + warp2;
         ` : `
         return warpedP;
         `}
@@ -222,7 +366,6 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
     vec3 getColor(float t) {
         t = (t + 1.0) * 0.5;
         
-        // Enhanced smoothstep for mobile - wider transition range
         if (u_isMobile) {
             t = smoothstep(0.1, 0.9, t);
         } else {
@@ -230,8 +373,6 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
         }
         
         vec3 color = mix(u_color1, u_color2, t);
-        
-        // Apply mobile enhancement
         return enhanceForMobile(color);
     }
 
@@ -242,13 +383,12 @@ const fragmentShaderSource = (isWebGL2 ? `#version 300 es\n` : '') + `
         vec3 color = getColor(gradientValue);
         
         ${qualitySettings.complexNoise ? `
-float brightness = u_isMobile ? 0.8 : 0.9;  // Fixed constant values
-color *= brightness;
-` : `
-color *= u_isMobile ? 0.8 : 0.9;
-`}
+        float brightness = u_isMobile ? 0.8 : 0.9;
+        color *= brightness;
+        ` : `
+        color *= u_isMobile ? 0.8 : 0.9;
+        `}
         
-        // Enhanced vignette for mobile - stronger darkening
         float dist = length(uv - 0.5);
         float vignetteStart = u_isMobile ? 0.2 : 0.3;
         float vignetteEnd = u_isMobile ? 0.8 : 0.8;
@@ -313,7 +453,8 @@ const uniforms = {
     color2: gl.getUniformLocation(program, 'u_color2'),
     isMobile: gl.getUniformLocation(program, 'u_isMobile'),
     brightness: gl.getUniformLocation(program, 'u_brightness'),
-    contrast: gl.getUniformLocation(program, 'u_contrast')
+    contrast: gl.getUniformLocation(program, 'u_contrast'),
+    scaleFactor: gl.getUniformLocation(program, 'u_scaleFactor') // NEW uniform
 };
 
 // Check for missing uniforms
@@ -357,10 +498,10 @@ const scale = isMobile ? 0.001 : 0.001;
 const warpStrength = isMobile ? 8.0 : 8.0;
 const warpScale = isMobile ? 0.5 : 0.5;
 const bandFreq = isMobile ? 3.5 : 4.0;
-const color1 = [0.8, 0.2, 0.2];  // darker, more muted red
-const color2 = [0.0, 0.0, 0.0];     // black
-const brightness = isMobile ? 0.0 : 0.0;  // negative brightness for mobile
-const contrast = isMobile ? 1.0 : 1.0;     // lower contrast for mobile
+const color1 = [0.8, 0.2, 0.2];
+const color2 = [0.0, 0.0, 0.0];
+const brightness = isMobile ? 0.0 : 0.0;
+const contrast = isMobile ? 1.0 : 1.0;
 
 debugLog(`Animation parameters: speed=${speed}, scale=${scale}, warpStrength=${warpStrength}`);
 
@@ -379,11 +520,10 @@ function checkPerformance() {
     frameCount++;
     const now = performance.now();
     
-    if (now - lastFPSCheck >= 5000) { // Check every 5 seconds
+    if (now - lastFPSCheck >= 5000) {
         const fps = (frameCount * 1000) / (now - lastFPSCheck);
-        debugLog(`Performance: ${fps.toFixed(1)} FPS, Render errors: ${renderErrors}`);
+        debugLog(`Performance: ${fps.toFixed(1)} FPS, Render errors: ${renderErrors}, Scale factor: ${currentScaleFactor.toFixed(3)}`);
         
-        // If performance is poor on mobile, could trigger further optimizations
         if (fps < 20 && isMobile) {
             debugLog('WARNING: Low FPS detected');
         }
@@ -421,7 +561,7 @@ function render(currentTime = 0) {
             gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
         }
 
-        // Set uniforms with error checking
+        // Set uniforms with error checking - INCLUDING SCALE FACTOR
         if (uniforms.time) gl.uniform1f(uniforms.time, time);
         if (uniforms.resolution) gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
         if (uniforms.scale) gl.uniform1f(uniforms.scale, scale);
@@ -433,6 +573,7 @@ function render(currentTime = 0) {
         if (uniforms.isMobile) gl.uniform1i(uniforms.isMobile, isMobile ? 1 : 0);
         if (uniforms.brightness) gl.uniform1f(uniforms.brightness, brightness);
         if (uniforms.contrast) gl.uniform1f(uniforms.contrast, contrast);
+        if (uniforms.scaleFactor) gl.uniform1f(uniforms.scaleFactor, currentScaleFactor); // Apply scale compensation
 
         // Check for GL errors before drawing
         const error = gl.getError();
@@ -470,10 +611,8 @@ document.addEventListener('visibilitychange', () => {
     isPageVisible = !document.hidden;
     debugLog(`Page visibility changed: ${isPageVisible ? 'visible' : 'hidden'}`);
     if (isPageVisible) {
-        // Resume rendering
         render();
     }
-    // Animation automatically pauses when page is hidden due to requestAnimationFrame
 });
 
 // Handle WebGL context loss/restore
