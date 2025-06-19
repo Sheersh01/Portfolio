@@ -3,6 +3,42 @@ import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import SplitType from "split-type";
 gsap.registerPlugin(ScrambleTextPlugin);
 
+
+document.addEventListener("DOMContentLoaded", () => {
+  const trigger = document.querySelector("#trigger-button");
+  const message = document.getElementById("funny-message");
+
+  const messages = [
+    "Look at this idiot, still clicking a button",
+    "Wow, again?",
+    "You're really committed huh?",
+    "It still does nothing...",
+    "Okay now I'm impressed 😑",
+    "Button addiction is real",
+    "You're not giving up, are you?",
+    "Seriously... stop.",
+    "Nothing will happen. Ever.",
+    "Bro. Chill."
+  ];
+
+  let clickCount = 0;
+
+  trigger.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    // Get message based on click count, looping back to 0 after end
+    const msg = messages[clickCount % messages.length];
+    message.textContent = msg;
+    message.classList.remove("hidden");
+
+    setTimeout(() => {
+      message.classList.add("hidden");
+    }, 3000);
+
+    clickCount++;
+  });
+});
+
 function nav() {
     const toggleButton = document.querySelector(".burger"); // Open menu button
     const overlay = document.querySelector(".overlay"); // Menu overlay

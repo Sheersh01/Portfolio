@@ -76,7 +76,7 @@ void main() {
   float fadeIn = smoothstep(noise - 0.1, noise + 0.1, clamp(uTime / 2.5, 0.0, 1.0));
   
   // Synchronized color transition from 2.0 to 3.5 seconds
-  float colorTransition = smoothstep(2.0, 3.5, uTime);
+  float colorTransition = smoothstep(2.0, 4.0, uTime);
   
   if (uIsRedWord) {
     // "Does" behavior - turns red at the same time others turn black

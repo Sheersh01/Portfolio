@@ -137,7 +137,7 @@ function getResponsiveLayout() {
   if (width <= 480) {
     Leftspacing = 0.7;
     Rightspacing = 0.6;
-    doesSpacing = 0.12;
+    doesSpacing = 0.125;
   } else if (width <= 640) {
     Leftspacing = 0.7;
     Rightspacing = 0.6;
