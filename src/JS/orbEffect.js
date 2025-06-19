@@ -11,6 +11,29 @@ gsap.registerPlugin(ScrollTrigger);
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 const isLowEndDevice = navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 4;
 
+// Mobile viewport handling - Fix for URL bar hide/show
+let initialViewportHeight = window.innerHeight;
+let initialViewportWidth = window.innerWidth;
+
+// Use visual viewport API if available (modern browsers)
+const getViewportDimensions = () => {
+    if (window.visualViewport && isMobile) {
+        return {
+            width: window.visualViewport.width,
+            height: window.visualViewport.height
+        };
+    }
+    return {
+        width: window.innerWidth,
+        height: window.innerHeight
+    };
+};
+
+// Store initial dimensions
+const viewport = getViewportDimensions();
+initialViewportHeight = viewport.height;
+initialViewportWidth = viewport.width;
+
 // Dynamic quality settings based on device
 const qualitySettings = {
     subdivisions: isMobile ? (isLowEndDevice ? 70 : 70) : 80,
@@ -22,7 +45,7 @@ const qualitySettings = {
 };
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, initialViewportWidth / initialViewportHeight, 0.1, 1000);
 camera.position.set(0, 0, 5);
 
 const canvas = document.querySelector('canvas');
@@ -32,7 +55,9 @@ const renderer = new THREE.WebGLRenderer({
     alpha: true,
     powerPreference: isMobile ? "low-power" : "high-performance"
 });
-renderer.setSize(window.innerWidth, window.innerHeight);
+
+// Set initial size using viewport dimensions
+renderer.setSize(initialViewportWidth, initialViewportHeight);
 renderer.setPixelRatio(qualitySettings.pixelRatio);
 renderer.setClearColor(0x000000, 1);
 
@@ -41,7 +66,9 @@ if (isMobile) {
     renderer.shadowMap.enabled = false;
     renderer.physicallyCorrectLights = false;
 }
-const radius= isMobile ? 1.5 : 2;
+
+const radius = isMobile ? 1.5 : 2;
+
 // Create Points from Icosahedron Geometry with dynamic quality
 const geometry = new THREE.IcosahedronGeometry(radius, qualitySettings.subdivisions);
 const pointsMaterial = new THREE.ShaderMaterial({
@@ -55,7 +82,7 @@ const pointsMaterial = new THREE.ShaderMaterial({
         uCameraPosition: { value: camera.position },
         uOpacity: { value: 0.0 }, // Start invisible
         uScale: { value: 0.0 }, // Start with zero scale
-         uIsMobile: { value: isMobile }    
+        uIsMobile: { value: isMobile }    
     },
     transparent: true,
     blending: THREE.AdditiveBlending,
@@ -88,32 +115,14 @@ let isInteracting = false;
 // Mouse events
 window.addEventListener('mousemove', (event) => {
     if (!isInteracting) {
-        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-        mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        const viewport = getViewportDimensions();
+        mouseX = (event.clientX / viewport.width) * 2 - 1;
+        mouseY = -(event.clientY / viewport.height) * 2 + 1;
     }
 });
 
-// Touch events for mobile
-// window.addEventListener('touchstart', (event) => {
-//     isInteracting = true;
-//     const touch = event.touches[0];
-//     mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-//     mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
-// }, { passive: true });
-
-// window.addEventListener('touchmove', (event) => {
-//     event.preventDefault(); // Prevent scrolling while touching the orb
-//     const touch = event.touches[0];
-//     mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-//     mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
-// }, { passive: false });
-
-// window.addEventListener('touchend', () => {
-//     isInteracting = false;
-// }, { passive: true });
-
 // Animation parameters with mobile optimization
-let animationSpeed = isMobile ? 0.8 : 1.0; // Slightly slower on mobile for better performance
+let animationSpeed = isMobile ? 0.8 : 1.0;
 let colorChange = 0.0;
 let noiseIntensity = isMobile ? 0.8 : 1.0;
 let pointSize = isMobile ? 1.5 : 2.0;
@@ -252,24 +261,60 @@ function animate(currentTime = 0) {
 
 animate();
 
-// Enhanced responsive handling
+// Enhanced responsive handling with viewport stability
 let resizeTimeout;
-window.addEventListener('resize', () => {
-    // Debounce resize events for mobile
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(qualitySettings.pixelRatio);
+
+function handleResize() {
+    const viewport = getViewportDimensions();
+    
+    // On mobile, ignore small height changes (likely URL bar)
+    if (isMobile) {
+        // Only update if width changed significantly or height change is large
+        const widthChange = Math.abs(viewport.width - camera.aspect * renderer.domElement.height);
+        const heightChange = Math.abs(viewport.height - renderer.domElement.height);
         
-        // Re-check if device is mobile after rotation
-        const newIsMobile = window.innerWidth < 768;
-        if (newIsMobile !== isMobile) {
-            // Adjust settings if orientation changed significantly
-            pointsMaterial.uniforms.uPointSize.value = newIsMobile ? 8.0 : 15.0;
+        // If it's just a small height change (URL bar), ignore it
+        if (widthChange < 50 && heightChange < 150 && heightChange > 0) {
+            return;
         }
-    }, 150);
+    }
+    
+    // Update camera and renderer
+    camera.aspect = viewport.width / viewport.height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(viewport.width, viewport.height);
+    renderer.setPixelRatio(qualitySettings.pixelRatio);
+    
+    // Update point size if needed
+    const newIsMobile = viewport.width < 768;
+    if (newIsMobile !== isMobile) {
+        pointsMaterial.uniforms.uPointSize.value = newIsMobile ? 8.0 : 15.0;
+    }
+}
+
+// Handle regular resize events
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(handleResize, 150);
+});
+
+// Handle visual viewport changes (for URL bar hide/show)
+if (window.visualViewport && isMobile) {
+    window.visualViewport.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleResize, 100);
+    });
+}
+
+// Handle orientation changes specifically
+window.addEventListener('orientationchange', () => {
+    // Wait for orientation change to complete
+    setTimeout(() => {
+        const viewport = getViewportDimensions();
+        initialViewportHeight = viewport.height;
+        initialViewportWidth = viewport.width;
+        handleResize();
+    }, 500);
 });
 
 // Optimized auto color transition with longer intervals on mobile

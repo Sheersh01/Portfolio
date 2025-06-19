@@ -596,15 +596,15 @@ window.addEventListener("preloaderComplete", () => {
  setTimeout(() => {
     const gradient = document.getElementById("gradient");
     if (gradient) {
-      gradient.style.opacity = "0.25";
+      gradient.style.opacity = "0.2";
     }
-  }, 7000);
+  }, 7500);
   setTimeout(() => {
     const nav = document.querySelector("nav");
     if (nav) {
       nav.style.opacity = "1.0";
     }
-  }, 7000);
+  }, 7500);
 // Cleanup on page unload
 window.addEventListener("beforeunload", () => {
   materials.forEach((mat) => {
