@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/sitemap.xml",
+      "source": "/(.*).xml",
       "headers": [
         {
           "key": "Content-Type",
