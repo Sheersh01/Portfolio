@@ -4,39 +4,41 @@
     <!-- Required Meta Tags -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+
     <!-- Title -->
     <title>Sheersh Saxena | Creative Developer & Digital Artist</title>
-  
+
     <!-- Description -->
     <meta
       name="description"
       content="Sheersh Saxena is a creative developer and digital artist specializing in interactive experiences, web design, and visual storytelling. Explore his portfolio at Sheersh.xyz."
     />
-  
+
     <!-- Keywords -->
     <meta
       name="keywords"
       content="Sheersh Saxena, creative developer, portfolio, frontend developer, digital artist, GSAP, Lenis, interactive web design, visual designer"
     />
-  
+
     <!-- Author -->
     <meta name="author" content="Sheersh Saxena" />
-  
+
     <!-- Theme Color -->
     <meta name="theme-color" content="#00457b" />
-  
-    <!-- Robots -->
-    <meta name="robots" content="index, follow" />
-  
+
     <!-- Favicon -->
-    <link rel="icon" href="/favicon.png" type="image/png" />
-    <link rel="icon" href="/favicon.png" media="(prefers-color-scheme: light)" />
-    <link rel="icon" href="/favicon2.png" media="(prefers-color-scheme: dark)" />
-  
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://sheersh.xyz/" />
-  
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link
+      rel="icon"
+      href="./favicon.png"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="icon"
+      href="./favicon2.png"
+      media="(prefers-color-scheme: dark)"
+    />
+
     <!-- Open Graph for social sharing -->
     <meta
       property="og:title"
@@ -46,10 +48,10 @@
       property="og:description"
       content="Portfolio of Sheersh Saxena – showcasing interactive web experiences, motion design, and frontend engineering."
     />
-    <meta property="og:image" content="https://sheersh.xyz/og-image.png" />
-    <meta property="og:url" content="https://sheersh.xyz/" />
+    <meta property="og:image" content="https://www.sheersh.xyz/og-image.png" />
+    <meta property="og:url" content="https://www.sheersh.xyz" />
     <meta property="og:type" content="website" />
-  
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta
@@ -60,16 +62,36 @@
       name="twitter:description"
       content="Explore the portfolio of Sheersh Saxena, a creative developer blending code and design."
     />
-    <meta name="twitter:image" content="https://sheersh.xyz/og-image.png" />
+    <meta name="twitter:image" content="https://www.sheersh.xyz/og-image.png" />
     <!-- <meta name="twitter:site" content="@yourTwitterHandle" /> -->
-  
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.sheersh.xyz" />
+
     <!-- CSS Files -->
     <link rel="stylesheet" href="/src/style.css" />
-    <link rel="stylesheet" href="/src/CSS/imgReveal.css" />
-    <link rel="stylesheet" href="/src/CSS/menu.css" />
+    <link rel="stylesheet" href="./src/CSS/imgReveal.css" />
+    <link rel="stylesheet" href="./src/CSS/menu.css" />
 
+    <!-- Lenis Custom CSS -->
+    <style>
+      html.lenis {
+        height: auto;
+      }
+      .lenis.lenis-smooth {
+        scroll-behavior: auto;
+      }
+      .lenis.lenis-smooth [data-lenis-prevent] {
+        overscroll-behavior: contain;
+      }
+      .lenis.lenis-stopped {
+        overflow: hidden;
+      }
+      .lenis.lenis-scrolling iframe {
+        pointer-events: none;
+      }
+    </style>
   </head>
-  
 
   <body>
     <div id="preloader"></div>
