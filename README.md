@@ -40,7 +40,7 @@ A bold, interactive personal portfolio designed to showcase my projects, skills,
 ---
 
 ## 📂 Project Structure
-
+```
 portfolio/
 ├── public/ # Static assets (images, icons, meta)
 │ ├── bg3.jpg / .webp
@@ -86,7 +86,7 @@ portfolio/
 ├── vite.config.js # Vite configuration
 ├── vercel.json # Vercel deployment settings
 └── README.md
-
+```
 ---
 
 ## 📦 Installation & Setup
