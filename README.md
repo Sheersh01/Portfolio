@@ -5,16 +5,17 @@ A bold, interactive personal portfolio designed to showcase my projects, skills,
 ---
 
 ## 🚀 Features
-- **Unique Personality:** Witty copy and unconventional UI that reflects my style.
-- **Interactive Animations:** Smooth transitions, scroll effects, and micro-interactions.
-- **Project Showcase:** Links, descriptions, and live demos of my work.
-- **Responsive Design:** Fully optimized for desktop, tablet, and mobile.
-- **Fast & Optimized:** Minified assets, lazy loading, and smooth performance.
-- **Custom Domain:** Hosted on Vercel with `sheersh.xyz`.
+- **Unique Personality:** Witty, unconventional UI that reflects my style.
+- **Interactive Animations:** Smooth GSAP animations, WebGL effects, and shader magic.
+- **Project Gallery:** Live demos and screenshots of my work.
+- **Responsive Design:** Works seamlessly on desktop, tablet, and mobile.
+- **Performance Optimized:** Lazy loading, minified assets, and smooth scroll (Lenis).
+- **Custom Domain:** Hosted on Vercel → [sheersh.xyz](https://sheersh.xyz).
 
 ---
 
 ## 🛠 Tech Stack
+
 **Frontend:**
 - HTML5
 - Tailwind CSS
@@ -23,23 +24,67 @@ A bold, interactive personal portfolio designed to showcase my projects, skills,
 - GSAP (GreenSock Animation Platform)
 - Lenis (Smooth Scrolling)
 
+**Graphics & Animations:**
+- Custom GLSL shaders (`fragment.glsl`, `vertex.glsl`, etc.)
+- Orb and gradient effects
+- Image reveal transitions
+
 **Deployment & Hosting:**
 - Vercel
 - Custom Domain (`sheersh.xyz`)
 
 **Design Tools:**
-- Figma for wireframes and UI concepts
+- Figma (UI/UX mockups)
+- Photoshop / GIMP for image optimization
 
 ---
 
 ## 📂 Project Structure
-root/
-├── public/ # Static assets (images, icons, etc.)
+
+portfolio/
+├── public/ # Static assets (images, icons, meta)
+│ ├── bg3.jpg / .webp
+│ ├── card.png / .webp
+│ ├── favicon.png / .webp
+│ ├── og-image.png
+│ ├── robots.txt
+│ ├── sitemap.txt
+│ └── vite.svg
+│
 ├── src/
-│ ├── components/ # Reusable UI components
-│ ├── styles/ # Tailwind and custom styles
-│ ├── scripts/ # JS logic and animations
-│ └── index.html
+│ ├── CSS/ # Stylesheets
+│ │ ├── imgReveal.css
+│ │ └── menu.css
+│ │
+│ ├── fonts/ # Custom fonts
+│ │ └── gabriola.woff
+│ │
+│ ├── images/ # Project images
+│ │ ├── deeplens.png / .webp
+│ │ ├── eSummit.png / .webp
+│ │ ├── MahabalAgroInd.png / .webp
+│ │ ├── Nagaravrtta.png / .webp
+│ │ └── Planets.png / .webp
+│ │
+│ ├── JS/ # JavaScript logic
+│ │ ├── gradient.js
+│ │ ├── imgReveal.js
+│ │ ├── menu.js
+│ │ └── orbEffect.js
+│ │
+│ ├── shaders/ # GLSL shaders
+│ │ ├── fragment.glsl
+│ │ ├── orbFragment.glsl
+│ │ ├── orbVertex.glsl
+│ │ └── vertex.glsl
+│ │
+│ ├── main.js # App entry point
+│ └── style.css # Global styles
+│
+├── index.html # Root HTML
+├── package.json
+├── vite.config.js # Vite configuration
+├── vercel.json # Vercel deployment settings
 └── README.md
 
 ---
