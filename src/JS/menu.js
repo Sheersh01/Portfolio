@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => {
       message.classList.add("hidden");
-    }, 3000);
+    }, 3500);
 
     clickCount++;
   });
