@@ -155,9 +155,9 @@ function getResponsiveLayout() {
     Rightspacing = 0.9;
     doesSpacing = 0.21;
   }else {
-    Leftspacing = 1.8;
-    Rightspacing = 1.5;
-    doesSpacing = 0.35;
+    Leftspacing = 1.4;
+    Rightspacing = 1.2;
+    doesSpacing = 0.21;
   }
 
   return {
