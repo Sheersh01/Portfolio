@@ -87,3 +87,34 @@ a,button{
   z-index: -1;
   will-change: transform;
 }
+
+.more-projects-btn {
+  position: relative;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.more-projects-btn .block {
+  text-align: center;
+}
+
+.more-projects-btn:hover {
+  transform: scale(1.05);
+}
+
+.more-projects-btn::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background: #b40000;
+  transition: transform 0.4s ease;
+  transition-delay : 0.2s;
+}
+
+.more-projects-btn:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
