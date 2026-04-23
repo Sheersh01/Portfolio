@@ -3,7 +3,7 @@
   font-family: "Gabriola";
   font-style: normal;
   font-weight: normal;
-  src: local("Gabriola"), url("./fonts/gabriola.woff") format("woff");
+  src: local("Gabriola"), url("./fonts/gabriola.woff2") format("woff2");
 }
 * {
   font-family: "Gabriola";

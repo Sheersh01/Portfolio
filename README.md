@@ -57,7 +57,7 @@ portfolio/
 │ │ └── menu.css
 │ │
 │ ├── fonts/ # Custom fonts
-│ │ └── gabriola.woff
+│ │ └── gabriola.woff2
 │ │
 │ ├── images/ # Project images
 │ │ ├── deeplens.png / .webp
