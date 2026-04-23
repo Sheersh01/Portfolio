@@ -28,10 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Get message based on click count, looping back to 0 after end
     const msg = messages[clickCount % messages.length];
     message.textContent = msg;
-    message.classList.remove("hidden");
+    message.classList.remove("invisible");
 
     setTimeout(() => {
-      message.classList.add("hidden");
+      message.classList.add("invisible");
     }, 3500);
 
     clickCount++;
