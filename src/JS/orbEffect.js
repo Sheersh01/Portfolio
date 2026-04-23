@@ -279,7 +279,23 @@ function checkPerformance() {
 // Animation Loop with frame rate control and viewport compensation
 const clock = new THREE.Clock();
 
+// Pause orb when hero section scrolls off-screen
+let isOrbVisible = true;
+const heroSection = document.getElementById('hero');
+if (heroSection) {
+    const orbObserver = new IntersectionObserver(([entry]) => {
+        isOrbVisible = entry.isIntersecting;
+    }, { threshold: 0 });
+    orbObserver.observe(heroSection);
+}
+
 function animate(currentTime = 0) {
+    // Skip rendering if orb is off-screen
+    if (!isOrbVisible || document.hidden) {
+        requestAnimationFrame(animate);
+        return;
+    }
+
     // Frame rate limiting for mobile
     if (currentTime - lastTime < frameInterval) {
         requestAnimationFrame(animate);

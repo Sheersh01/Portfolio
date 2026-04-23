@@ -497,6 +497,12 @@ function animate() {
       window.dispatchEvent(new CustomEvent("preloaderComplete"));
     }
   } else {
+    // Update text mesh positions on scroll within the render loop
+    if (scrollDirty) {
+      updateTextMeshPositions();
+      scrollDirty = false;
+    }
+
     textMeshes.forEach(({ el, mesh, mat }) => {
       const rect = el.getBoundingClientRect();
       const isVisible = isElementInView(rect);
@@ -568,23 +574,12 @@ window.addEventListener("resize", () => {
   }
 });
 
-// Optimized scroll handler
-let lastScrollY = window.scrollY;
-let scrollTimeout;
-
-function handleScroll() {
-  const currentScrollY = window.scrollY;
-  const scrollDelta = Math.abs(currentScrollY - lastScrollY);
-  if (scrollDelta > 5) {
-    updateTextMeshPositions();
-  }
-  lastScrollY = currentScrollY;
-}
+// Optimized scroll handler using RAF dirty flag
+let scrollDirty = false;
 
 window.addEventListener("scroll", () => {
-  clearTimeout(scrollTimeout);
-  scrollTimeout = setTimeout(handleScroll, 50);
-});
+  scrollDirty = true;
+}, { passive: true });
 
 // Event handlers
 window.addEventListener("preloaderComplete", () => {

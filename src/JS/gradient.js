@@ -534,8 +534,24 @@ function checkPerformance() {
     }
 }
 
+// Pause gradient when off-screen using IntersectionObserver
+let isGradientVisible = true;
+const gradientSection = canvas.closest('section') || canvas.parentElement;
+if (gradientSection) {
+    const gradientObserver = new IntersectionObserver(([entry]) => {
+        isGradientVisible = entry.isIntersecting;
+    }, { threshold: 0 });
+    gradientObserver.observe(gradientSection);
+}
+
 function render(currentTime = 0) {
     try {
+        // Skip rendering if gradient is off-screen or page hidden
+        if (!isGradientVisible || document.hidden) {
+            requestAnimationFrame(render);
+            return;
+        }
+
         // Frame rate limiting for mobile
         if (qualitySettings.frameSkipping && currentTime - lastFrameTime < frameInterval) {
             requestAnimationFrame(render);
@@ -561,7 +577,7 @@ function render(currentTime = 0) {
             gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
         }
 
-        // Set uniforms with error checking - INCLUDING SCALE FACTOR
+        // Set uniforms
         if (uniforms.time) gl.uniform1f(uniforms.time, time);
         if (uniforms.resolution) gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
         if (uniforms.scale) gl.uniform1f(uniforms.scale, scale);
@@ -573,23 +589,9 @@ function render(currentTime = 0) {
         if (uniforms.isMobile) gl.uniform1i(uniforms.isMobile, isMobile ? 1 : 0);
         if (uniforms.brightness) gl.uniform1f(uniforms.brightness, brightness);
         if (uniforms.contrast) gl.uniform1f(uniforms.contrast, contrast);
-        if (uniforms.scaleFactor) gl.uniform1f(uniforms.scaleFactor, currentScaleFactor); // Apply scale compensation
-
-        // Check for GL errors before drawing
-        const error = gl.getError();
-        if (error !== gl.NO_ERROR) {
-            debugLog(`WARNING: GL error before draw: ${error}`);
-            renderErrors++;
-        }
+        if (uniforms.scaleFactor) gl.uniform1f(uniforms.scaleFactor, currentScaleFactor);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-        // Check for GL errors after drawing
-        const drawError = gl.getError();
-        if (drawError !== gl.NO_ERROR) {
-            debugLog(`ERROR: GL error after draw: ${drawError}`);
-            renderErrors++;
-        }
 
         // Performance monitoring for mobile
         if (isMobile) {

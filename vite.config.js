@@ -6,9 +6,19 @@ export default defineConfig({
   plugins: [
     glsl({
       include: ['**/*.glsl', '**/*.vert', '**/*.frag'],
-      // Optional: remove comments and compress shader strings
-      compress: false,
+      compress: true,
     }),
      tailwindcss(),
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three'],
+          gsap: ['gsap', 'gsap/ScrollTrigger'],
+        }
+      }
+    },
+    target: 'es2020',
+  }
 });

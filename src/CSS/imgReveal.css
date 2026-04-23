@@ -49,11 +49,9 @@ html {
   height: 100%;
   transform: translateZ(0);
   backface-visibility: hidden;
-  will-change: transform, filter;
   contain: layout style paint;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
 }
 
 /* Images inside container */
@@ -76,7 +74,6 @@ html {
   opacity: 0;
   transition: opacity 0.2s ease-out;
   transform: translateZ(0);
-  will-change: opacity;
   user-select: none;
   text-rendering: optimizeSpeed;
 }
