@@ -497,11 +497,6 @@ function animate() {
       window.dispatchEvent(new CustomEvent("preloaderComplete"));
     }
   } else {
-    // Update text mesh positions on scroll within the render loop
-    if (scrollDirty) {
-      updateTextMeshPositions();
-      scrollDirty = false;
-    }
 
     textMeshes.forEach(({ el, mesh, mat }) => {
       const rect = el.getBoundingClientRect();
@@ -574,12 +569,6 @@ window.addEventListener("resize", () => {
   }
 });
 
-// Optimized scroll handler using RAF dirty flag
-let scrollDirty = false;
-
-window.addEventListener("scroll", () => {
-  scrollDirty = true;
-}, { passive: true });
 
 // Event handlers
 window.addEventListener("preloaderComplete", () => {
