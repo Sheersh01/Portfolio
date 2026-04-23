@@ -134,26 +134,28 @@
   <body>
     <div id="preloader"></div>
 
-    <nav>
+    <nav aria-label="Main navigation">
       <div class="left">
         <h1 class="lg:text-[2vw] md:text-[3vw] text-[5vw]">Sheersh Saxena</h1>
       </div>
       <div class="toggle-btn magnet-target">
         <button
           class="burger"
+          aria-label="Open menu"
           onclick="this.classList.toggle('active')"
         ></button>
       </div>
     </nav>
 
     <div class="overlay">
-      <nav class="overlay-nav">
+      <nav class="overlay-nav" aria-label="Overlay navigation">
         <div class="left">
           <h1 class="lg:text-[2vw] md:text-[3vw] text-[5vw]">Sheersh Saxena</h1>
         </div>
         <div class="toggle-btn1 magnet-target">
           <button
             class="burger1"
+            aria-label="Close menu"
             onclick="this.classList.toggle('active')"
           ></button>
         </div>
@@ -178,24 +180,28 @@
           >
             <a
               href="#"
+              aria-label="Home"
               data-text-original="Home"
               data-text-hover="Say you love it :)"
               class="text xl:h-[2vw] lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
             ></a>
             <a
               href="#"
+              aria-label="About"
               data-text-original="About"
               data-text-hover="Stalker spotted!!!"
               class="text xl:h-[2vw] lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
             ></a>
             <a
               href="#"
+              aria-label="Work"
               data-text-original="Work"
               data-text-hover="Need Badly :("
               class="text xl:h-[2vw] lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
             ></a>
             <a
               href="#"
+              aria-label="Contact"
               data-text-original="Contact"
               data-text-hover="Want my number?"
               class="text xl:h-[2vw] lg:h-[3vw] md:h-[6vw] h-[6vw] w-fit lg:text-4xl md:text-[4.8vw] text-[6vw]"
@@ -211,6 +217,7 @@
             </p>
             <button
               id="trigger-button"
+              aria-label="A button that does nothing"
               class="inline-flex items-center gap-2 font-semibold text-[#B8AC94] transition-all hover:gap-4 lg:text-[1.5vw] md:text-[3vw] text-[5vw] border border-[#B8AC94] px-4 py-2 hover:bg-[#B8AC94] hover:text-[#260404]"
             >
               It does Nothing
@@ -316,7 +323,7 @@
               <div class="col h-full flex flex-col relative">
                 <div class="h-full">
                   <div class="img-container right overflow-hidden relative">
-                    <a href="https://e-summit-gamma.vercel.app/" target="_blank">
+                    <a href="https://e-summit-gamma.vercel.app/" target="_blank" aria-label="View ESummit-IIITN project">
                       <img
                         class="w-full h-full object-cover hover:opacity-0 absolute left-0 top-0 z-[2] transition-all ease-in-out"
                         src="./src/images/red3/eSummit.avif"
@@ -351,7 +358,7 @@
               <div class="col h-full flex flex-col relative">
                 <div class="h-full">
                   <div class="img-container left overflow-hidden relative">
-                    <a href="https://e-commerce-frontend-five-gilt.vercel.app/">
+                    <a href="https://e-commerce-frontend-five-gilt.vercel.app/" aria-label="View E-commerce platform project">
                       <img
                         class="w-full h-full object-cover hover:opacity-0 absolute left-0 top-0 z-[2] transition-all ease-in-out"
                         src="./src/images/red3/e-commerce.avif"
@@ -384,7 +391,7 @@
               <div class="col h-full flex flex-col relative">
                 <div class="h-full">
                   <div class="img-container right overflow-hidden relative">
-                    <a href="https://www.tantrafiesta.in/" target="_blank">
+                    <a href="https://www.tantrafiesta.in/" target="_blank" aria-label="View Tantrafiesta project">
                       <img
                         class="w-full h-full object-cover hover:opacity-0 absolute left-0 top-0 z-[2] transition-all ease-in-out"
                         src="./src/images/red3/Tantrafiesta25.avif"
@@ -422,6 +429,7 @@
                     <a
                       href="https://mahabal-agro-ind.vercel.app/"
                       target="_blank"
+                      aria-label="View Organic Manure Company project"
                     >
                       <img
                         class="w-full h-full object-cover hover:opacity-0 absolute left-0 top-0 z-[2] transition-all ease-in-out"
@@ -455,7 +463,7 @@
               <div class="col h-full flex flex-col relative">
                 <div class="h-full">
                   <div class="img-container right overflow-hidden relative">
-                    <a href="https://chess-ejs.onrender.com/" target="_blank">
+                    <a href="https://chess-ejs.onrender.com/" target="_blank" aria-label="View Chess project">
                       <img
                         class="w-full h-full object-cover hover:opacity-0 absolute left-0 top-0 z-[2] transition-all ease-in-out"
                         src="./src/images/red3/Chess.avif"
@@ -554,7 +562,7 @@
 
           <!-- More Projects Button -->
           <div class="flex justify-center mt-16 mb-10">
-            <div class="more-projects-btn">
+            <div class="more-projects-btn" role="button" aria-label="More Projects">
               <h1
                 data-text-original="More Projects"
                 data-text-hover="  GREEDY ;)"
@@ -640,6 +648,7 @@
                 href="mailto:saxenasheersh5@gmail.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Send email to Sheersh Saxena"
               >
                 <h1
                   data-text-original="Email"
@@ -653,6 +662,7 @@
                 href="https://github.com/Sheersh01"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Visit Sheersh Saxena's GitHub profile"
               >
                 <h1
                   data-text-original="Github"
@@ -666,6 +676,7 @@
                 href="https://www.linkedin.com/in/sheersh-saxena/"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Visit Sheersh Saxena's LinkedIn profile"
               >
                 <h1
                   data-text-original="LinkedIn"
@@ -684,12 +695,14 @@
                 Got questions? Google exists. But if you're serious — hit me up.
               </h1>
               <button
+                aria-label="Email Sheersh Saxena"
                 class="border rounded-full md:px-8 px-4 md:py-2 py-1 md:text-[1.5vw] text-[4vw] cursor-pointer hover:bg-[#B8AC94] hover:text-[#700404]"
               >
                 <a
                   href="mailto:saxenasheersh5@gmail.com"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Email Sheersh Saxena"
                   >Email Me</a
                 >
               </button>
